@@ -45,10 +45,6 @@ class BagInfo:
             print("Do not have permission to overwrite bag-info")
             return False
 
-    else:
-        print("Not copying bag-info.txt. Original already exists.")
-    self.bag.info["Payload-Oxum-original"] = self.bag.info["Payload-Oxum"]
-
         try:
             self.bag.validate(fast = True)
         except:
