@@ -100,7 +100,7 @@ class AMI_Excel:
         '''
 
         for sheet in self.wb.sheet_names():
-            if re.match("preservation", sheet.lower()):
+            if re.match("(preservation|files)", sheet.lower()):
                 self.pres_files_sheetname = sheet
                 self.pres_files = self.wb.sheet_by_name(sheet)
                 self.cols = self.pres_files.ncols
@@ -190,9 +190,14 @@ class AMI_Excel:
                                                 expected_headers,
                                                 found_headers)
 
+        missing_headers = []
+
         for header in expected_headers:
             if header not in found_headers:
-                self.raise_excelerror("Missing required heading, {0}.".format(header))
+                missing_headers.append(header)
+
+        if missing_headers:
+            self.raise_excelerror("Missing required heading - {0}.".format(missing_headers))
         return True
 
 
@@ -207,9 +212,14 @@ class AMI_Excel:
                                         expected,
                                         found)
 
+        bad_heirarchies = []
+
         for header in expected:
             if header not in found:
-                self.raise_excelerror("Incorrect heirarchy for {0}.".format(header))
+                bad_heirarchies.append(header)
+
+        if bad_heirarchies:
+            self.raise_excelerror("Incorrect heirarchy for {0}.".format(bad_heirarchies))
         return True
 
 
@@ -222,10 +232,10 @@ class AMI_Excel:
         self.wb_open = load_workbook(self.name, read_only = True)
         self.pres_files_open = self.wb_open.get_sheet_by_name(self.pres_files_sheetname)
 
-        for i in range(1, self.cols+1):
+        for i in range(1, self.cols):
             value = self.pres_files_open.cell(row = 4, column = i).value
             # equation check logic, might be better code out there
-            if isinstance(value, str) and value[0] == "=":
+            if (value and isinstance(value, str) and value[0] == "="):
                 self.raise_excelerror("Cell R4C{0} contain equations.".format(i))
         return True
 
