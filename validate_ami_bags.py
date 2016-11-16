@@ -137,9 +137,9 @@ class AMI_Bag(bagit.Bag):
 
     def check_structure_excelbag(self):
 
-        expected_dirs = set(["Metadata", "PreservationMasters", "EditMasters", "ArchiveOriginals", "ProjectFile"])
+        expected_dirs = set(["Metadata", "PreservationMasters", "EditMasters", "ArchiveOriginals", "ProjectFiles"])
         if not self.compare_structure(expected_dirs):
-            self.raise_bagerror("Excel bags may only have the following directories - {}".format(expected_dirs))
+            self.raise_bagerror("Excel bags may only have the following directories\nFound: {0}\nExpected: {1}".format(self.data_dirs, expected_dirs))
 
         if (self.compare_structure(set(["Metadata", "PreservationMasters"])) and
             self.compare_content(set([".mov", ".xlsx"]))):
@@ -153,7 +153,7 @@ class AMI_Bag(bagit.Bag):
         elif (self.compare_structure(set(["Metadata", "PreservationMasters"])) and
               self.compare_content(set([".wav", ".xlsx"]))):
             self.subtype = "audio w/o edit masters"
-        elif (self.compare_structure(set(["Metadata", "ArchiveOriginals", "PreservationMasters", "EditMasters", "ProjectFile"])) and
+        elif (self.compare_structure(set(["Metadata", "ArchiveOriginals", "PreservationMasters", "EditMasters", "ProjectFiles"])) and
               self.compare_content(set([".tar", ".mov", ".xlsx", ".fcp", ".prproj"]))):
             self.subtype = "born-digital video"
         elif (self.compare_structure(set(["Metadata", "ArchiveOriginals", "EditMasters"])) and
@@ -256,7 +256,7 @@ def validate_structure(bag):
 def _configure_logging(opts):
     log_format = "%(asctime)s - %(levelname)s - %(message)s"
     if opts.quiet:
-        level = logging.ERROR
+        level = logging.WARNING
     else:
         level = logging.INFO
     if opts.log:
