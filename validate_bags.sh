@@ -27,4 +27,4 @@ for line in $bags; do
   [ "$(($i % 10))" -eq 0 ] && echo $i "bags checked"
 done
 
-echo $i "bags checked. Results written to validate_${dateCreated}.log."
+echo $i "bags checked. Results written to ${log_path}."
