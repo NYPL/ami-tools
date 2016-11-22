@@ -5,29 +5,24 @@
 # 3. Log results
 
 dir_of_bags=$PWD
+log_dir=$HOME
 
-while getopts ":d:" opt; do
-  case $opt in
-    d)
-      dir_of_bags=$OPTARG
-      ;;
-    \?)
-      echo "Invalid option: -$OPTARG" >&2
-      ;;
-    :)
-      echo "Option -$OPTARG requires an argument." >&2
-      exit 1
-      ;;
+while getopts 'd:l:' flag; do
+  case "${flag}" in
+    d) dir_of_bags=${OPTARG} ;;
+    l) log_dir=${OPTARG} ;;
+    *) error "Unexpected option ${flag}" ;;
   esac
 done
 
 dateCreated=$(date "+%Y%m%d_%H%M%S")
 bags=$(ls -1 -d $dir_of_bags/*/)
+log_path="$log_dir/validate_$dateCreated.log"
 i=0
 
 for line in $bags; do
   echo $(date "+%H:%M:%S")": checking" $line
-  bagit.py --validate $line 2>> validate_${dateCreated}.log
+  bagit.py --validate $line 2>> $log_path
   ((i++))
   [ "$(($i % 10))" -eq 0 ] && echo $i "bags checked"
 done
