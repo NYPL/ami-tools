@@ -7,14 +7,14 @@ from ami_bag import ami_bag
 
 LOGGER = logging.getLogger(__name__)
 
-def _configure_logging(opts):
+def _configure_logging(args):
     log_format = "%(asctime)s - %(levelname)s - %(message)s"
-    if opts.quiet:
+    if args.quiet:
         level = logging.WARNING
     else:
         level = logging.INFO
-    if opts.log:
-        logging.basicConfig(filename=opts.log, level=level, format=log_format)
+    if args.log:
+        logging.basicConfig(filename=args.log, level=level, format=log_format)
     else:
         logging.basicConfig(level=level, format=log_format)
 
