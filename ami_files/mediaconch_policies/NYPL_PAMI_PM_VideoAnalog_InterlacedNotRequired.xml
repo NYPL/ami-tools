@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<policy type="and" name="NYPL_PAMI_PM_VideoAnalog_InterlacedNotRequired">
+  <description>Derived from http://calpreservation.org/wp-content/uploads/2014/12/CAVPP-file-specs-2014.11.20.pdf</description>
+  <rule name="Video CodecID should be v210." value="CodecID" tracktype="Video" occurrence="*" operator="=">v210</rule>
+  <policy type="or" name="Format should be QuickTime">
+    <description>Two tests, since there are two formats 'called' QuickTime.</description>
+    <rule name="Format is QuickTime" value="Format" tracktype="General" occurrence="*" operator="=">QuickTime</rule>
+    <policy type="and" name="Format is MPEG-4 with QuickTime profile">
+      <rule name="Format is MPEG-4" value="Format" tracktype="General" occurrence="*" operator="=">MPEG-4</rule>
+      <rule name="Format profile is QuickTime" value="Format_Profile" tracktype="General" occurrence="*" operator="=">QuickTime</rule>
+    </policy>
+  </policy>
+  <rule name="Colorspace is YUV" value="ColorSpace" tracktype="Video" occurrence="*" operator="=">YUV</rule>
+  <rule name="Audio is PCM" value="Format" tracktype="Audio" occurrence="*" operator="=">PCM</rule>
+  <rule name="Audio is 48kHz" value="SamplingRate" tracktype="Audio" occurrence="*" operator="=">48000</rule>
+  <rule name="Audio is 24 bit" value="BitDepth" tracktype="Audio" occurrence="*" operator="=">24</rule>
+  <policy type="and" name="Is this NTSC or PAL SD?">
+    <description>A test to see if the files use NTSC or PAL frame rates and sizes and has interlacement.</description>
+    <policy type="or" name="Is this NTSC SD or PAL SD?">
+      <policy type="and" name="Is this PAL?">
+        <rule name="PAL height" value="Height" tracktype="Video" occurrence="1" operator="=">576</rule>
+        <rule name="PAL FrameRate" value="FrameRate" tracktype="Video" occurrence="1" operator="=">25.000</rule>
+      </policy>
+      <policy type="and" name="Is this NTSC?">
+        <policy type="or" name="NTSC Height">
+          <rule name="NTSC height" value="Height" tracktype="Video" occurrence="1" operator="=">486</rule>
+          <rule name="NTSC-ish height" value="Height" tracktype="Video" occurrence="1" operator="=">480</rule>
+        </policy>
+        <rule name="NTSC FrameRate" value="FrameRate" tracktype="Video" occurrence="1" operator="=">29.970</rule>
+      </policy>
+    </policy>
+    <rule name="Is Width at 720?" value="Width" tracktype="Video" occurrence="1" operator="=">720</rule>
+  </policy>
+</policy>
