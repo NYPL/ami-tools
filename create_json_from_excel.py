@@ -36,8 +36,7 @@ def main():
     excel = ami_excel(excel_path)
 
     print(excel_path)
-    excel.convert_amiExcelToJSON(excel.pres_sheetname,
-      ami_md_constants.HEADER_CONVERSION, output_path)
+    excel.convert_amiExcelToJSON(excel.pres_sheetname, output_path)
 
 
 if __name__ == "__main__":
