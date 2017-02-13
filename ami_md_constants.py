@@ -32,7 +32,7 @@ HEADER_CONVERSION = {
   '|bibliographic item|former classmark (if applicable)': 'bibliographic.formerClassmark',
   '|bibliographic item|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.primaryID',
   '|bibliographic item|title': 'bibliographic.title',
-  '|content specifications|audio soundfield': 'source.audioRecording.audioSoundfield',
+  '|content specifications|audio soundfield': 'source.audioRecording.audioSoundField',
   '|content specifications|broadcast standard': 'source.contentSpecification.broadcastStandard',
   '|content specifications|color': 'source.contentSpecification.colorBW',
   '|content specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
@@ -71,7 +71,7 @@ HEADER_CONVERSION = {
   'archive original|configuration/specifications|groove orientation': 'source.physicalDescription.grooveOrientation',
   'archive original|configuration/specifications|groove width': 'source.physicalDescription.grooveWidth',
   'archive original|configuration/specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
-  'archive original|configuration/specifications|soundfield': 'source.audioRecording.audioSoundfield',
+  'archive original|configuration/specifications|soundfield': 'source.audioRecording.audioSoundField',
   'archive original|configuration/specifications|track configuration': 'source.audioRecording.trackConfiguration',
   'archive original|content specifications|broadcast standard': 'source.contentSpecification.broadcastStandard',
   'archive original|content specifications|color': 'source.contentSpecification.colorBW',
@@ -85,7 +85,7 @@ HEADER_CONVERSION = {
   'archive original|content specifications|groove orientation': 'source.physicalDescription.grooveOrientation',
   'archive original|content specifications|groove width': 'source.physicalDescription.grooveWidth',
   'archive original|content specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
-  'archive original|content specifications|audio soundfield': 'source.audioRecording.audioSoundfield',
+  'archive original|content specifications|audio soundfield': 'source.audioRecording.audioSoundField',
   'archive original|content specifications|track configuration': 'source.audioRecording.trackConfiguration',
   'archive original|notes|access note': 'bibliographic.accessNotes',
   'archive original|notes|condition notes': 'source.notes.physicalConditionDigitizationNotes',
@@ -392,13 +392,13 @@ HEADER_CONVERSION = {
   'file-based recorder information|video content|recording device serial #': 'recorder.serialNumber',
   'file-based recorder information|video content|recording format': 'recorder.fileFormat',
   'file-based recorder information|video content|recording media': 'recorder.media',
-  'filename (automatic)': 'filename',
-  'filename': 'filename',
+  'filename (automatic)': 'asset.referenceFilename',
+  'filename': 'asset.referenceFilename',
   'google.com|configuration/specifications|designated eq type': 'source.audioRecording.designatedEQ',
   'google.com|configuration/specifications|designated noise reduction': 'source.audioRecording.designatedNoiseReduction',
   'google.com|configuration/specifications|designated speed (ips)': 'source.audioRecording.designatedSpeed.measure',
   'google.com|configuration/specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
-  'google.com|configuration/specifications|soundfield': 'source.audioRecording.audioSoundfield',
+  'google.com|configuration/specifications|soundfield': 'source.audioRecording.audioSoundField',
   'google.com|configuration/specifications|track configuration': 'source.audioRecording.trackConfiguration',
   'google.com|notes|condition notes': 'source.notes.physicalConditionDigitizationNotes',
   'google.com|notes|content notes': 'bibliographic.contentNotes',
@@ -520,9 +520,9 @@ HEADER_CONVERSION = {
   'original master|configuration/specifications|inherent eq/pre-emphasis': 'source.audioRecording.preEmphasis',
   'original master|configuration/specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
   'original master|configuration/specifications|region code': 'source.contentSpecification.regionCode',
-  'original master|configuration/specifications|soundfield': 'source.audioRecording.audioSoundfield',
+  'original master|configuration/specifications|soundfield': 'source.audioRecording.audioSoundField',
   'original master|configuration/specifications|track configuration': 'source.audioRecording.trackConfiguration',
-  'original master|content specifications|audio soundfield': 'source.audioRecording.audioSoundfield',
+  'original master|content specifications|audio soundfield': 'source.audioRecording.audioSoundField',
   'original master|content specifications|broadcast standard': 'source.contentSpecification.broadcastStandard',
   'original master|content specifications|color': 'source.contentSpecification.colorBW',
   'original master|content specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
@@ -683,7 +683,7 @@ HEADER_CONVERSION = {
   'preservation master file (automatic)|video content|frame width (pixels)': 'technical.frameWidth.measure',
   'preservation master file (automatic)|video content|video bit rate (kbit/s)': 'technical.videoBitRate.measure',
   'preservation master file (automatic)|video content|video codec name': 'technical.videoCodec',
-  'preservation master file': 'filename',
+  'preservation master file': 'asset.referenceFilename',
   'preservation process|a-d converter id|a-d converter id': 'digitizationProcess.analogDigitalConverter.id',
   'preservation process|a-d converter id|a-d converter manufacturer (auto)': 'digitizationProcess.analogDigitalConverter.manufacturer',
   'preservation process|a-d converter id|a-d converter model (auto)': 'digitizationProcess.analogDigitalConverter.model',
@@ -706,16 +706,16 @@ HEADER_CONVERSION = {
   'preservation process|playback device|playback vtr id': 'digitizationProcess.playbackDevice.id',
   'preservation process|playback device|playback vtr serial # (auto)': 'digitizationProcess.playbackDevice.serialNumber',
   'preservation process|playback|eq': 'digitizationProcess.playbackDevice.eq',
-  'preservation process|playback|eq playback 1': 'digitizationProcess.phonoPreamp1.eq',
-  'preservation process|playback|eq playback 2': 'digitizationProcess.phonoPreamp2.eq',
-  'preservation process|playback|eq playback 3': 'digitizationProcess.phonoPreamp3.eq',
-  'preservation process|playback|eq rolloff 1': 'digitizationProcess.phonoPreamp1.eqRolloff.measure',
-  'preservation process|playback|eq rolloff 2': 'digitizationProcess.phonoPreamp2.eqRolloff.measure',
-  'preservation process|playback|eq rolloff 3': 'digitizationProcess.phonoPreamp3.eqRolloff.measure',
-  'preservation process|playback|eq turnover 1': 'digitizationProcess.phonoPreamp1.eqTurnover.measure',
-  'preservation process|playback|eq turnover 2': 'digitizationProcess.phonoPreamp2.eqTurnover.measure',
-  'preservation process|playback|eq turnover 3': 'digitizationProcess.phonoPreamp3.eqTurnover.measure',
-  'preservation process|playback|groove wall playback': 'digitizationProcess.groovedWallPlayback',
+  'preservation process|playback|eq playback 1': 'digitizationProcess.playbackDevice.phonoPreamp1.eq',
+  'preservation process|playback|eq playback 2': 'digitizationProcess.playbackDevice.phonoPreamp2.eq',
+  'preservation process|playback|eq playback 3': 'digitizationProcess.playbackDevice.phonoPreamp3.eq',
+  'preservation process|playback|eq rolloff 1': 'digitizationProcess.playbackDevice.phonoPreamp1.eqRolloff.measure',
+  'preservation process|playback|eq rolloff 2': 'digitizationProcess.playbackDevice.phonoPreamp2.eqRolloff.measure',
+  'preservation process|playback|eq rolloff 3': 'digitizationProcess.playbackDevice.phonoPreamp3.eqRolloff.measure',
+  'preservation process|playback|eq turnover 1': 'digitizationProcess.playbackDevice.phonoPreamp1.eqTurnover.measure',
+  'preservation process|playback|eq turnover 2': 'digitizationProcess.playbackDevice.phonoPreamp2.eqTurnover.measure',
+  'preservation process|playback|eq turnover 3': 'digitizationProcess.playbackDevice.phonoPreamp3.eqTurnover.measure',
+  'preservation process|playback|groove wall playback': 'digitizationProcess.playbackDevice.groovedWallPlayback',
   'preservation process|playback|phono arm manufacturer': 'digitizationProcess.playbackDevice.phonoArm.manufacturer',
   'preservation process|playback|phono arm model': 'digitizationProcess.playbackDevice.phonoArm.model',
   'preservation process|playback|phono arm serial #': 'digitizationProcess.playbackDevice.phonoArm.serialNumber',
@@ -723,19 +723,19 @@ HEADER_CONVERSION = {
   'preservation process|playback|phono cartridge model': 'digitizationProcess.playbackDevice.phonoCartridge.model',
   'preservation process|playback|phono preamp 1 manufacturer': 'digitizationProcess.playbackDevice.phonoPreamp1.manufacturer',
   'preservation process|playback|phono preamp 1 model': 'digitizationProcess.playbackDevice.phonoPreamp1.model',
-  'preservation process|playback|phono preamp 1 serial #': 'digitizationProcess.phonoPreamp1.serialNumber',
-  'preservation process|playback|phono preamp 1 serial #': 'digitizationProcess.phonoPreamp1.serialNumber',
-  'preservation process|playback|phono preamp 2 manufacturer': 'digitizationProcess.phonoPreamp2.manufacturer',
-  'preservation process|playback|phono preamp 2 model': 'digitizationProcess.phonoPreamp2.model',
-  'preservation process|playback|phono preamp 2 serial #': 'digitizationProcess.phonoPreamp2.serialNumber',
-  'preservation process|playback|phono preamp 2 serial #': 'digitizationProcess.phonoPreamp2.serialNumber',
-  'preservation process|playback|phono preamp 3 manufacturer': 'digitizationProcess.phonoPreamp3.manufacturer',
-  'preservation process|playback|phono preamp 3 model': 'digitizationProcess.phonoPreamp3.model',
-  'preservation process|playback|phono preamp 3 serial #': 'digitizationProcess.phonoPreamp3.serialNumber',
-  'preservation process|playback|phono preamp 3 serial #': 'digitizationProcess.phonoPreamp3.serialNumber',
-  'preservation process|playback|phono preamp manufacturer': 'digitizationProcess.phonoPreamp.manufacturer',
-  'preservation process|playback|phono preamp model': 'digitizationProcess.phonoPreamp.model',
-  'preservation process|playback|phono preamp serial #': 'digitizationProcess.phonoPreamp.serialNumber',
+  'preservation process|playback|phono preamp 1 serial #': 'digitizationProcess.playbackDevice.phonoPreamp1.serialNumber',
+  'preservation process|playback|phono preamp 1 serial #': 'digitizationProcess.playbackDevice.phonoPreamp1.serialNumber',
+  'preservation process|playback|phono preamp 2 manufacturer': 'digitizationProcess.playbackDevice.phonoPreamp2.manufacturer',
+  'preservation process|playback|phono preamp 2 model': 'digitizationProcess.playbackDevice.phonoPreamp2.model',
+  'preservation process|playback|phono preamp 2 serial #': 'digitizationProcess.playbackDevice.phonoPreamp2.serialNumber',
+  'preservation process|playback|phono preamp 2 serial #': 'digitizationProcess.playbackDevice.phonoPreamp2.serialNumber',
+  'preservation process|playback|phono preamp 3 manufacturer': 'digitizationProcess.playbackDevice.phonoPreamp3.manufacturer',
+  'preservation process|playback|phono preamp 3 model': 'digitizationProcess.playbackDevice.phonoPreamp3.model',
+  'preservation process|playback|phono preamp 3 serial #': 'digitizationProcess.playbackDevice.phonoPreamp3.serialNumber',
+  'preservation process|playback|phono preamp 3 serial #': 'digitizationProcess.playbackDevice.phonoPreamp3.serialNumber',
+  'preservation process|playback|phono preamp manufacturer': 'digitizationProcess.playbackDevice.phonoPreamp.manufacturer',
+  'preservation process|playback|phono preamp model': 'digitizationProcess.playbackDevice.phonoPreamp.model',
+  'preservation process|playback|phono preamp serial #': 'digitizationProcess.playbackDevice.phonoPreamp.serialNumber',
   'preservation process|playback|playback device manufacturer': 'digitizationProcess.playbackDevice.manufacturer',
   'preservation process|playback|playback device model': 'digitizationProcess.playbackDevice.model',
   'preservation process|playback|playback device operating level (nw/m)': 'digitizationProcess.playbackDevice.operatingLevel.measure',
@@ -792,8 +792,8 @@ HEADER_CONVERSION = {
   'production master file|operator|operator name, first': 'digitizer.operator.firstName',
   'production master file|operator|operator name, last': 'digitizer.operator.lastName',
   'production master file|operator|operator organization name': 'digitizer.organization.name',
-  'reference filename (automatic)': 'filename',
-  'reference filename (automatic)|reference filename (automatic)': 'filename',
+  'reference filename (automatic)': 'asset.referenceFilename',
+  'reference filename (automatic)|reference filename (automatic)': 'asset.referenceFilename',
   'service copy filename': 'serviceCopy.filename',
   'the materials listed below were not transferred||class mark/id': 'bibliographic.classmark',
   'the materials listed below were not transferred||date': 'bibliographic.date',
@@ -868,26 +868,26 @@ STRING_REPLACE_DICT = {
     'Macintosh OS X': None,
     'X': None
   },
-  'digitizationProcess.groovedWallPlayback': {
+  'digitizationProcess.playbackDevice.groovedWallPlayback': {
     'Left+Right': 'Left + Right',
     'L + R summed': 'Left + Right',
     'vertical + lateral': 'lateral + vertical'
   },
-  'digitizationProcess.phonoPreamp.1.eqRolloff.measure': {
+  'digitizationProcess.playbackDevice.phonoPreamp.1.eqRolloff.measure': {
     'FLAT': 'flat',
     '0.0': 'flat',
     '0': 'flat'
   },
-  'digitizationProcess.phonoPreamp.1.manufacturer': {
+  'digitizationProcess.playbackDevice.phonoPreamp.1.manufacturer': {
     'T-01EQ': 'Time-Step'
   },
-  'digitizationProcess.phonoPreamp.1.model': {
+  'digitizationProcess.playbackDevice.phonoPreamp.1.model': {
     'Timestep': 'T-01EQ'
   },
-  'digitizationProcess.phonoPreamp.2.eqRolloff.measure': {
+  'digitizationProcess.playbackDevice.phonoPreamp.2.eqRolloff.measure': {
     '0.0': 'flat'
   },
-  'digitizationProcess.phonoPreamp.3.eqRolloff.measure': {
+  'digitizationProcess.playbackDevice.phonoPreamp.3.eqRolloff.measure': {
     '0.0': 'flat'
   },
   'digitizationProcess.playbackDevice.manufacturer': {
@@ -979,7 +979,7 @@ STRING_REPLACE_DICT = {
     48.0: 48000.0,
     44.1: 44100.0
   },
-  'source.audioRecording.audioSoundfield': {
+  'source.audioRecording.audioSoundField': {
     '4-track': 'quadraphonic',
     'momo': 'mono',
     ' ': None
@@ -1290,52 +1290,52 @@ REGEX_REPLACE_DICT = {
     r'Mac\sOS\s10': 'Mac OS X 10',
     r'Windows\s?XP': 'Windows XP'
   },
-  'digitizationProcess.phonoPreamp.1.eq': {
+  'digitizationProcess.playbackDevice.phonoPreamp.1.eq': {
     r'(?i)flat': 'flat'
   },
-  'digitizationProcess.phonoPreamp.1.eqRolloff.measure': {
+  'digitizationProcess.playbackDevice.phonoPreamp.1.eqRolloff.measure': {
     r'\.0$': ''
   },
-  'digitizationProcess.phonoPreamp.1.eqTurnover..measure': {
+  'digitizationProcess.playbackDevice.phonoPreamp.1.eqTurnover..measure': {
     r'\.0$': '',
     r'(?i)flat': 'flat'
   },
-  'digitizationProcess.phonoPreamp.1.manufacturer': {
+  'digitizationProcess.playbackDevice.phonoPreamp.1.manufacturer': {
     r'(?i)Timestep': 'Time-Step'
   },
-  'digitizationProcess.phonoPreamp.1.model': {
+  'digitizationProcess.playbackDevice.phonoPreamp.1.model': {
     r'EQS\s?MK12': 'Souvenir EQS MK12'
   },
-  'digitizationProcess.phonoPreamp.2.eq': {
+  'digitizationProcess.playbackDevice.phonoPreamp.2.eq': {
     r'(?i)flat': 'flat'
   },
-  'digitizationProcess.phonoPreamp.2.eqRolloff.measure': {
+  'digitizationProcess.playbackDevice.phonoPreamp.2.eqRolloff.measure': {
     r'\.0$': ''
   },
-  'digitizationProcess.phonoPreamp.2.eqTurnover.measure': {
+  'digitizationProcess.playbackDevice.phonoPreamp.2.eqTurnover.measure': {
     r'\.0$': '',
     r'(?i)flat': 'flat'
   },
-  'digitizationProcess.phonoPreamp.2.manufacturer': {
+  'digitizationProcess.playbackDevice.phonoPreamp.2.manufacturer': {
     r'OWL.*': 'OWL'
   },
-  'digitizationProcess.phonoPreamp.2.serialNumber': {
+  'digitizationProcess.playbackDevice.phonoPreamp.2.serialNumber': {
     r'\.0$': ''
   },
-  'digitizationProcess.phonoPreamp.3.eq': {
+  'digitizationProcess.playbackDevice.phonoPreamp.3.eq': {
     r'(?i)flat': 'flat'
   },
-  'digitizationProcess.phonoPreamp.3.eqRolloff.measure': {
+  'digitizationProcess.playbackDevice.phonoPreamp.3.eqRolloff.measure': {
     r'\.0$': ''
   },
-  'digitizationProcess.phonoPreamp.3.eqTurnover.measure': {
+  'digitizationProcess.playbackDevice.phonoPreamp.3.eqTurnover.measure': {
     r'\.0$': '',
     r'(?i)flat': 'flat'
   },
-  'digitizationProcess.phonoPreamp.3.manufacturer': {
+  'digitizationProcess.playbackDevice.phonoPreamp.3.manufacturer': {
     r'OWL.*': 'OWL'
   },
-  'digitizationProcess.phonoPreamp.3.serialNumber': {
+  'digitizationProcess.playbackDevice.phonoPreamp.3.serialNumber': {
     r'\.0$': ''
   },
   'digitizationProcess.playbackDevice.eq': {
@@ -1392,7 +1392,7 @@ REGEX_REPLACE_DICT = {
     r'\n\s?': '; ',
     r';([^\s])': r';\1'
   },
-  'source.audioRecording.audioSoundfield': {
+  'source.audioRecording.audioSoundField': {
     r'(?i)stereo': 'stereo',
     r'(?i)mono.': 'mono',
     r'(?i)silent|none|no\saudio': 'none',
@@ -1673,16 +1673,16 @@ MEASURE_UNIT_MAPS = {
     'values_map_column': None,
     'values_map': None
   },
-  'digitizationProcess.phonoPreamp.eqRolloff': {
-    'from_column': 'digitizationProcess.phonoPreamp.eqRolloff.measure',
-    'to_column': 'digitizationProcess.phonoPreamp.eqRolloff.unit',
+  'digitizationProcess.playbackDevice.phonoPreamp.eqRolloff': {
+    'from_column': 'digitizationProcess.playbackDevice.phonoPreamp.eqRolloff.measure',
+    'to_column': 'digitizationProcess.playbackDevice.phonoPreamp.eqRolloff.unit',
     'constant_value': 'dBFS',
     'values_map_column': None,
     'values_map': None
   },
-  'digitizationProcess.phonoPreamp.eqTurnover': {
-    'from_column': 'digitizationProcess.phonoPreamp.eqTurnover.measure',
-    'to_column': 'digitizationProcess.phonoPreamp.eqTurnover.unit',
+  'digitizationProcess.playbackDevice.phonoPreamp.eqTurnover': {
+    'from_column': 'digitizationProcess.playbackDevice.phonoPreamp.eqTurnover.measure',
+    'to_column': 'digitizationProcess.playbackDevice.phonoPreamp.eqTurnover.unit',
     'constant_value': 'dBFS',
     'values_map_column': None,
     'values_map': None
