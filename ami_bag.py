@@ -5,7 +5,6 @@ import re
 import bagit
 import jsonschema
 from ami_excel import ami_excel
-import fix_baginfo
 import logging
 
 
@@ -181,14 +180,14 @@ class ami_bag(bagit.Bag):
 
 
     def check_metadata_excel(self):
-        self.metadata_files = [filename for filename in self.data_files if os.path.splitext(filename)[1] == ".xlsx"]
+        self.excel_metadata = [filename for filename in self.data_files if os.path.splitext(filename)[1] == ".xlsx"]
 
-        if not self.metadata_files:
+        if not self.excel_metadata:
             self.raise_bagerror("Excel bag does not contain any files with xlsx extension")
 
         bad_excel = []
 
-        for filename in self.metadata_files:
+        for filename in self.excel_metadata:
             excel = ami_excel(os.path.join(self.path, filename))
             if not excel.validate_workbook():
                 bad_excel.append(filename)
@@ -197,6 +196,23 @@ class ami_bag(bagit.Bag):
             self.raise_bagerror("Excel files contain formatting errors")
 
         return True
+
+
+    def add_json_from_excel(self):
+        self.excel_metadata = [filename for filename in self.data_files if os.path.splitext(filename)[1] == ".xlsx"]
+
+        for filename in self.excel_metadata:
+            excel = ami_excel(os.path.join(self.path, filename))
+
+            output_path = os.path.join(self.path, "data/PreservationMasters")
+            excel.convert_amiExcelToJSON(excel.pres_sheetname,
+                output_path)
+            '''
+            if excel.edit_sheetname:
+                output_path = os.path.join(self.path, "data/EditMasters")
+                excel.convert_amiExcelToJSON(excel.edit_sheetname,
+                    output_path)
+            '''
 
 
     def raise_bagerror(self, msg):

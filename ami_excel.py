@@ -131,7 +131,7 @@ class ami_excel:
     headers = []
 
     for i in range(0, sheet.ncols):
-      value = sheet.cell(row, i).value
+      value = str(sheet.cell(row, i).value)
 
       if value:
         headers.append(value.lower())
@@ -263,7 +263,7 @@ class ami_excel:
 
     if missing:
       self.raise_excelerror("Missing required value- {0}."
-        .format(missing_headers))
+        .format(missing))
 
     return True
 
@@ -280,8 +280,8 @@ class ami_excel:
     # spreadsheets must have either a barcode field or a object ID field, but both are not required
     header1 = ('original master', 'object', 'barcode')
     header2 = ('original master', 'object',
-      'object identifier\n(edit heading to specify type' +
-      '- e.g. barcode)'),
+      'object identifier\n(edit heading to specify type ' +
+      '- e.g. barcode)')
     expected = self.remove_annoying(header1, header2, expected, found)
 
     bad_entries = []
@@ -502,7 +502,8 @@ class ami_excel:
         cw.writerow(ami_data[rownum])
 
 
-  def convert_amiExcelToJSON(self, sheetname, conversion_dictionary, json_directory):
+  def convert_amiExcelToJSON(self, sheetname, json_directory,
+     conversion_dictionary = ami_md_constants.HEADER_CONVERSION):
     """
     Convert all rows in an Excel sheet into JSON files with
     normalized data. Filename is based on described file's name.
