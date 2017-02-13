@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 import csv, json
 
-import ami_md_constants
+from ami_md.ami_md_constants import HEADER_CONVERSION
 
 
 class AMIExcelError(Exception):
@@ -503,7 +503,7 @@ class ami_excel:
 
 
   def convert_amiExcelToJSON(self, sheetname, json_directory,
-     conversion_dictionary = ami_md_constants.HEADER_CONVERSION):
+     conversion_dictionary = HEADER_CONVERSION):
     """
     Convert all rows in an Excel sheet into JSON files with
     normalized data. Filename is based on described file's name.

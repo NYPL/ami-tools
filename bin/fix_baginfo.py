@@ -1,5 +1,5 @@
 import argparse
-import bagit
+import ami_bag.bagit as bagit
 import os
 import shutil
 

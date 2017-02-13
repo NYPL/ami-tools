@@ -1,6 +1,5 @@
 import os, argparse, re, csv, glob
-from ami_excel import ami_excel
-import ami_md_constants
+from ami_md.ami_excel import ami_excel
 
 def _make_parser():
   parser = argparse.ArgumentParser()

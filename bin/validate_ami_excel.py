@@ -4,7 +4,7 @@ import re
 import xlrd
 import sys
 from openpyxl import load_workbook
-from ami_excel import ami_excel
+from ami_md.ami_excel import ami_excel
 
 
 def _make_parser():

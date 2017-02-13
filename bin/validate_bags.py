@@ -2,7 +2,7 @@ import os
 import argparse
 from tqdm import tqdm
 import logging
-from ami_bag import ami_bag
+from ami_bag.bagit import Bag
 
 
 LOGGER = logging.getLogger(__name__)
@@ -29,8 +29,6 @@ def _make_parser():
                         help = "Path to the base directory of the bag")
     parser.add_argument("--slow", action='store_false',
                         help = "Recalculate hashes (very slow)")
-    parser.add_argument("--metadata", action='store_true',
-                        help = "Validate Excel metadata files")
     parser.add_argument('--log', help='The name of the log file')
     parser.add_argument('--quiet', action='store_true')
     return parser
@@ -48,9 +46,6 @@ def main():
     checks = "Performing the following validations: Checking 0xums, Checking bag completeness"
     if not args.slow:
         checks += ", Recalculating hashes"
-    checks += ", Determing bag type, Checking directory structure, Checking filenames"
-    if args.metadata:
-        checks += ", Validating Excel metadata files."
     LOGGER.info(checks)
 
 
@@ -69,14 +64,14 @@ def main():
     for bagpath in tqdm(bags):
         LOGGER.info("Checking: {}".format(bagpath))
         try:
-            bag = ami_bag(bagpath)
+            bag = Bag(bagpath)
         except:
             LOGGER.error("{}: Not a bag".format(bagpath))
         else:
-            if bag.validate_amibag(fast = args.slow, metadata = args.metadata):
-                LOGGER.info("Valid {} {} bag: {}".format(bag.type, bag.subtype, bagpath))
+            if bag.validate(fast = args.slow):
+                LOGGER.info("{}: valid".format(bagpath))
             else:
-                LOGGER.error("Invalid bag: {}".format(bagpath))
+                LOGGER.error("{}: invalid".format(bagpath))
 
 
 if __name__ == "__main__":

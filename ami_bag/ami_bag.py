@@ -2,9 +2,9 @@ import os
 import csv
 import argparse
 import re
-import bagit
+import ami_bag.bagit as bagit
 import jsonschema
-from ami_excel import ami_excel
+from ami_md.ami_excel import ami_excel
 import logging
 
 
