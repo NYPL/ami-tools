@@ -27,6 +27,8 @@ class ami_bag(bagit.Bag):
         self.set_type()
         if self.type == "excel":
             self.set_excel_subtype()
+        if self.type == "json":
+            self.set_json_subtype()
 
 
     def validate_amibag(self, fast = True, metadata = False):
@@ -178,17 +180,25 @@ class ami_bag(bagit.Bag):
         return True
 
 
-    def check_structure_jsonbag(self):
-        expected_dirs = set(["PreservationMasters", "ServiceCopies", "EditMasters", "ArchiveOriginals"])
+    def set_json_subtype(self):
+        self.subtype = None
 
-        if not self.compare_structure(expected_dirs):
-            self.raise_bagerror("JSON bags may only have the following directories - {}".format(expected_dirs))
         if (self.compare_structure(set(["Metadata", "PreservationMasters", "ServiceCopies", "Images"])) and
             self.compare_content(set([".mov", ".json", ".mp4", ".jpeg"]))):
             self.subtype = "video"
         if (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters", "Images"])) and
             self.compare_content(set([".wav", ".json", ".jpeg"]))):
             self.subtype = "audio"
+
+
+    def check_structure_jsonbag(self):
+        expected_dirs = set(["PreservationMasters", "ServiceCopies", "EditMasters", "ArchiveOriginals"])
+
+        if not self.compare_structure(expected_dirs):
+            self.raise_bagerror("JSON bags may only have the following directories - {}".format(expected_dirs))
+
+        if not self.subtype:
+            self.raise_bagerror("Bag does not match an existing profile for JSON Excel bags\nExtensions Found: {0}\nDirectories Found: {1}".format(self.data_exts, self.data_dirs))
 
         return True
 
