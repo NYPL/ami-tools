@@ -8,7 +8,8 @@ import pandas as pd
 import numpy as np
 import csv, json
 
-from ami_md.ami_md_constants import HEADER_CONVERSION
+import ami_md.ami_md_constants as ami_md_constants
+
 
 
 class AMIExcelError(Exception):
@@ -134,7 +135,7 @@ class ami_excel:
       value = str(sheet.cell(row, i).value)
 
       if value:
-        headers.append(value.lower())
+        headers.append(value)
 
     return headers
 
@@ -189,11 +190,11 @@ class ami_excel:
       k -= 1
       key1 = sheet.cell(0, k).value
 
-    entry = (str(key1).lower(), str(key2).lower(), str(key3).lower())
+    entry = (str(key1), str(key2), str(key3))
 
     #Create tuple filename in problematic templates
     if (column == 0 and (not key3 or key1 == '\xa0')):
-      entry = ("reference filename (automatic)", None, None)
+      entry = ("Reference filename (automatic)", None, None)
 
     return entry
 
@@ -211,6 +212,7 @@ class ami_excel:
     """
 
     header_entry = self.get_headerEntryAsTuple(sheetname, column)
+    header_entry_list = [header_entry[0].lower(), header_entry[1].lower(), header_entry[2].lower()]
     #remove empty tuple values before adding delimiter
     header_string = delimiter.join(filter(None, header_entry))
     #remove newlines since they're inconsistent
@@ -250,8 +252,8 @@ class ami_excel:
     """
 
     # spreadsheets must have either a barcode field or a object ID field, but both are not required
-    header1 = 'barcode'
-    header2 = ('object identifier\n(edit heading to specify type' +
+    header1 = 'Barcode'
+    header2 = ('Object identifier\n(edit heading to specify type' +
       ' - e.g. barcode)')
     expected = self.remove_annoying(header1, header2, expected, found)
 
@@ -278,9 +280,9 @@ class ami_excel:
     """
 
     # spreadsheets must have either a barcode field or a object ID field, but both are not required
-    header1 = ('original master', 'object', 'barcode')
-    header2 = ('original master', 'object',
-      'object identifier\n(edit heading to specify type ' +
+    header1 = ('Original master', 'Object', 'Barcode')
+    header2 = ('Original master', 'Object',
+      'Object identifier\n(edit heading to specify type ' +
       '- e.g. barcode)')
     expected = self.remove_annoying(header1, header2, expected, found)
 
@@ -503,7 +505,7 @@ class ami_excel:
 
 
   def convert_amiExcelToJSON(self, sheetname, json_directory,
-     conversion_dictionary = HEADER_CONVERSION):
+     conversion_dictionary = ami_md_constants.HEADER_CONVERSION):
     """
     Convert all rows in an Excel sheet into JSON files with
     normalized data. Filename is based on described file's name.

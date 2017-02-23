@@ -21,6 +21,10 @@ try:
     import pandas
 except:
     requirements.append("pandas")
+try:
+    import tqdm
+except:
+    requirements.append("tqdm")
 
 
 setup(

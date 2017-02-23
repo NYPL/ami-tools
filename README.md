@@ -1,11 +1,11 @@
 # AMI Tools
-Scripts and classes to help with staging AMI material for ingest.
+Python3 scripts and classes to help with staging AMI material for ingest.
 
 ## Installation
 Clone the git repo and run the following shell command from inside the directory
 
 ```sh
-pip install .
+pip3 install .
 ```
 
 ## Tools
