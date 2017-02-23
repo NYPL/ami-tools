@@ -17,7 +17,7 @@ done
 
 dateCreated=$(date "+%Y%m%d_%H%M%S")
 bags=$(ls -1 -d $dir_of_bags/*/)
-log_path="$log_dir/validate_$dateCreated.log"
+log_path="$log_dir/makeMd5Bags_$dateCreated.log"
 i=0
 
 for line in $bags; do
