@@ -21,6 +21,9 @@ pip3 install .
 * fix_baginfo.py - update 0xsum after the addition or deletion of files from a bag
 * repair_bag.py - add untracked files in a bag's data directory to the manifest and update other portions of the bag as well
 
+### Bag Creation
+* make_bags.sh - bag all directories in current location
+
 ### Metadata collecting
 * collect_metadata.sh - collect xls and json from punctured bags for local manipulation and analysis
 * create_json_from_excel.py - create json from AMI Excel sheets
