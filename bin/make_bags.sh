@@ -4,16 +4,24 @@
 # 2. Validate directories as bags
 # 3. Log results
 
-dir_of_bags=$PWD
 log_dir=$HOME
 
-while getopts 'd:l:' flag; do
+while getopts ':d:l:' flag; do
   case "${flag}" in
     d) dir_of_bags=${OPTARG} ;;
     l) log_dir=${OPTARG} ;;
-    *) error "Unexpected option ${flag}" ;;
+    \?) echo "Invalid option: -$OPTARG" >&2
+        exit 1;;
+    :) echo "Option -$OPTARG requires an argument." >&2
+       exit 1 ;;
   esac
 done
+
+if [[ $dir_of_bags -eq "" ]]
+then
+  echo "-d flag required" >&2
+  exit 2
+fi
 
 dateCreated=$(date "+%Y%m%d_%H%M%S")
 bags=$(ls -1 -d $dir_of_bags/*/)
