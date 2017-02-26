@@ -25,6 +25,15 @@ try:
     import tqdm
 except:
     requirements.append("tqdm")
+try:
+    import xlrd
+except:
+    requirements.append("xlrd")
+try:
+    import openpyxl
+except:
+    requirements.append("openpyxl")
+
 
 
 setup(
