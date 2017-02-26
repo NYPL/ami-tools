@@ -1,7 +1,8 @@
+import os
 import json
 
 
-class AMIExcelError(Exception):
+class AMIJSONError(Exception):
   def __init__(self, value):
     self.value = value
   def __str__(self):
@@ -23,7 +24,7 @@ class ami_json:
         print("not a json file")
       else:
         self.filename = os.path.splitext(os.path.abspath(filename))[0]
-    
+
     if flat_dict:
       nested_dict = {}
       for key, value in flat_dict.items():
@@ -53,3 +54,27 @@ class ami_json:
       t[key] = value
 
     return t
+
+  def write_json(self, output_directory):
+    if not os.path.exists(output_directory):
+      self.raise_jsonerror('output directory does not exist')
+    else:
+      json_directory = output_directory
+
+    json_filename = "{0}/{1}.{2}.json".format(
+      json_directory,
+      self.dict['asset']['referenceFilename'],
+      self.dict['technical']['extension'])
+
+    with open(json_filename, 'w') as f:
+      json.dump(self.dict, f)
+
+
+  def raise_jsonerror(self, msg):
+    """
+    lazy error reporting
+    """
+
+    raise AMIJSONError(msg)
+    logging.error(msg + '\n')
+    return False
