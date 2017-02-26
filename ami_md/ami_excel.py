@@ -9,6 +9,7 @@ import numpy as np
 import csv, json
 
 import ami_md.ami_md_constants as ami_md_constants
+import ami_md.ami_json as ami_json
 
 
 
@@ -192,7 +193,7 @@ class ami_excel:
 
     entry = (str(key1), str(key2), str(key3))
 
-    #Create tuple filename in problematic templates
+    #Create filename tuple in problematic templates
     if (column == 0 and (not key3 or key1 == '\xa0')):
       entry = ("Reference filename (automatic)", None, None)
 
@@ -212,9 +213,12 @@ class ami_excel:
     """
 
     header_entry = self.get_headerEntryAsTuple(sheetname, column)
-    header_entry_list = [header_entry[0].lower(), header_entry[1].lower(), header_entry[2].lower()]
+
+    header_entry_list = [entry.lower() if entry else None for entry in header_entry]
+
     #remove empty tuple values before adding delimiter
-    header_string = delimiter.join(filter(None, header_entry))
+    header_string = delimiter.join(filter(None, header_entry_list))
+
     #remove newlines since they're inconsistent
     header_string = header_string.replace("\n", " ").strip()
 
@@ -235,6 +239,7 @@ class ami_excel:
     if ((val1 in expected and val1 in found) and
       (val2 not in found)):
       expected.remove(val2)
+
     if ((val2 in expected and val2 in found) and
       (val1 not in found)):
       expected.remove(val1)
@@ -387,9 +392,7 @@ class ami_excel:
     """
 
     if header_entry not in conversion_dictionary.keys():
-      print(sheetname, column,
-        self.get_headerEntryAsTuple(sheetname, column),
-        header_entry)
+      print(header_entry)
     return conversion_dictionary[header_entry]
 
 
@@ -529,40 +532,9 @@ class ami_excel:
     json_directory = os.path.abspath(json_directory)
 
     for row in ami_data[1:]:
-      tree = {}
-      for column in range(0, cols):
-        if row[column]:
-          tree = self.convert_dotKeyToNestedDict(tree,
-            headers[column], row[column])
-
-      json_filename = "{0}/{1}.{2}.json".format(
-        json_directory, tree['filename'],
-        tree['technical']['extension'])
-
-      with open(json_filename, 'w') as f:
-        json.dump(tree, f)
-
-
-  def convert_dotKeyToNestedDict(self, tree, key, value):
-    """
-    Recursive method that takes a dot-delimited header and returns a
-    nested dictionary.
-
-    Keyword arguments:
-    key -- dot-delimited header string
-    value -- value associated with header
-    """
-
-    t = tree
-    if "." in key:
-      key, rest = key.split(".", 1)
-      if key not in tree:
-        t[key] = {}
-      self.convert_dotKeyToNestedDict(t[key], rest, value)
-    else:
-      t[key] = value
-
-    return t
+      tree = dict(zip(headers, row))
+      json_tree = ami_json.ami_json(flat_dict = tree)
+      json_tree.write_json(json_directory)
 
 
   def raise_excelerror(self, msg):
