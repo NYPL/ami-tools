@@ -1,4 +1,4 @@
-import os, re, datetime
+import os, re, datetime, logging
 # handling excel
 import xlrd
 from xlrd import xldate
@@ -12,6 +12,7 @@ import ami_md.ami_md_constants as ami_md_constants
 import ami_md.ami_json as ami_json
 
 
+LOGGER = logging.getLogger(__name__)
 
 class AMIExcelError(Exception):
   def __init__(self, value):
@@ -21,104 +22,73 @@ class AMIExcelError(Exception):
 
 
 class ami_excel:
-  def __init__(self, filename=None):
+  def __init__(self, filename):
     """
     Initialize object as excel workbook
     """
-    self.name = filename
-    self.wb = None
-    if os.path.exists(filename):
-      try:
-        self.wb = xlrd.open_workbook(filename)
-      except:
-        print("not an excel file")
-      else:
-        self.set_amiSheetNames()
-        self.filename = os.path.splitext(os.path.abspath(filename))[0]
-    else:
-      print("not a file")
+    self.path = os.path.abspath(filename)
+    self.name = os.path.split(self.path)[1]
+    if not os.path.exists(self.path):
+      LOGGER.exception("File does not exist at specified path")
+
+    try:
+      wb = xlrd.open_workbook(self.path)
+    except:
+      LOGGER.exception("File is not an excel file")
+
+    self.filename = os.path.splitext(os.path.abspath(filename))[0]
+    self.pres_sheet = None
+    self.edit_sheet = None
+    self.notransfer_sheet = None
+
+    for sheet in wb.sheet_names():
+      sheet_lower = sheet.lower()
+      #Check if two sheets get identfied by regex below?
+      if re.match("(original|preservation|file|full|archive)",
+        sheet_lower):
+        self.pres_sheet = ami_excelsheet(wb.sheet_by_name(sheet),
+          self.path)
+      elif re.match("edit", sheet_lower):
+        self.edit_sheet = ami_excelsheet(wb.sheet_by_name(sheet),
+          self.path)
+      elif re.match("not transferred", sheet_lower):
+        self.notransfer_sheet = ami_excelsheet(wb.sheet_by_name(sheet),
+          self.path)
 
 
   def validate_workbook(self):
     """
     Check the preservation sheet against expectations of Media Ingest.
     """
-
     valid = True
 
     #Check for a sheet that should have preservation metadata data
-    try:
-      self.check_presSheetExists()
-    except AMIExcelError as e:
-      print("Error in workbook sheets: ", e.value)
+    if not self.pres_sheet:
       valid = False
+      LOGGER.error("Required sheet for preservation files could not be found in workbook.")
 
-    #Check that preservation sheet contains required headers
-    for i in range(0, 3):
-      try:
-        expected = set([item[i] for item in ami_md_constants.MEDIAINGEST_EXPECTED_HEADERS if item[i]])
-        found = self.get_headerRow(self.pres_sheetname, i)
-        self.check_headerRow(expected, found)
-      except AMIExcelError as e:
-        print("Error in preservation header row {}: {}"
-          .format(i + 1, e.value))
-        valid = False
-
-    #Check that preservation sheet headers have the correct heirarchy
-    try:
-      header_entries = set(self.get_headerEntries(self.pres_sheetname))
-      self.check_headerEntries(set(ami_md_constants.MEDIAINGEST_EXPECTED_HEADERS), header_entries)
-    except AMIExcelError as e:
-      print("Error in header entries: ", e.value)
+    if not self.pres_sheet.validate_worksheet():
       valid = False
-
-    #Check that the preservation sheet does not contain equations
-    try:
-      self.check_noequations(self.pres_sheetname)
-    except AMIExcelError as e:
-      print("Error in cell values: ", e.value)
-      valid = False
+      LOGGER.error("Required sheet for preservation files has errors.")
 
     return valid
 
 
-  def set_amiSheetNames(self):
+class ami_excelsheet:
+  def __init__(self, sheet, wb_name):
     """
-    Identifies sheets that should contain data about preservation files,
-    edit master files, and untransferred objects.
+    Initialize object as excel sheet
     """
-
-    self.pres_sheetname = None
-    self.edit_sheetname = None
-    self.notransfer_sheetname = None
-
-    for sheet in self.wb.sheet_names():
-      sheet_lower = sheet.lower()
-      #Check if two sheets get identfied by regex below?
-      if re.match("(original|preservation|file|full|archive)",
-        sheet_lower):
-        self.pres_sheetname = sheet
-      elif re.match("edit", sheet_lower):
-        self.edit_sheetname = sheet
-      elif re.match("not transferred", sheet_lower):
-        self.notransfer_sheetname = sheet
+    self.wb = wb_name
+    self.name = sheet.name
+    self.header_top = self.get_headerRow(sheet, 0)
+    self.header_middle = self.get_headerRow(sheet, 1)
+    self.header_bottom = self.get_headerRow(sheet, 2)
+    self.header_entries = self.get_headerEntries(sheet)
+    self.normalize_sheet(sheet)
 
 
-
-  def check_presSheetExists(self):
-    """
-    Checks if a preservation sheet has been identified by
-    set_amiSheetNames()
-    """
-
-    if not self.pres_sheetname:
-      self.raise_excelerror("Required sheet for preservation files" +
-        "could not be found in workbook.")
-
-    return True
-
-
-  def get_headerRow(self, sheetname, row):
+  def get_headerRow(self, sheet, row):
     """
     Return normalized values from a single row of headers on a
     specified sheet. Newline characters are retained.
@@ -128,8 +98,6 @@ class ami_excel:
     or self.edit_sheetname)
     row -- index of the row to extract from (0-2)
     """
-
-    sheet = self.wb.sheet_by_name(sheetname)
     headers = []
 
     for i in range(0, sheet.ncols):
@@ -141,7 +109,7 @@ class ami_excel:
     return headers
 
 
-  def get_headerEntries(self, sheetname):
+  def get_headerEntries(self, sheet):
     """
     Convenience method to return all header tuples.
 
@@ -149,17 +117,15 @@ class ami_excel:
     sheetname -- name of the sheet to extract from (self.pres_sheetname
     or self.edit_sheetname)
     """
-
-    sheet = self.wb.sheet_by_name(sheetname)
     header_entries = []
 
     for i in range(0, sheet.ncols):
-      header_entries.append(self.get_headerEntryAsTuple(sheetname, i))
+      header_entries.append(self.get_headerEntryAsTuple(sheet, i))
 
     return header_entries
 
 
-  def get_headerEntryAsTuple(self, sheetname, column):
+  def get_headerEntryAsTuple(self, sheet, column):
     """
     Returns tuple of header archiving by stepping backwards from a
     3rd-level header.
@@ -169,9 +135,6 @@ class ami_excel:
     or self.edit_sheetname)
     column -- index of the column of the 3rd-level header
     """
-
-    sheet = self.wb.sheet_by_name(sheetname)
-
     key1, key2, key3 = None, None, None
 
     key3 = sheet.cell(2, column).value
@@ -200,7 +163,7 @@ class ami_excel:
     return entry
 
 
-  def get_headerEntryAsString(self, sheetname, column, delimiter = "|"):
+  def get_headerEntryAsString(self, sheet, column, delimiter = "|"):
     """
     Returns delimited string based on the output of
     get_headerEntryAsTuple()
@@ -211,8 +174,7 @@ class ami_excel:
     column -- index of the column of the 3rd-level header
     delimiter -- character to separate tuple entries
     """
-
-    header_entry = self.get_headerEntryAsTuple(sheetname, column)
+    header_entry = self.get_headerEntryAsTuple(sheet, column)
 
     header_entry_list = [entry.lower() if entry else None for entry in header_entry]
 
@@ -225,6 +187,43 @@ class ami_excel:
     return header_string
 
 
+  def validate_worksheet(self):
+    """
+    Check the preservation sheet against expectations of Media Ingest.
+    """
+    valid = True
+
+    #Check that sheet contains required headers
+    for i in range(0, 3):
+      try:
+        expected = set([item[i] for item in ami_md_constants.MEDIAINGEST_EXPECTED_HEADERS if item[i]])
+        found = set([item[i] for item in self.header_entries if item[i]])
+        self.check_headerRow(expected, found)
+      except AMIExcelError as e:
+        print("Error in header row of sheet {}: {}"
+          .format(self.name, e.value))
+        valid = False
+
+    #Check that sheet headers have the correct heirarchy
+    try:
+      header_entries = set(self.header_entries)
+      self.check_headerEntries(
+        set(ami_md_constants.MEDIAINGEST_EXPECTED_HEADERS),
+        header_entries)
+    except AMIExcelError as e:
+      print("Error in header entries: ", e.value)
+      valid = False
+
+    #Check that the preservation sheet does not contain equations
+    try:
+      self.check_noequations()
+    except AMIExcelError as e:
+      print("Error in cell values: ", e.value)
+      valid = False
+
+    return valid
+
+
   def remove_annoying(self, val1, val2, expected, found):
     """
     Convenience function to remove items with XOR requirements
@@ -235,7 +234,6 @@ class ami_excel:
     expected -- set of all required items
     found -- set of items that were extracted from sheet
     """
-
     if ((val1 in expected and val1 in found) and
       (val2 not in found)):
       expected.remove(val2)
@@ -255,8 +253,8 @@ class ami_excel:
     expected -- set of all required header values
     found -- set of items that were extracted from sheet
     """
-
-    # spreadsheets must have either a barcode field or a object ID field, but both are not required
+    # spreadsheets must have either a barcode field or a object ID field
+    # but both are not required
     header1 = 'Barcode'
     header2 = ('Object identifier\n(edit heading to specify type' +
       ' - e.g. barcode)')
@@ -269,7 +267,7 @@ class ami_excel:
         missing.append(header)
 
     if missing:
-      self.raise_excelerror("Missing required value- {0}."
+      raise AMIExcelError("Missing required value- {0}."
         .format(missing))
 
     return True
@@ -283,8 +281,8 @@ class ami_excel:
     expected -- set of all required header heirarchies values
     found -- set of header heirarchies that were extracted from sheet
     """
-
-    # spreadsheets must have either a barcode field or a object ID field, but both are not required
+    # spreadsheets must have either a barcode field or a object ID field
+    # but both are not required
     header1 = ('Original master', 'Object', 'Barcode')
     header2 = ('Original master', 'Object',
       'Object identifier\n(edit heading to specify type ' +
@@ -298,34 +296,34 @@ class ami_excel:
         bad_entries.append(header)
 
     if bad_entries:
-      self.raise_excelerror("Incorrect header entry for {0}."
+      raise AMIExcelError("Incorrect header entry for {0}."
         .format(bad_entries))
+
     return True
 
 
-  def check_noequations(self, sheetname):
+  def check_noequations(self):
     """
     Verify that no column in a sheet contains an equation
     Based on checking every cell in the 4th row
 
     Keyword arguments:
-    sheetname -- name of the sheet to normalize (self.pres_sheetname or
-    self.edit_sheetname)
+    sheet -- sheet object from workbook
     """
+    wb_open = load_workbook(self.wb, read_only = True)
+    sheet = wb_open.get_sheet_by_name(self.name)
 
-    self.wb_open = load_workbook(self.name, read_only = True)
-    sheet = self.wb_open.get_sheet_by_name(sheetname)
-
-    for i in range(1, self.wb.sheet_by_name(sheetname).ncols):
+    for i in range(1, len(self.header_entries)):
       value = sheet.cell(row = 4, column = i).value
-      # equation check logic, might be better code out there
+      # equation check logic, TODO might be better code out there
       if (value and isinstance(value, str) and value[0] == "="):
-        self.raise_excelerror("Cell R4C{0} contain equations."
+        raise AMIExcelError("Cell R4C{0} contain equations."
           .format(i))
+
     return True
 
 
-  def normalize_excelSheet(self, sheetname, conversion_dictionary):
+  def normalize_sheet(self, sheet):
     """
     Convert Excel sheet into pandas dataframe
     Each list represents one row of the spreadsheets
@@ -334,16 +332,9 @@ class ami_excel:
     Row values are normalized based on dictionary
 
     Keyword arguments:
-    sheetname -- name of the sheet to normalize (self.pres_sheetname or
-    self.edit_sheetname)
-    conversion_dictionary -- dict where keys are values from
-    self.get_headerEntryAsString and values are normalized
-    dot-formatted strings
+    sheet -- sheet object from workbook
     """
-
-    sheet = self.wb.sheet_by_name(sheetname)
-
-    ami_data = []
+    self.sheet_values = []
 
     date_headers = ["bibliographic.date", "technical.dateCreated"]
     time_headers = ["technical.durationHuman"]
@@ -351,49 +342,42 @@ class ami_excel:
     #copy everything from the 3rd row to the last row with a filename
     for rownum in range(2, sheet.nrows):
       if sheet.cell(rownum, 0):
-        ami_data.append(sheet.row_values(rownum))
+        self.sheet_values.append(sheet.row_values(rownum))
 
     for i in range(0, sheet.ncols):
       #normalize header
-      header_entry = self.get_headerEntryAsString(sheetname, i)
-      ami_data[0][i] = self.normalize_headerEntry(
-        header_entry,
-        conversion_dictionary)
+      header_entry = self.get_headerEntryAsString(sheet, i)
+      self.sheet_values[0][i] = self.normalize_headerEntry(
+        header_entry)
 
       #convert excel dates
-      if ami_data[0][i] in date_headers:
+      if self.sheet_values[0][i] in date_headers:
         for j in range(3, sheet.nrows):
           if sheet.cell(j, i).ctype == 3:
             value = sheet.cell(j, i).value
-            ami_data[j-2][i] = self.convert_excelDateTime(value, "date")
+            self.sheet_values[j-2][i] = self.convert_excelDateTime(
+              value, "date")
 
       #convert excel times
-      if ami_data[0][i] in time_headers:
+      if self.sheet_values[0][i] in time_headers:
         for j in range(3, sheet.nrows):
           if sheet.cell(j, i).ctype == 3:
             value = sheet.cell(j, i).value
-            ami_data[j-2][i] = self.convert_excelDateTime(value, "time")
-
-    ami_df = self.normalize_values(ami_data)
-
-    return ami_df
+            self.sheet_values[j-2][i] = self.convert_excelDateTime(
+              value, "time")
 
 
-  def normalize_headerEntry(self, header_entry, conversion_dictionary):
+  def normalize_headerEntry(self, header_entry):
     """
     Returns a normalized dot-formatted string based on the
     heirarchy of headers from the first three rows of the Excel sheet.
 
     Keyword arguments:
     header_entry -- string of header values
-    conversion_dictionary -- dict where keys are values from
-    self.get_headerEntryAsString and values are normalized
-    dot-formatted strings
     """
-
-    if header_entry not in conversion_dictionary.keys():
+    if header_entry not in ami_md_constants.HEADER_CONVERSION.keys():
       print(header_entry)
-    return conversion_dictionary[header_entry]
+    return ami_md_constants.HEADER_CONVERSION[header_entry]
 
 
   def convert_excelDateTime(self, value, return_type):
@@ -406,7 +390,6 @@ class ami_excel:
     value -- decimal number encoding Excel datetimes
     return_type -- (date, time) whether to return date or time
     """
-
     try:
       converted_value = xldate.xldate_as_datetime(value,
         self.wb.datemode)
@@ -420,22 +403,19 @@ class ami_excel:
     return converted_value
 
 
-  def normalize_values(self, data):
+  def normalize_values(self):
     """
     Normalize all entries via dictionaries defined in the ami_md_constants
     module. Returns a list of lists
-
-    Keyword arguments:
-    data -- a list of lists where each list represents a row and the
-    first list contains headers
     """
-
-    df = pd.DataFrame(data[1:], columns = data[0]).astype(str)
+    df = pd.DataFrame(self.sheet_values[1:],
+      columns = self.sheet_values[0]).astype(str)
 
     df = df.replace(ami_md_constants.NAS)
 
     df = df.replace(ami_md_constants.REGEX_REPLACE_DICT, regex=True)
     df = df.replace(ami_md_constants.STRING_REPLACE_DICT)
+
     df['source.object.format_type'] = df['source.object.format'].map(ami_md_constants.FORMAT_TYPE)
 
     for key in ami_md_constants.MEASURE_UNIT_MAPS.keys():
@@ -448,7 +428,8 @@ class ami_excel:
         value_map['values_map'])
 
     #force all the numerics back to numeric, and drop all empty columns
-    df = df.apply(pd.to_numeric, errors='ignore').dropna(axis=1, how = "all")
+    df = df.apply(pd.to_numeric, errors='ignore').dropna(axis = 1, how = "all")
+    df.sort_index(axis=1, inplace=True)
 
     vals = df.values.tolist()
     cols = df.columns.tolist()
@@ -484,31 +465,24 @@ class ami_excel:
     return df
 
 
-
-  def write_amiCSV(self, sheetname, conversion_dictionary, csv_filename):
+  def convert_amiExcelToCSV(self, csv_path):
     """
     Convert a single Excel sheet into a CSV with normalized contents.
 
     Keyword arguments:
     sheetname -- name of the sheet to convert (self.pres_sheetname or
     self.edit_sheetname)
-    conversion_dictionary -- dict where keys are values from
-    self.get_headerEntryAsString and values are normalized
-    dot-formatted strings
     csv_filename -- path of the output file
     """
+    ami_data = self.normalize_values()
 
-    ami_data = self.normalize_excelSheet(sheetname,
-      conversion_dictionary)
-
-    with open(csv_filename, 'w') as f:
+    with open(csv_path, 'w') as f:
       cw = csv.writer(f, quoting = csv.QUOTE_ALL)
       for rownum in range(0, len(ami_data)):
         cw.writerow(ami_data[rownum])
 
 
-  def convert_amiExcelToJSON(self, sheetname, json_directory,
-     conversion_dictionary = ami_md_constants.HEADER_CONVERSION):
+  def convert_amiExcelToJSON(self, json_directory):
     """
     Convert all rows in an Excel sheet into JSON files with
     normalized data. Filename is based on described file's name.
@@ -516,14 +490,9 @@ class ami_excel:
     Keyword arguments:
     sheetname -- name of the sheet to convert (self.pres_sheetname or
     self.edit_sheetname)
-    conversion_dictionary -- dict where keys are values from
-    self.get_headerEntryAsString and values are normalized
-    dot-formatted strings
     json_directory -- path to output directory for json files
     """
-
-    ami_data = self.normalize_excelSheet(sheetname,
-      conversion_dictionary)
+    ami_data = self.normalize_values()
 
     cols = len(ami_data[0])
 
@@ -541,7 +510,6 @@ class ami_excel:
     """
     lazy error reporting
     """
-
-    raise AMIExcelError(msg)
-    logging.error(msg + '\n')
+    LOGGER.error(msg)
     return False
+    raise AMIExcelError(msg)
