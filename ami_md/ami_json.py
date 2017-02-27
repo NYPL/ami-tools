@@ -1,5 +1,8 @@
 import os
 import json
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 
 class AMIJSONError(Exception):
@@ -68,6 +71,7 @@ class ami_json:
 
     with open(json_filename, 'w') as f:
       json.dump(self.dict, f)
+      LOGGER.info("{} written".format(json_filename))
 
 
   def raise_jsonerror(self, msg):
