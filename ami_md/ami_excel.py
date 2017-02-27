@@ -297,7 +297,8 @@ class ami_excelsheet:
         value_map['values_map_column'],
         value_map['values_map'])
 
-    df = self.map_primaryid(df)
+    if 'bibliographic.primaryID' not in df.columns.tolist():
+      df = self.map_primaryid(df)
 
     #force all the numerics back to numeric, and drop all empty columns
     df = df.apply(pd.to_numeric, errors='ignore').dropna(axis = 1, how = "all")
