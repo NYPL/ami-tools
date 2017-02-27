@@ -290,7 +290,7 @@ class ami_excelsheet:
 
     for key in ami_md_constants.MEASURE_UNIT_MAPS.keys():
       value_map = ami_md_constants.MEASURE_UNIT_MAPS[key]
-      df = self.map_value(df,
+      df = self.map_formatvalue(df,
         value_map['from_column'],
         value_map['to_column'],
         value_map['constant_value'],
@@ -308,7 +308,7 @@ class ami_excelsheet:
     return vals
 
 
-  def map_value(self, df, from_column, to_column, value = None,
+  def map_formatvalue(self, df, from_column, to_column, value = None,
     values_map_column = None, values_map = None):
     """
     Conditionally map units for columns with measures
@@ -545,13 +545,6 @@ class ami_editsheet(ami_excelsheet):
     #pm_drop_cols = [col for col in pm_df.columns.tolist() if (col.startswith('technical') or col.startswith('digitizer'))]
     pm_df = pm_df.drop(pm_drop_cols, axis = 1)
     pm_df["join_idx"] = pm_df["asset.referenceFilename"].str.slice(0, -3)
-    
-    """
-    if set(pm_df["join_idx"]) == set(pm_df["join_idx"]):
-      missing_em = ", ".join(set(pm_df["join_idx"]) - set(em_df["join_idx"]))
-      missing_pm = ", ".join(set(em_df["join_idx"]) - set(pm_df["join_idx"]))
-      raise AMIExcelError("Following files do not have a corresponding EM: {}\nPM: {}".format(missing_em, missing_pm))
-    """
 
     em_df = em_df.join(pm_df.set_index("join_idx"), on = "join_idx")
     em_df = em_df.drop("join_idx", axis = 1)
