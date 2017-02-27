@@ -297,6 +297,8 @@ class ami_excelsheet:
         value_map['values_map_column'],
         value_map['values_map'])
 
+    df = self.map_primaryid(df)
+
     #force all the numerics back to numeric, and drop all empty columns
     df = df.apply(pd.to_numeric, errors='ignore').dropna(axis = 1, how = "all")
     df.sort_index(axis=1, inplace=True)
@@ -331,6 +333,18 @@ class ami_excelsheet:
       df[to_column] = df[values_map_column].map(values_map)
       #reset all unit values where there's no corresponding measure
       df[to_column] = df[to_column].mask(df[from_column].isnull(), None)
+
+    return df
+
+
+  def map_primaryid(self, df):
+    primary_id_columns = ["bibliographic.barcode",
+                          "bibliographic.classmark",
+                          "bibliographic.cmsID"]
+    for column in primary_id_columns:
+      if column in df.columns.tolist():
+        has_id = df[column].notnull()
+        df.loc[has_id, 'bibliographic.primaryID'] = df[column]
 
     return df
 
