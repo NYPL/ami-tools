@@ -2,8 +2,8 @@ import os
 import argparse
 from tqdm import tqdm
 import logging
-from ami_bag import ami_bag
-from update_bag import Repairable_Bag
+from ami_bag.ami_bag import ami_bag
+from ami_bag.update_bag import Repairable_Bag
 
 
 LOGGER = logging.getLogger(__name__)
