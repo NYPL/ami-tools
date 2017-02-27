@@ -46,11 +46,17 @@ class ami_excel:
       #Check if two sheets get identfied by regex below?
       if re.match("(original|preservation|file|full|archive)",
         sheet_lower):
-        self.pres_sheet = ami_excelsheet(wb.sheet_by_name(sheet),
-          self.path)
+        if not self.pres_sheet:
+          self.pres_sheet = ami_pressheet(wb.sheet_by_name(sheet),
+            self.path)
+        else:
+          raise AMIExcelError("Too many preservation master sheets")
       elif re.match("edit", sheet_lower):
-        self.edit_sheet = ami_excelsheet(wb.sheet_by_name(sheet),
-          self.path)
+        if not self.edit_sheet:
+          self.edit_sheet = ami_editsheet(wb.sheet_by_name(sheet),
+            self.path)
+        else:
+          raise AMIExcelError("Too many edit master sheets")
       elif re.match("not transferred", sheet_lower):
         self.notransfer_sheet = ami_excelsheet(wb.sheet_by_name(sheet),
           self.path)
@@ -185,142 +191,6 @@ class ami_excelsheet:
     header_string = header_string.replace("\n", " ").strip()
 
     return header_string
-
-
-  def validate_worksheet(self):
-    """
-    Check the preservation sheet against expectations of Media Ingest.
-    """
-    valid = True
-
-    #Check that sheet contains required headers
-    for i in range(0, 3):
-      try:
-        expected = set([item[i] for item in ami_md_constants.MEDIAINGEST_EXPECTED_HEADERS if item[i]])
-        found = set([item[i] for item in self.header_entries if item[i]])
-        self.check_headerRow(expected, found)
-      except AMIExcelError as e:
-        print("Error in header row of sheet {}: {}"
-          .format(self.name, e.value))
-        valid = False
-
-    #Check that sheet headers have the correct heirarchy
-    try:
-      header_entries = set(self.header_entries)
-      self.check_headerEntries(
-        set(ami_md_constants.MEDIAINGEST_EXPECTED_HEADERS),
-        header_entries)
-    except AMIExcelError as e:
-      print("Error in header entries: ", e.value)
-      valid = False
-
-    #Check that the preservation sheet does not contain equations
-    try:
-      self.check_noequations()
-    except AMIExcelError as e:
-      print("Error in cell values: ", e.value)
-      valid = False
-
-    return valid
-
-
-  def remove_annoying(self, val1, val2, expected, found):
-    """
-    Convenience function to remove items with XOR requirements
-
-    Keyword arguments:
-    val1 -- first XOR item
-    val2 -- seocnd XOR item
-    expected -- set of all required items
-    found -- set of items that were extracted from sheet
-    """
-    if ((val1 in expected and val1 in found) and
-      (val2 not in found)):
-      expected.remove(val2)
-
-    if ((val2 in expected and val2 in found) and
-      (val1 not in found)):
-      expected.remove(val1)
-
-    return expected
-
-
-  def check_headerRow(self, expected, found):
-    """
-    Check that a row of headers contains all the required values
-
-    Keyword arguments:
-    expected -- set of all required header values
-    found -- set of items that were extracted from sheet
-    """
-    # spreadsheets must have either a barcode field or a object ID field
-    # but both are not required
-    header1 = 'Barcode'
-    header2 = ('Object identifier\n(edit heading to specify type' +
-      ' - e.g. barcode)')
-    expected = self.remove_annoying(header1, header2, expected, found)
-
-    missing = []
-
-    for header in expected:
-      if header not in found:
-        missing.append(header)
-
-    if missing:
-      raise AMIExcelError("Missing required value- {0}."
-        .format(missing))
-
-    return True
-
-
-  def check_headerEntries(self, expected, found):
-    """
-    Check that a sheet contains the required heirarchy of headers
-
-    Keyword arguments:
-    expected -- set of all required header heirarchies values
-    found -- set of header heirarchies that were extracted from sheet
-    """
-    # spreadsheets must have either a barcode field or a object ID field
-    # but both are not required
-    header1 = ('Original master', 'Object', 'Barcode')
-    header2 = ('Original master', 'Object',
-      'Object identifier\n(edit heading to specify type ' +
-      '- e.g. barcode)')
-    expected = self.remove_annoying(header1, header2, expected, found)
-
-    bad_entries = []
-
-    for header in expected:
-      if header not in found:
-        bad_entries.append(header)
-
-    if bad_entries:
-      raise AMIExcelError("Incorrect header entry for {0}."
-        .format(bad_entries))
-
-    return True
-
-
-  def check_noequations(self):
-    """
-    Verify that no column in a sheet contains an equation
-    Based on checking every cell in the 4th row
-
-    Keyword arguments:
-    sheet -- sheet object from workbook
-    """
-    wb_open = load_workbook(self.wb, read_only = True)
-    sheet = wb_open.get_sheet_by_name(self.name)
-
-    for i in range(1, len(self.header_entries)):
-      value = sheet.cell(row = 4, column = i).value
-      # equation check logic, TODO might be better code out there
-      if (value and isinstance(value, str) and value[0] == "="):
-        raise AMIExcelError("Cell R4C{0} contain equations."
-          .format(i))
-
-    return True
 
 
   def normalize_sheet(self, sheet):
@@ -513,3 +383,182 @@ class ami_excelsheet:
     LOGGER.error(msg)
     return False
     raise AMIExcelError(msg)
+
+
+
+class ami_pressheet(ami_excelsheet):
+
+  def __init__(self, *args, **kwargs):
+    super(ami_pressheet, self).__init__(*args, **kwargs)
+
+  def validate_worksheet(self):
+    """
+    Check the preservation sheet against expectations of Media Ingest.
+    """
+    valid = True
+
+    #Check that sheet contains required headers
+    for i in range(0, 3):
+      try:
+        expected = set([item[i] for item in ami_md_constants.MEDIAINGEST_EXPECTED_HEADERS if item[i]])
+        found = set([item[i] for item in self.header_entries if item[i]])
+        self.check_headerRow(expected, found)
+      except AMIExcelError as e:
+        print("Error in header row of sheet {}: {}"
+          .format(self.name, e.value))
+        valid = False
+
+    #Check that sheet headers have the correct heirarchy
+    try:
+      header_entries = set(self.header_entries)
+      self.check_headerEntries(
+        set(ami_md_constants.MEDIAINGEST_EXPECTED_HEADERS),
+        header_entries)
+    except AMIExcelError as e:
+      print("Error in header entries: ", e.value)
+      valid = False
+
+    #Check that the preservation sheet does not contain equations
+    try:
+      self.check_noequations()
+    except AMIExcelError as e:
+      print("Error in cell values: ", e.value)
+      valid = False
+
+    return valid
+
+
+  def remove_annoying(self, val1, val2, expected, found):
+    """
+    Convenience function to remove items with XOR requirements
+
+    Keyword arguments:
+    val1 -- first XOR item
+    val2 -- seocnd XOR item
+    expected -- set of all required items
+    found -- set of items that were extracted from sheet
+    """
+    if ((val1 in expected and val1 in found) and
+      (val2 not in found)):
+      expected.remove(val2)
+
+    if ((val2 in expected and val2 in found) and
+      (val1 not in found)):
+      expected.remove(val1)
+
+    return expected
+
+
+  def check_headerRow(self, expected, found):
+    """
+    Check that a row of headers contains all the required values
+
+    Keyword arguments:
+    expected -- set of all required header values
+    found -- set of items that were extracted from sheet
+    """
+    # spreadsheets must have either a barcode field or a object ID field
+    # but both are not required
+    header1 = 'Barcode'
+    header2 = ('Object identifier\n(edit heading to specify type' +
+      ' - e.g. barcode)')
+    expected = self.remove_annoying(header1, header2, expected, found)
+
+    missing = []
+
+    for header in expected:
+      if header not in found:
+        missing.append(header)
+
+    if missing:
+      raise AMIExcelError("Missing required value- {0}."
+        .format(missing))
+
+    return True
+
+
+  def check_headerEntries(self, expected, found):
+    """
+    Check that a sheet contains the required heirarchy of headers
+
+    Keyword arguments:
+    expected -- set of all required header heirarchies values
+    found -- set of header heirarchies that were extracted from sheet
+    """
+    # spreadsheets must have either a barcode field or a object ID field
+    # but both are not required
+    header1 = ('Original master', 'Object', 'Barcode')
+    header2 = ('Original master', 'Object',
+      'Object identifier\n(edit heading to specify type ' +
+      '- e.g. barcode)')
+    expected = self.remove_annoying(header1, header2, expected, found)
+
+    bad_entries = []
+
+    for header in expected:
+      if header not in found:
+        bad_entries.append(header)
+
+    if bad_entries:
+      raise AMIExcelError("Incorrect header entry for {0}."
+        .format(bad_entries))
+
+    return True
+
+
+  def check_noequations(self):
+    """
+    Verify that no column in a sheet contains an equation
+    Based on checking every cell in the 4th row
+
+    Keyword arguments:
+    sheet -- sheet object from workbook
+    """
+    wb_open = load_workbook(self.wb, read_only = True)
+    sheet = wb_open.get_sheet_by_name(self.name)
+
+    for i in range(1, len(self.header_entries)):
+      value = sheet.cell(row = 4, column = i).value
+      # equation check logic, TODO might be better code out there
+      if (value and isinstance(value, str) and value[0] == "="):
+        raise AMIExcelError("Cell R4C{0} contain equations."
+          .format(i))
+
+    return True
+
+
+class ami_editsheet(ami_excelsheet):
+
+  def __init__(self, *args, **kwargs):
+    super(ami_editsheet, self).__init__(*args, **kwargs)
+
+  def add_PMDataToEM(self, pm_data):
+    """
+    """
+    em_df = pd.DataFrame(self.sheet_values[1:],
+      columns = self.sheet_values[0]).astype(str)
+    em_df["join_idx"] = em_df["technical.filename"].str.slice(0, -3)
+
+    pm_df = pd.DataFrame(pm_data[1:],
+      columns = pm_data[0]).astype(str)
+    pm_drop_cols = set(pm_df.columns.tolist()).intersection(set(em_df.columns.tolist()))
+    #pm_drop_cols = [col for col in pm_df.columns.tolist() if (col.startswith('technical') or col.startswith('digitizer'))]
+    pm_df = pm_df.drop(pm_drop_cols, axis = 1)
+    pm_df["join_idx"] = pm_df["asset.referenceFilename"].str.slice(0, -3)
+    
+    """
+    if set(pm_df["join_idx"]) == set(pm_df["join_idx"]):
+      missing_em = ", ".join(set(pm_df["join_idx"]) - set(em_df["join_idx"]))
+      missing_pm = ", ".join(set(em_df["join_idx"]) - set(pm_df["join_idx"]))
+      raise AMIExcelError("Following files do not have a corresponding EM: {}\nPM: {}".format(missing_em, missing_pm))
+    """
+
+    em_df = em_df.join(pm_df.set_index("join_idx"), on = "join_idx")
+    em_df = em_df.drop("join_idx", axis = 1)
+    em_df["asset.referenceFilename"] = em_df["asset.referenceFilename"].str.replace("pm", "em")
+
+    vals = em_df.values.tolist()
+    cols = em_df.columns.tolist()
+    vals.insert(0, cols)
+
+    self.sheet_values = vals
