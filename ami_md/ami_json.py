@@ -35,6 +35,7 @@ class ami_json:
           nested_dict, key, value)
 
       self.dict = nested_dict
+      self.coerce_strings()
 
 
   def convert_dotKeyToNestedDict(self, tree, key, value):
@@ -57,6 +58,15 @@ class ami_json:
       t[key] = value
 
     return t
+
+
+  def coerce_strings(self):
+    for key, item in self.dict["bibliographic"].items():
+      self.dict["bibliographic"][key] = str(item).split('.')[0]
+
+    for key, item in self.dict["digitizer"]["organization"]["address"].items():
+      self.dict["digitizer"]["organization"]["address"][key] = str(item).split('.')[0]
+
 
   def write_json(self, output_directory):
     if not os.path.exists(output_directory):
