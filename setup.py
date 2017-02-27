@@ -49,7 +49,8 @@ setup(
                'bin/repair_bags.py',
                'bin/validate_ami_bags.py',
                'bin/validate_ami_excel.py',
-               'bin/validate_bags.py'],
+               'bin/validate_bags.py',
+               'bin/convert_excelbag_to_jsonbag.py'],
     platforms = ['POSIX'],
     install_requires = ['argparse', 'pandas'],
     classifiers = [
