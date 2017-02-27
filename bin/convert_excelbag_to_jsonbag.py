@@ -65,7 +65,7 @@ def main():
             update_bag = Repairable_Bag(bagpath)
             update_bag.add_payload_files_not_in_manifest()
             bag = ami_bag(bagpath)
-            print(bag.validate_amibag)
+            bag.validate_amibag()
 
 
 if __name__ == "__main__":
