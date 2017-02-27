@@ -228,15 +228,20 @@ class ami_bag(bagit.Bag):
         for filename in self.excel_metadata:
             excel = ami_excel(os.path.join(self.path, filename))
 
-            output_path = os.path.join(self.path, "data/PreservationMasters")
-            excel.convert_amiExcelToJSON(excel.pres_sheetname,
-                output_path)
-            '''
-            if excel.edit_sheetname:
-                output_path = os.path.join(self.path, "data/EditMasters")
-                excel.convert_amiExcelToJSON(excel.edit_sheetname,
-                    output_path)
-            '''
+            em_path = os.path.join(self.path, "data/EditMasters")
+            pm_path = os.path.join(self.path, "data/PreservationMasters")
+
+            if excel.edit_sheet:
+                # TODO where do i error when files don't match
+                try:
+                    excel.edit_sheet.add_PMDataToEM(excel.pres_sheet.sheet_values)
+                    excel.edit_sheet.convert_amiExcelToJSON(em_path)
+                except:
+                    LOGGER.error("EM's and PM's do not have 1-1 correspondence")
+                else:
+                    excel.pres_sheet.convert_amiExcelToJSON(pm_path)
+            else:
+                excel.pres_sheet.convert_amiExcelToJSON(pm_path)
 
 
     def raise_bagerror(self, msg):
