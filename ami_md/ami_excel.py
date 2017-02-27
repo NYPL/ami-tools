@@ -367,7 +367,7 @@ class ami_excelsheet:
         cw.writerow(ami_data[rownum])
 
 
-  def convert_amiExcelToJSON(self, json_directory):
+  def convert_amiExcelToJSON(self, json_directory, schema_version = "x.0"):
     """
     Convert all rows in an Excel sheet into JSON files with
     normalized data. Filename is based on described file's name.
@@ -388,7 +388,7 @@ class ami_excelsheet:
     for row in ami_data[1:]:
       tree = dict(zip(headers, row))
       json_tree = ami_json.ami_json(flat_dict = tree)
-      json_tree.write_json(json_directory)
+      json_tree.write_json(json_directory, schema_version)
 
 
   def raise_excelerror(self, msg):

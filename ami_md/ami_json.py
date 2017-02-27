@@ -13,7 +13,7 @@ class AMIJSONError(Exception):
 
 
 class ami_json:
-  def __init__(self, filename=None, flat_dict = None):
+  def __init__(self, filename=None, flat_dict = None, schema_version = "x.0"):
     """
     Initialize object as nested json
     """
@@ -30,6 +30,8 @@ class ami_json:
 
     if flat_dict:
       nested_dict = {}
+      if "asset.schemaVersion" not in flat_dict.items():
+          flat_dict["asset.schemaVersion"] = schema_version
       for key, value in flat_dict.items():
         nested_dict = self.convert_dotKeyToNestedDict(
           nested_dict, key, value)
