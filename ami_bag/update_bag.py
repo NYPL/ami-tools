@@ -27,6 +27,8 @@ SYSTEM_FILE_PATTERNS = {
 
 LOGGER = logging.getLogger(__name__)
 
+#NEED EXCEPTION CLASS
+
 class Repairable_Bag(bagit.Bag):
 
   def __init__(self, *args, **kwargs):
@@ -88,7 +90,7 @@ class Repairable_Bag(bagit.Bag):
     """
     if self.compare_manifests_with_fs()[1]:
       for payload_file in self.compare_manifests_with_fs()[1]:
-         yield payload_file
+        yield payload_file
 
 
   def add_payload_files_not_in_manifest(self):
