@@ -17,7 +17,7 @@ while getopts ':d:l:' flag; do
   esac
 done
 
-if [[ $dir_of_bags -eq "" ]]
+if [[ -z $dir_of_bags ]]
 then
   echo "-d flag required" >&2
   exit 2
