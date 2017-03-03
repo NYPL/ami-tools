@@ -62,6 +62,28 @@ class ami_json:
     return t
 
 
+  def convert_nestedDictToDotKey(self, tree, separator = ".", prefix = ""):
+    """
+    Recursive method that takes a dot-delimited header and returns a
+    nested dictionary.
+
+    Keyword arguments:
+    key -- dot-delimited header string
+    value -- value associated with header
+    """
+
+    new_tree = {}
+
+    for key, value in tree.items():
+      key = prefix + key
+      if isinstance(value, dict):
+        new_tree.update(self.convert_nestedDictToDotKey(value, separator, key + separator))
+      else:
+        new_tree[key] = value
+
+    return new_tree
+
+
   def coerce_strings(self):
     for key, item in self.dict["bibliographic"].items():
       self.dict["bibliographic"][key] = str(item).split('.')[0]
