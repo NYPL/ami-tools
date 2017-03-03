@@ -57,9 +57,11 @@ class ami_excel:
             self.path)
         else:
           raise AMIExcelError("Too many edit master sheets")
+      """
       elif re.match("not transferred", sheet_lower):
         self.notransfer_sheet = ami_excelsheet(wb.sheet_by_name(sheet),
           self.path)
+      """
 
 
   def validate_workbook(self):
@@ -350,7 +352,7 @@ class ami_excelsheet:
     return df
 
 
-  def convert_amiExcelToCSV(self, csv_path):
+  def convert_amiExcelToCSV(self, csv_path, normalize = True):
     """
     Convert a single Excel sheet into a CSV with normalized contents.
 
@@ -359,9 +361,13 @@ class ami_excelsheet:
     self.edit_sheetname)
     csv_filename -- path of the output file
     """
-    ami_data = self.normalize_values()
+    if normalize:
+      ami_data = self.normalize_values()
+    else:
+      ami_data = self.sheet_values
 
     with open(csv_path, 'w') as f:
+      LOGGER.info("Writing {}".format(csv_path))
       cw = csv.writer(f, quoting = csv.QUOTE_ALL)
       for rownum in range(0, len(ami_data)):
         cw.writerow(ami_data[rownum])
