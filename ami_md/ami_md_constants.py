@@ -848,6 +848,11 @@ STRING_REPLACE_DICT = {
     '3343306097524': '33433064097524',
     '334330992267830': '33433099226783'
   },
+  'bibliographic.divisionCode': {
+    'ncov': 'myt',
+    'myf': 'myt',
+    'myd ': 'myd'
+  },
   'digitizationProcess.analogDigitalConverter.id': {
     '0.0': None
   },
