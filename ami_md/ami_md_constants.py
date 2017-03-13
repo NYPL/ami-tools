@@ -843,7 +843,7 @@ Each first-level key is the name of the column the replacements apply to
 Second-level dictionary key-value pairs are used as find-replace
 """
 STRING_REPLACE_DICT = {
-  'bibliographic.barcode.clean': {
+  'bibliographic.barcode': {
     '3343311691': '33433116914270',
     '3343306097524': '33433064097524',
     '334330992267830': '33433099226783'
@@ -1262,11 +1262,12 @@ Probably too comprehensive in its current state.
 Might speed up code to move all whole-string match-strings to STRING_REPLACE_DICT
 """
 REGEX_REPLACE_DICT = {
-  'bibliographic.barcode.clean': {
+  'bibliographic.barcode': {
     r'^3343([^3]\d+)': r'33433\1',
     r'^3433(\\d+)': r'33433\1',
     r'^34433(\\d+)': r'33433\1',
     r'^33([^4]\\d+)': r'33433\1',
+    r'[^\\d]+': r'',
   },
   'digitizationProcess.analogDigitalConverter.manufacturer': {
     r'AJA.*': 'AJA',
@@ -1473,8 +1474,8 @@ REGEX_REPLACE_DICT = {
     r'^(?i)un.*': None
   },
   'technical.durationHuman': {
-    r'^000\:00\\\:(.+)$': r'\\1',
-    r'^(\d{2}\:\d{2}\.\d)$': r'00\:\1',
+    r'^000\:00\\\:(.+)$': r'\1',
+    r'^(\d{2}\:\d{2}\.\d+)$': r'00:\1',
     r'^(\d\:\d{2}\:\d{2})$': r'0\1'
   },
   'technical.fileFormat': {
