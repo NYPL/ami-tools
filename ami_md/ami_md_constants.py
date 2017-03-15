@@ -1466,6 +1466,10 @@ REGEX_REPLACE_DICT = {
     r'\.0$': '',
     r'\sin\.': ''
   },
+  'source.physicalDescription.stockLength': {
+    r'(?i)\s?min(utes)?\.?': '',
+    r'\?': '',
+  },
   'source.physicalDescription.stockManufacturer': {
     r'[\[\(\]\)]': '',
     r'\s?\?': '',
