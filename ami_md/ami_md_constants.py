@@ -1192,6 +1192,7 @@ STRING_REPLACE_DICT = {
     '1.500 (Mostly)': '1.5'
   },
   'source.physicalDescription.tapeWidth.measure': {
+    '1/8': '0.125',
     '1/4"': '0.25',
     '0.025': '0.25',
     '16mm': '16',
