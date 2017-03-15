@@ -1497,6 +1497,10 @@ REGEX_REPLACE_DICT = {
     r'^(?i)TDK.*': 'TDK',
     r'^(?i)un.*': None
   },
+  'source.physicalDescription.tapeThickness': {
+    r'\s?(\(|\[|\?).*$': '',
+    r'\s?mil': ''
+  },
   'technical.durationHuman': {
     r'^000\:00\\\:(.+)$': r'\1',
     r'^(\d{2}\:\d{2}\.\d+)$': r'00:\1',
