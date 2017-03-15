@@ -1014,6 +1014,11 @@ STRING_REPLACE_DICT = {
     41276.0: 2.0,
     'color': 2.0
   },
+  'source.audioRecording.trackConfiguration': {
+    'Mixed': 'mixed',
+    'N; A': 'unknown',
+    'Quarter-track': 'quarter-track'
+  },
   'source.contentSpecifications.broadcastStandard': {
     'NTSC ': 'NTSC'
   },
