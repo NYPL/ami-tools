@@ -989,8 +989,8 @@ STRING_REPLACE_DICT = {
     'NYPL': 'New York Public Library'
   },
   'source.audioRecording.audioSamplingRate.measure': {
-    48.0: 48000.0,
-    44.1: 44100.0
+    '48.0': '48000.0',
+    '44.1': '44100.0'
   },
   'source.audioRecording.audioSoundField': {
     '4-track': 'quadraphonic',
