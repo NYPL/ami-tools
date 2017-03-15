@@ -1074,15 +1074,27 @@ STRING_REPLACE_DICT = {
     'No': 'no'
   },
   'source.physicalDescription.baseMaterial': {
-    'black wax': 'wax, black',
-    'polyester and acetate': 'acetate and polyester',
-    'acetate, polyester': 'acetate and polyester',
-    'acetate/polyester': 'acetate and polyester',
-    'polyester [?]/acetate mixed': 'acetate and polyester',
+    'Acetae': 'acetate',
     'acetae & polyester': 'acetate and polyester',
-    'unidentified metal': 'unknown metal',
+    'Acetate': 'acetate',
+    'acetate, polyester': 'acetate and polyester',
+    'Acetate/Polyester': 'acetate and polyester',
+    'acetate/polyester': 'acetate and polyester',
+    'black wax': 'wax, black',
+    'Metal': 'unknown metal',
     'metal': 'unknown metal',
-    'pvc': 'PVC'
+    'Paper': 'paper',
+    'Plaster': 'plaster',
+    'Pokyester': 'polyester',
+    'Polyester': 'polyester',
+    'polyester and acetate': 'acetate and polyester',
+    'polyester [?]/acetate mixed': 'acetate and polyester',
+    'pvc': 'PVC',
+    'Steel': 'steel',
+    'Unidentified metal': 'unknown metal',
+    'unidentified metal': 'unknown metal',
+    'Wax, black': 'wax, black',
+    'Wax, brown': 'wax, brown'
   },
   'source.physicalDescription.dataCapacity.unit': {
     '[unknown]': None,
@@ -1444,8 +1456,8 @@ REGEX_REPLACE_DICT = {
   },
   'source.physicalDescription.baseMaterial': {
     r'\s?(\(|\[|\?).*$': '',
-    r'^ac\w+$': 'acetate',
-    r'^po\w+$': 'polyester'
+    r'^(?i)ac\w+$': 'acetate',
+    r'^(?i)po\w+$': 'polyester'
   },
   'source.physicalDescription.diameter.measure': {
     r'\.0$': '',
