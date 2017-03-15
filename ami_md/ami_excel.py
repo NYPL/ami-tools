@@ -288,7 +288,7 @@ class ami_excelsheet:
     df = df.replace(ami_md_constants.REGEX_REPLACE_DICT, regex=True)
     df = df.replace(ami_md_constants.STRING_REPLACE_DICT)
 
-    df['source.object.format_type'] = df['source.object.format'].map(ami_md_constants.FORMAT_TYPE)
+    df['source.object.type'] = df['source.object.format'].map(ami_md_constants.FORMAT_TYPE)
 
     for key in ami_md_constants.MEASURE_UNIT_MAPS.keys():
       value_map = ami_md_constants.MEASURE_UNIT_MAPS[key]
