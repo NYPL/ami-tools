@@ -34,8 +34,8 @@ HEADER_CONVERSION = {
   '|bibliographic item|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.barcode',
   '|bibliographic item|title': 'bibliographic.title',
   '|content specifications|audio soundfield': 'source.audioRecording.audioSoundField',
-  '|content specifications|broadcast standard': 'source.contentSpecification.broadcastStandard',
-  '|content specifications|color': 'source.contentSpecification.colorBW',
+  '|content specifications|broadcast standard': 'source.contentSpecifications.broadcastStandard',
+  '|content specifications|color': 'source.contentSpecifications.colorBW',
   '|content specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
   '|notes|access note': 'bibliographic.accessNotes',
   '|notes|condition notes': 'source.notes.physicalConditionDigitizationNotes',
@@ -74,8 +74,8 @@ HEADER_CONVERSION = {
   'archive original|configuration/specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
   'archive original|configuration/specifications|soundfield': 'source.audioRecording.audioSoundField',
   'archive original|configuration/specifications|track configuration': 'source.audioRecording.trackConfiguration',
-  'archive original|content specifications|broadcast standard': 'source.contentSpecification.broadcastStandard',
-  'archive original|content specifications|color': 'source.contentSpecification.colorBW',
+  'archive original|content specifications|broadcast standard': 'source.contentSpecifications.broadcastStandard',
+  'archive original|content specifications|color': 'source.contentSpecifications.colorBW',
   'archive original|content specifications|audio bit depth (bits)': 'source.audioRecording.audioBitDepth.measure',
   'archive original|content specifications|audio sampling rate (hz)': 'source.audioRecording.audioSamplingRate.measure',
   'archive original|content specifications|designated eq type': 'source.audioRecording.designatedEQ',
@@ -513,7 +513,7 @@ HEADER_CONVERSION = {
   'original master|bibliographic item|title (on cassette)': 'bibliographic.title',
   'original master|bibliographic item|volume (required)': 'source.object.volumeNumber',
   'original master|class mark/id': 'bibliographic.classmark',
-  'original master|configuration/specifications|broadcast standard': 'source.contentSpecification.broadcastStandard',
+  'original master|configuration/specifications|broadcast standard': 'source.contentSpecifications.broadcastStandard',
   'original master|configuration/specifications|data capacity (gb)': 'source.physicalDescription.dataCapacity.unit',
   'original master|configuration/specifications|designated eq type': 'source.audioRecording.designatedEQ',
   'original master|configuration/specifications|designated eq/pre-emphasis': 'source.audioRecording.preEmphasis',
@@ -524,12 +524,12 @@ HEADER_CONVERSION = {
   'original master|configuration/specifications|groove width': 'source.physicalDescription.grooveWidth',
   'original master|configuration/specifications|inherent eq/pre-emphasis': 'source.audioRecording.preEmphasis',
   'original master|configuration/specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
-  'original master|configuration/specifications|region code': 'source.contentSpecification.regionCode',
+  'original master|configuration/specifications|region code': 'source.contentSpecifications.regionCode',
   'original master|configuration/specifications|soundfield': 'source.audioRecording.audioSoundField',
   'original master|configuration/specifications|track configuration': 'source.audioRecording.trackConfiguration',
   'original master|content specifications|audio soundfield': 'source.audioRecording.audioSoundField',
-  'original master|content specifications|broadcast standard': 'source.contentSpecification.broadcastStandard',
-  'original master|content specifications|color': 'source.contentSpecification.colorBW',
+  'original master|content specifications|broadcast standard': 'source.contentSpecifications.broadcastStandard',
+  'original master|content specifications|color': 'source.contentSpecifications.colorBW',
   'original master|content specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
   'original master|date': 'bibliographic.date',
   'original master|disposition': 'source.object.disposition',
@@ -573,7 +573,7 @@ HEADER_CONVERSION = {
   'original master|object|volume (if applicable)': 'source.object.volumeNumber',
   'original master|object|volume (required)': 'source.object.volumeNumber',
   'original master|original object|base material': 'source.physicalDescription.baseMaterial',
-  'original master|original object|color': 'source.contentSpecification.colorBW',
+  'original master|original object|color': 'source.contentSpecifications.colorBW',
   'original master|original object|film length (feet)': 'source.physicalDescription.tapeLength.measure',
   'original master|original object|format': 'source.object.format',
   'original master|original object|gauge': 'source.physicalDescription.tapeWidth.measure',
@@ -1014,15 +1014,16 @@ STRING_REPLACE_DICT = {
     41276.0: 2.0,
     'color': 2.0
   },
-  'source.contentSpecification.broadcastStandard': {
+  'source.contentSpecifications.broadcastStandard': {
     'NTSC ': 'NTSC'
   },
-  'source.contentSpecification.colorBW': {
+  'source.contentSpecifications.colorBW': {
     'YUV': 'color',
     'Color': 'color',
     'b&w/color': 'color & b/w',
     'b/w & color': 'color & b/w',
-    'color/b&w': 'color & b/w'
+    'color/b&w': 'color & b/w',
+    'color mono': 'color'
   },
   'source.object.format': {
     '1/4 in. reel to reel': 'quarter-inch open-reel audio',
