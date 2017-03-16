@@ -270,10 +270,10 @@ class ami_bag(bagit.Bag):
                 # TODO where do i error when files don't match
                 try:
                     excel.edit_sheet.add_PMDataToEM(excel.pres_sheet.sheet_values)
-                    excel.edit_sheet.convert_amiExcelToJSON(em_path)
                 except:
                     LOGGER.error("EM's and PM's do not have 1-1 correspondence")
                 else:
+                    excel.edit_sheet.convert_amiExcelToJSON(em_path)
                     excel.pres_sheet.convert_amiExcelToJSON(pm_path)
             else:
                 excel.pres_sheet.convert_amiExcelToJSON(pm_path)
