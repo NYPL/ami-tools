@@ -48,13 +48,13 @@ class ami_excel:
         sheet_lower):
         if not self.pres_sheet:
           self.pres_sheet = ami_pressheet(wb.sheet_by_name(sheet),
-            self.path)
+            self.name)
         else:
           raise AMIExcelError("Too many preservation master sheets")
       elif re.match("edit", sheet_lower):
         if not self.edit_sheet:
           self.edit_sheet = ami_editsheet(wb.sheet_by_name(sheet),
-            self.path)
+            self.name)
         else:
           raise AMIExcelError("Too many edit master sheets")
       """
@@ -288,6 +288,17 @@ class ami_excelsheet:
     df = df.replace(ami_md_constants.REGEX_REPLACE_DICT, regex=True)
     df = df.replace(ami_md_constants.STRING_REPLACE_DICT)
 
+    # add potentially missing, but required information
+    if 'source.object.volume' not in df.columns.tolist():
+      df['source.object.volumeNumber'] = '1'
+    df['source.object.volumeNumber'].fillna('1')
+
+    if 'bibliographic.projectCode' not in df.columns.tolist():
+      df['bibliographic.projectCode'] = self.wb[0:8]
+
+    if 'asset.fileRole' not in df.columns.tolist():
+      df['asset.fileRole'] = df['asset.referenceFilename'].str.extract('(..)$', expand=False)
+
     df['source.object.type'] = df['source.object.format'].map(ami_md_constants.FORMAT_TYPE)
 
     for key in ami_md_constants.MEASURE_UNIT_MAPS.keys():
@@ -373,7 +384,7 @@ class ami_excelsheet:
         cw.writerow(ami_data[rownum])
 
 
-  def convert_amiExcelToJSON(self, json_directory, schema_version = "x.0"):
+  def convert_amiExcelToJSON(self, json_directory, schema_version = "x.0.0"):
     """
     Convert all rows in an Excel sheet into JSON files with
     normalized data. Filename is based on described file's name.
@@ -394,7 +405,7 @@ class ami_excelsheet:
     for row in ami_data[1:]:
       tree = dict(zip(headers, row))
       json_tree = ami_json.ami_json(flat_dict = tree)
-      json_tree.write_json(json_directory, schema_version)
+      json_tree.write_json(json_directory)
 
 
   def raise_excelerror(self, msg):
