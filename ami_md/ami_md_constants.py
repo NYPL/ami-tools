@@ -1007,6 +1007,9 @@ STRING_REPLACE_DICT = {
     'DBX Type 1': 'DBX I',
     'Type I': 'DBX I'
   },
+  'source.audioRecording.designatedSpeed': {
+    'not specified': 'none'
+  },
   'source.audioRecording.numberOfAudioTracks': {
     '4-track': 4.0,
     '/': None,
@@ -1056,7 +1059,7 @@ STRING_REPLACE_DICT = {
     'Edison VoiceWriter': 'disc, Edison Voicewriter',
     'EIAJ 1/2" open-reel': 'half-inch open-reel video EIAJ/AV',
     'EIAJ 1/2" r-r': 'half-inch open-reel video EIAJ/AV',
-    'Folder': "Digital file",
+    'Folder': 'Digital file',
     'Instantaneous disc': 'disc, other',
     'instantaneous disc, coated': 'disc, other',
     'instantaneous disc, uncoated': 'disc, other',
@@ -1107,23 +1110,23 @@ STRING_REPLACE_DICT = {
   },
   'source.physicalDescription.oxideMaterial': {
     'Chromium': 'chromium',
-    'chromium': 'chromium dioxide',
-    'chromium ': 'chromium dioxide',
-    'chormium': 'chromium dioxide',
-    'Ferric': 'ferric oxide',
-    'ferric': 'ferric oxide',
-    'ferric ': 'ferric oxide',
-    'iron': 'ferric oxide',
-    'ferric oxide?': 'ferric oxide',
-    'ferrric': 'ferric oxide',
-    'ferrid': 'ferric oxide',
-    'ferrci': 'ferric oxide',
-    'ferriec': 'ferric oxide',
-    'ferrica': 'ferric oxide',
-    'ferroc': 'ferric oxide',
-    'feriic': 'ferric oxide',
-    'ferricferric': 'ferric oxide',
-    'ferri': 'ferric oxide',
+    'chromium ': 'chromium',
+    'chormium': 'chromium',
+    'chromium dioxide': 'chromium',
+    'Ferric': 'ferric',
+    'ferric ': 'ferric',
+    'iron': 'ferric',
+    'ferric oxide?': 'ferric',
+    'ferric oxide': 'ferric',
+    'ferrric': 'ferric',
+    'ferrid': 'ferric',
+    'ferrci': 'ferric',
+    'ferriec': 'ferric',
+    'ferrica': 'ferric',
+    'ferroc': 'ferric',
+    'feriic': 'ferric',
+    'ferricferric': 'ferric',
+    'ferri': 'ferric',
     'Metal': 'metal',
     'metal oxide': 'metal',
     'normal': None,
@@ -1522,7 +1525,7 @@ REGEX_REPLACE_DICT = {
 }
 
 """
-Map of all format values present to their format_type category
+Map of all format values present to their type category
 Mapping maintained by Special Collections
 """
 FORMAT_TYPE = {
@@ -1655,7 +1658,7 @@ MEASURE_UNIT_MAPS = {
     'from_column': 'source.audioRecording.designatedSpeed.measure',
     'to_column': 'source.audioRecording.designatedSpeed.unit',
     'constant_value': None,
-    'values_map_column': 'source.object.format_type',
+    'values_map_column': 'source.object.type',
     'values_map': {
       'audio cassette analog': 'ips',
       'audio cassette digital': 'ips',
@@ -1669,7 +1672,7 @@ MEASURE_UNIT_MAPS = {
     'from_column': 'source.physicalDescription.dataCapacity.measure',
     'to_column': 'source.physicalDescription.dataCapacity.unit',
     'constant_value': None,
-    'values_map_column': 'source.object.format_type',
+    'values_map_column': 'source.object.type',
     'values_map': {
       'audio optical disc': 'MiB',
       'video optical disc': 'GB'
@@ -1749,7 +1752,7 @@ MEASURE_UNIT_MAPS = {
     'from_column': 'digitizationProcess.playbackDevice.speed.measure',
     'to_column': 'digitizationProcess.playbackDevice.speed.unit',
     'constant_value': None,
-    'values_map_column': 'source.object.format_type',
+    'values_map_column': 'source.object.type',
     'values_map': {
       'audio cassette analog': 'ips',
       'audio cassette digital': 'ips',
