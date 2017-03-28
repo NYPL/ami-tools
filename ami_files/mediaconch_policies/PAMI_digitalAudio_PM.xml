@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<policy type="and" name="NYPL_PAMIPreservationMasters_AudioCassetteDigital-VideoPCM">
+<policy type="and" name="PAMI_digitalAudio_PM">
   <policy type="and" name="Audio: Proper resolution?">
     <description>This policy defines audio-resolution values that are proper for WAV.</description>
     <policy type="or" name="Valid samplerate?">
