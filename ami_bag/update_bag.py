@@ -46,7 +46,8 @@ class Repairable_Bag(bagit.Bag):
 
   def update_baginfo(self, message = None):
 
-    today = datetime.date.strftime(datetime.date.today(), "%Y-%m-%d")
+    today = datetime.datetime.strftime(
+      datetime.datetime.now(), "%Y%m%d%H%M%S")
 
     total_bytes = 0
     total_files = 0
@@ -166,7 +167,8 @@ class Repairable_Bag(bagit.Bag):
 
 
   def copy_manifest_files(self):
-    today = datetime.date.strftime(datetime.date.today(), "%Y%m%d%h%M%S")
+    today = datetime.datetime.strftime(
+      datetime.datetime.now(), "%Y%m%d%H%M%S")
     for alg in self.algs:
       shutil.copyfile('manifest-{}.txt'.format(alg),
         'manifest-{}-{}.old'.format(alg, today))
