@@ -22,7 +22,7 @@ class ami_json:
     if filename:
       try:
         self.name = filename
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding = 'utf-8-sig') as f:
           self.dict = json.load(f)
       except:
         print("not a json file")
@@ -34,7 +34,7 @@ class ami_json:
       if "asset.schemaVersion" not in flat_dict.items():
           flat_dict["asset.schemaVersion"] = schema_version
       for key, value in flat_dict.items():
-        if value == value and value:
+        if value == value and  value:
           nested_dict = self.convert_dotKeyToNestedDict(
             nested_dict, key, value)
 
