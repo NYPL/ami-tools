@@ -48,13 +48,13 @@ class ami_excel:
         sheet_lower):
         if not self.pres_sheet:
           self.pres_sheet = ami_pressheet(wb.sheet_by_name(sheet),
-            self.name)
+            self.name, self.path)
         else:
           raise AMIExcelError("Too many preservation master sheets")
       elif re.match("edit", sheet_lower):
         if not self.edit_sheet:
           self.edit_sheet = ami_editsheet(wb.sheet_by_name(sheet),
-            self.name)
+            self.name, self.path)
         else:
           raise AMIExcelError("Too many edit master sheets")
       """
@@ -83,10 +83,11 @@ class ami_excel:
 
 
 class ami_excelsheet:
-  def __init__(self, sheet, wb_name):
+  def __init__(self, sheet, wb_name, path):
     """
     Initialize object as excel sheet
     """
+    self.path = path
     self.wb = wb_name
     self.name = sheet.name
     self.header_top = self.get_headerRow(sheet, 0)
@@ -546,7 +547,7 @@ class ami_pressheet(ami_excelsheet):
     Keyword arguments:
     sheet -- sheet object from workbook
     """
-    wb_open = load_workbook(self.wb, read_only = True)
+    wb_open = load_workbook(self.path, read_only = True)
     sheet = wb_open.get_sheet_by_name(self.name)
 
     for i in range(1, len(self.header_entries)):
