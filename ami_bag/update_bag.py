@@ -166,10 +166,10 @@ class Repairable_Bag(bagit.Bag):
 
 
   def copy_manifest_files(self):
-    today = datetime.date.strftime(datetime.date.today(), "%Y-%m-%d")
+    today = datetime.date.strftime(datetime.date.today(), "%Y%m%d%h%M%S")
     for alg in self.algs:
       shutil.copyfile('manifest-{}.txt'.format(alg),
-        'manifest-{}-{}.txt.old'.format(alg, today))
+        'manifest-{}-{}.old'.format(alg, today))
 
 
   def rewrite_manifest_files(self):
