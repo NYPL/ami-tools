@@ -14,6 +14,16 @@ Installing the package makes the following tools available from the command line
 script_name.py -h
 ```
 
+### Data collection
+#### survey_drive.py
+Generate the following from a mounted drive (or any folder): report of all files, report of all bags, directory with a copy of all presumed metadata (JSON and Excel)
+
+Usage: Survey a drive mounted on a Mac
+
+```sh
+survey_drive.py -d /Volumes/drive-name -o path/to/dir/for/reports
+```
+
 ### Validation Tools
 #### validate_ami_bags.py
 Check bag Oxums, bag completeness, bag hashes, directory structure, filenames, and metadata (only implemented for Excel)
