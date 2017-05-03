@@ -21,6 +21,19 @@ try:
     import pandas
 except:
     requirements.append("pandas")
+try:
+    import tqdm
+except:
+    requirements.append("tqdm")
+try:
+    import xlrd
+except:
+    requirements.append("xlrd")
+try:
+    import openpyxl
+except:
+    requirements.append("openpyxl")
+
 
 
 setup(
@@ -36,7 +49,10 @@ setup(
                'bin/repair_bags.py',
                'bin/validate_ami_bags.py',
                'bin/validate_ami_excel.py',
-               'bin/validate_bags.py'],
+               'bin/validate_bags.py',
+               'ami_bag/bagit.py',
+               'bin/survey_drive.py',
+               'bin/convert_excelbag_to_jsonbag.py'],
     platforms = ['POSIX'],
     install_requires = ['argparse', 'pandas'],
     classifiers = [

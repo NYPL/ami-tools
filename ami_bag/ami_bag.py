@@ -3,7 +3,7 @@ import csv
 import argparse
 import re
 import ami_bag.bagit as bagit
-import jsonschema
+#import jsonschema
 from ami_md.ami_excel import ami_excel
 import logging
 
@@ -23,6 +23,14 @@ class ami_bag(bagit.Bag):
         super(ami_bag, self).__init__(*args, **kwargs)
         self.data_files = self.payload_entries().keys()
         self.data_dirs = set([os.path.split(path)[0][5:] for path in self.data_files])
+        self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
+        self.set_type()
+        if self.type == "excel":
+            self.set_excel_subtype()
+        if self.type == "json":
+            self.set_json_subtype()
+        if self.type == "excel-json":
+            self.set_exceljson_subtype()
 
 
     def validate_amibag(self, fast = True, metadata = False):
@@ -76,6 +84,13 @@ class ami_bag(bagit.Bag):
                 LOGGER.error("Error in AMI bag type: {0}".format(e.message))
                 valid = False
 
+        elif self.type == "excel-json":
+            try:
+                self.check_structure_exceljsonbag()
+            except ami_bagValidationError as e:
+                LOGGER.error("Error in AMI bag type: {0}".format(e.message))
+                valid = False
+
         return valid
 
 
@@ -91,6 +106,7 @@ class ami_bag(bagit.Bag):
 
         return True
 
+
     def check_directory_depth(self):
         bad_dirs = []
 
@@ -104,19 +120,26 @@ class ami_bag(bagit.Bag):
         return True
 
 
-    def check_type(self):
+    def set_type(self):
         self.type = None
 
         if "Metadata" in self.data_dirs:
             self.type = "excel"
-        if any(re.search(r"(PreservationMasters|EditMasters|ServiceCopies)/\w+\.json$", filename) for filename in self.data_files):
-            self.type = "json"
+        if any(re.search(r"(PreservationMasters|EditMasters|ServiceCopies)/[\w\.]+\.json$", filename) for filename in self.data_files):
+            if self.type == "excel":
+                self.type = "excel-json"
+            else:
+                self.type = "json"
 
         if not self.type:
             self.raise_bagerror("Bag is not an Excel bag or JSON bag")
 
-        self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
-        self.subtype = None
+        return True
+
+
+    def check_type(self):
+        if not self.type:
+            self.raise_bagerror("Bag is not an Excel bag or JSON bag")
 
         return True
 
@@ -133,35 +156,51 @@ class ami_bag(bagit.Bag):
         return True
 
 
-    def check_structure_excelbag(self):
-
-        expected_dirs = set(["Metadata", "PreservationMasters", "EditMasters", "ArchiveOriginals", "ProjectFiles"])
-        if not self.compare_structure(expected_dirs):
-            self.raise_bagerror("Excel bags may only have the following directories\nFound: {0}\nExpected: {1}".format(self.data_dirs, expected_dirs))
+    def set_excel_subtype(self):
+        self.subtype = None
 
         if (self.compare_structure(set(["Metadata", "PreservationMasters"])) and
-            self.compare_content(set([".mov", ".xlsx"]))):
+            self.compare_content(set([".mov", ".xlsx", ".old"]))):
             self.subtype = "video"
         elif (self.compare_structure(set(["Metadata", "PreservationMasters"])) and
-              self.compare_content(set([".iso", ".xlsx"]))):
+              self.compare_content(set([".iso", ".xlsx", ".old"]))):
             self.subtype = "dvd"
         elif (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters"])) and
-              self.compare_content(set([".wav", ".xlsx"]))):
+              self.compare_content(set([".wav", ".xlsx", ".old"]))):
             self.subtype = "audio"
         elif (self.compare_structure(set(["Metadata", "PreservationMasters"])) and
-              self.compare_content(set([".wav", ".xlsx"]))):
+              self.compare_content(set([".wav", ".xlsx", ".old"]))):
             self.subtype = "audio w/o edit masters"
-        elif (self.compare_structure(set(["Metadata", "ArchiveOriginals", "PreservationMasters", "EditMasters", "ProjectFiles"])) and
+        elif (self.compare_structure(set(["Metadata", "ArchiveOriginals", "PreservationMasters", "EditMasters", "ProjectFiles", "ProjectFile"])) and
               self.compare_content(set([".tar", ".mov", ".xlsx", ".fcp", ".prproj"]))):
             self.subtype = "born-digital video"
         elif (self.compare_structure(set(["Metadata", "ArchiveOriginals", "EditMasters"])) and
-              self.compare_content(set([".wav", ".xlsx"]))):
+              self.compare_content(set([".wav", ".xlsx", ".old"]))):
             self.subtype = "born-digital audio"
 
+        return True
+
+
+    def check_structure_excelbag(self):
+        expected_dirs = set(["Metadata", "PreservationMasters", "EditMasters", "ArchiveOriginals", "ProjectFiles"])
+        if not self.compare_structure(expected_dirs):
+            self.raise_bagerror("AMI Excel bags may only have the following directories\nFound: {0}\nExpected: {1}".format(self.data_dirs, expected_dirs))
+
         if not self.subtype:
-            self.raise_bagerror("Bag does not match an existing profile for Excel bags\nExtensions: {0}\nDirectories: {1}".format(self.data_exts, self.data_dirs))
+            self.raise_bagerror("Bag does not match an existing profile for AMI Excel bags\nExtensions Found: {0}\nDirectories Found: {1}".format(self.data_exts, self.data_dirs))
 
         return True
+
+
+    def set_json_subtype(self):
+        self.subtype = None
+
+        if (self.compare_structure(set(["Metadata", "PreservationMasters", "ServiceCopies", "Images"])) and
+            self.compare_content(set([".mov", ".json", ".mp4", ".jpeg"]))):
+            self.subtype = "video"
+        if (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters", "Images"])) and
+            self.compare_content(set([".wav", ".json", ".jpeg"]))):
+            self.subtype = "audio"
 
 
     def check_structure_jsonbag(self):
@@ -169,12 +208,32 @@ class ami_bag(bagit.Bag):
 
         if not self.compare_structure(expected_dirs):
             self.raise_bagerror("JSON bags may only have the following directories - {}".format(expected_dirs))
-        if (self.compare_structure(set(["Metadata", "PreservationMasters", "ServiceCopies"])) and
-            self.compare_content(set([".mov", ".json", ".mp4", ".jpeg"]))):
+
+        if not self.subtype:
+            self.raise_bagerror("Bag does not match an existing profile for JSON bags\nExtensions Found: {0}\nDirectories Found: {1}".format(self.data_exts, self.data_dirs))
+
+        return True
+
+
+    def set_exceljson_subtype(self):
+        self.subtype = None
+
+        if (self.compare_structure(set(["Metadata", "PreservationMasters", "ServiceCopies", "Images"])) and
+            self.compare_content(set([".mov", ".xlsx", ".json", ".mp4", ".jpeg"]))):
             self.subtype = "video"
-        if (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters"])) and
-            self.compare_content(set([".wav", ".json", ".jpeg"]))):
-            self.subtype = "video"
+        if (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters", "Images"])) and
+            self.compare_content(set([".wav", ".xlsx", ".json", ".jpeg"]))):
+            self.subtype = "audio"
+
+
+    def check_structure_exceljsonbag(self):
+        expected_dirs = set(["Metadata", "PreservationMasters", "ServiceCopies", "EditMasters", "ArchiveOriginals"])
+
+        if not self.compare_structure(expected_dirs):
+            self.raise_bagerror("Excel JSON bags may only have the following directories - {}".format(expected_dirs))
+
+        if not self.subtype:
+            self.raise_bagerror("Bag does not match an existing profile for Excel JSON bags\nExtensions Found: {0}\nDirectories Found: {1}".format(self.data_exts, self.data_dirs))
 
         return True
 
@@ -204,15 +263,20 @@ class ami_bag(bagit.Bag):
         for filename in self.excel_metadata:
             excel = ami_excel(os.path.join(self.path, filename))
 
-            output_path = os.path.join(self.path, "data/PreservationMasters")
-            excel.convert_amiExcelToJSON(excel.pres_sheetname,
-                output_path)
-            '''
-            if excel.edit_sheetname:
-                output_path = os.path.join(self.path, "data/EditMasters")
-                excel.convert_amiExcelToJSON(excel.edit_sheetname,
-                    output_path)
-            '''
+            em_path = os.path.join(self.path, "data/EditMasters")
+            pm_path = os.path.join(self.path, "data/PreservationMasters")
+
+            if excel.edit_sheet:
+                # TODO where do i error when files don't match
+                try:
+                    excel.edit_sheet.add_PMDataToEM(excel.pres_sheet.sheet_values)
+                except:
+                    LOGGER.error("EM's and PM's do not have 1-1 correspondence")
+                else:
+                    excel.edit_sheet.convert_amiExcelToJSON(em_path)
+                    excel.pres_sheet.convert_amiExcelToJSON(pm_path)
+            else:
+                excel.pres_sheet.convert_amiExcelToJSON(pm_path)
 
 
     def raise_bagerror(self, msg):

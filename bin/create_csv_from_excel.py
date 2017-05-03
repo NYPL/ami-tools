@@ -55,12 +55,13 @@ def main():
     output_path = os.path.abspath(args.output)
 
   for excel_path in excel_paths:
+    csv_name = os.path.splitext(os.path.split(excel_path)[1])[0]
+    output_path = os.path.join(output_path, csv_name + '.csv')
     excel = ami_excel(excel_path)
 
     print(excel_path)
-    excel.edit_sheet.add_PMDataToEM(excel.pres_sheet.sheet_values)
-    excel.edit_sheet.convert_amiExcelToJSON(output_path)
-    excel.pres_sheet.convert_amiExcelToJSON(output_path)
+    print(output_path)
+    excel.pres_sheet.convert_amiExcelToCSV(output_path)
 
 
 if __name__ == "__main__":

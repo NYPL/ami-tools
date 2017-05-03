@@ -1,26 +1,27 @@
 MEDIAINGEST_EXPECTED_HEADERS = [
-('reference filename (automatic)', None, None),
-('original master', 'bibliographic item', 'title'),
-('original master', 'bibliographic item', 'class mark/id'),
-('original master', 'bibliographic item', 'division code'),
-('original master', 'bibliographic item', 'date'),
-('original master', 'object', 'object identifier\n(edit heading to specify type - e.g. barcode)'),
-('original master', 'object', 'format'),
-('original master', 'object', 'generation'),
-('original master', 'object', 'barcode'),
-('original master', 'content specifications', 'broadcast\nstandard'),
-('original master', 'content specifications', 'color'),
-('original master', 'notes', 'condition notes'),
-('original master', 'notes', 'content notes'),
-('original master', 'notes', 'other notes'),
-('file information (automatic)', 'general info', 'filename'),
-('file information (automatic)', 'general info', 'extension'),
-('file information (automatic)', 'general info', 'file format'),
-('file information (automatic)', 'general info', 'duration\n(hh:mm:ss:ff)'),
-('file information (automatic)', 'general info', 'date created'),
-('file information (automatic)', 'video content', 'video codec name'),
-('file information (automatic)', 'audio content', 'audio codec name'),
-('operator', 'notes', 'notes')
+('Reference filename (automatic)', None, None),
+('Original master', 'Bibliographic Item', 'Title'),
+('Original master', 'Bibliographic Item', 'Class mark/ID'),
+('Original master', 'Bibliographic Item', 'Division code'),
+('Original master', 'Bibliographic Item', 'Date'),
+('Original master', 'Object', 'Object identifier\n(edit heading to specify type - e.g. barcode)'),
+('Original master', 'Object', 'Format'),
+('Original master', 'Object', 'Generation'),
+('Original master', 'Object', 'Barcode'),
+('Original master', 'Content specifications', 'Broadcast\nstandard'),
+('Original master', 'Content specifications', 'Color'),
+('Original master', 'Notes', 'Condition notes'),
+('Original master', 'Notes', 'Content notes'),
+('Original master', 'Notes', 'Other notes'),
+('Original master', 'Notes', 'Access note'),
+('File Information (AUTOMATIC)', 'General Info', 'Filename'),
+('File Information (AUTOMATIC)', 'General Info', 'Extension'),
+('File Information (AUTOMATIC)', 'General Info', 'File format'),
+('File Information (AUTOMATIC)', 'General Info', 'Duration\n(hh:mm:ss:ff)'),
+('File Information (AUTOMATIC)', 'General Info', 'Date created'),
+('File Information (AUTOMATIC)', 'Video content', 'Video codec name'),
+('File Information (AUTOMATIC)', 'Audio content', 'Audio codec name'),
+('Operator', 'Notes', 'Notes')
 ]
 
 
@@ -30,11 +31,11 @@ HEADER_CONVERSION = {
   '|bibliographic item|disposition': 'source.object.disposition',
   '|bibliographic item|division code': 'bibliographic.divisionCode',
   '|bibliographic item|former classmark (if applicable)': 'bibliographic.formerClassmark',
-  '|bibliographic item|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.primaryID',
+  '|bibliographic item|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.barcode',
   '|bibliographic item|title': 'bibliographic.title',
   '|content specifications|audio soundfield': 'source.audioRecording.audioSoundField',
-  '|content specifications|broadcast standard': 'source.contentSpecification.broadcastStandard',
-  '|content specifications|color': 'source.contentSpecification.colorBW',
+  '|content specifications|broadcast standard': 'source.contentSpecifications.broadcastStandard',
+  '|content specifications|color': 'source.contentSpecifications.colorBW',
   '|content specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
   '|notes|access note': 'bibliographic.accessNotes',
   '|notes|condition notes': 'source.notes.physicalConditionDigitizationNotes',
@@ -44,7 +45,7 @@ HEADER_CONVERSION = {
   '|object|format': 'source.object.format',
   '|object|former classmark (if applicable)': 'bibliographic.formerClassmark',
   '|object|generation': 'source.object.generation',
-  '|object|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.primaryID',
+  '|object|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.barcode',
   '|object|volume (required)': 'source.object.volumeNumber',
   '|stock|stock length (minutes)': 'source.physicalDescription.stockLength.measure',
   '|stock|stock manufacturer': 'source.physicalDescription.stockManufacturer',
@@ -73,8 +74,8 @@ HEADER_CONVERSION = {
   'archive original|configuration/specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
   'archive original|configuration/specifications|soundfield': 'source.audioRecording.audioSoundField',
   'archive original|configuration/specifications|track configuration': 'source.audioRecording.trackConfiguration',
-  'archive original|content specifications|broadcast standard': 'source.contentSpecification.broadcastStandard',
-  'archive original|content specifications|color': 'source.contentSpecification.colorBW',
+  'archive original|content specifications|broadcast standard': 'source.contentSpecifications.broadcastStandard',
+  'archive original|content specifications|color': 'source.contentSpecifications.colorBW',
   'archive original|content specifications|audio bit depth (bits)': 'source.audioRecording.audioBitDepth.measure',
   'archive original|content specifications|audio sampling rate (hz)': 'source.audioRecording.audioSamplingRate.measure',
   'archive original|content specifications|designated eq type': 'source.audioRecording.designatedEQ',
@@ -102,7 +103,7 @@ HEADER_CONVERSION = {
   'archive original|object|disposition': 'bibliographic.disposition',
   'archive original|object|format': 'source.object.format',
   'archive original|object|generation': 'source.object.generation',
-  'archive original|object|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.primaryID',
+  'archive original|object|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.barcode',
   'archive original|object|reel diameter (inches)': 'source.physicalDescription.diameter.measure',
   'archive original|object|sequence': 'source.object.sequence',
   'archive original|object|volume (if applicable)': 'source.object.volumeNumber',
@@ -188,7 +189,7 @@ HEADER_CONVERSION = {
   'edit master file (automatic)|file information|file format': 'technical.fileFormat',
   'edit master file (automatic)|file information|file size (bytes)': 'technical.fileSize.measure',
   'edit master file (automatic)|file information|filename': 'technical.filename',
-  'edit master file (automatic)|notes|notes': 'digitizationProcess.notes',
+  'edit master file (automatic)|notes|notes': 'digitizationProcess.notes.processNotes',
   'edit master file (automatic)|operator|operator address, city': 'digitizer.organization.address.city',
   'edit master file (automatic)|operator|operator address, state': 'digitizer.organization.address.state',
   'edit master file (automatic)|operator|operator address, street 1': 'digitizer.organization.address.street1',
@@ -216,7 +217,7 @@ HEADER_CONVERSION = {
   'edit master file|edit master file|file format': 'technical.fileFormat',
   'edit master file|edit master file|file size (bytes)': 'technical.fileSize.measure',
   'edit master file|edit master file|filename': 'technical.filename',
-  'edit master file|edit master file|notes': 'digitizationProcess.notes',
+  'edit master file|edit master file|notes': 'digitizationProcess.notes.processNotes',
   'edit master file|edit master file|number of audio channels': 'technical.numberOfAudioTracks',
   'edit master file|edit master file|operator address, city': 'digitizer.organization.address.city',
   'edit master file|edit master file|operator address, state': 'digitizer.organization.address.state',
@@ -426,7 +427,7 @@ HEADER_CONVERSION = {
   'not transferred|object|disposition': 'source.object.disposition',
   'not transferred|object|format': 'source.object.format',
   'not transferred|object|generation': 'source.object.generation',
-  'not transferred|object|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.primaryID',
+  'not transferred|object|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.barcode',
   'not transferred|object|volume (required)': 'source.object.volumeNumber',
   'not transferred|sub-object|region (if applicable)': 'source.subObject.regionNumber',
   'notes|edit master file|notes': 'notes.notes',
@@ -450,10 +451,13 @@ HEADER_CONVERSION = {
   'operator|encoding software|operator name, last': 'digitizer.operator.lastName',
   'operator|encoding software|operator organization name': 'digitizer.organization.name',
   'operator|extra files check': 'check',
+  'operator|extra files check|23': 'check',
   'operator|extra files check|#ref!': 'check',
   'operator|extra files check|<- resolve first': 'check',
   'operator|extra files check|pass': 'check',
+  'operator|extra files check|archival box number': 'asset.archiveBoxNumber',
   'operator|filename check': 'check',
+  'operator|filename check|23': 'check',
   'operator|filename check|#ref!': 'check',
   'operator|filename check|fail': 'check',
   'operator|filename check|pass': 'check',
@@ -495,20 +499,21 @@ HEADER_CONVERSION = {
   'original master|bibliographic item|mss id': 'bibliographic.mssID',
   'original master|bibliographic item|new classmark': 'bibliographic.newClassmark',
   'original master|bibliographic item|non-cms id': 'bibliographic.nonCMSID',
-  'original master|bibliographic item|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.primaryID',
+  'original master|bibliographic item|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.barcode',
   'original master|bibliographic item|original classmark': 'bibliographic.formerClassmark',
   'original master|bibliographic item|original filename (if applicable)': 'recorder.filenameOriginal',
   'original master|bibliographic item|original filename (or path to folder)': 'recorder.filenameOrFolderOriginal',
   'original master|bibliographic item|original filename or folder name (if applicable)': 'recorder.filenameOrFolderOriginal',
+  'original master|bibliographic item|original file location': 'recorder.filenameOrFolderOriginal',
   'original master|bibliographic item|original filename/title': 'recorder.filenameOriginal',
   'original master|bibliographic item|original metadata titles': 'bibliographic.accessNotes',
   'original master|bibliographic item|titles applied post-digitization by gl': 'bibliographic.title',
-  'original master|bibliographic item|primary id (automatic)': 'bibliographic.primaryID',
+  'original master|bibliographic item|primary id (automatic)': 'bibliographic.barcode',
   'original master|bibliographic item|title': 'bibliographic.title',
   'original master|bibliographic item|title (on cassette)': 'bibliographic.title',
   'original master|bibliographic item|volume (required)': 'source.object.volumeNumber',
   'original master|class mark/id': 'bibliographic.classmark',
-  'original master|configuration/specifications|broadcast standard': 'source.contentSpecification.broadcastStandard',
+  'original master|configuration/specifications|broadcast standard': 'source.contentSpecifications.broadcastStandard',
   'original master|configuration/specifications|data capacity (gb)': 'source.physicalDescription.dataCapacity.unit',
   'original master|configuration/specifications|designated eq type': 'source.audioRecording.designatedEQ',
   'original master|configuration/specifications|designated eq/pre-emphasis': 'source.audioRecording.preEmphasis',
@@ -519,12 +524,12 @@ HEADER_CONVERSION = {
   'original master|configuration/specifications|groove width': 'source.physicalDescription.grooveWidth',
   'original master|configuration/specifications|inherent eq/pre-emphasis': 'source.audioRecording.preEmphasis',
   'original master|configuration/specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
-  'original master|configuration/specifications|region code': 'source.contentSpecification.regionCode',
+  'original master|configuration/specifications|region code': 'source.contentSpecifications.regionCode',
   'original master|configuration/specifications|soundfield': 'source.audioRecording.audioSoundField',
   'original master|configuration/specifications|track configuration': 'source.audioRecording.trackConfiguration',
   'original master|content specifications|audio soundfield': 'source.audioRecording.audioSoundField',
-  'original master|content specifications|broadcast standard': 'source.contentSpecification.broadcastStandard',
-  'original master|content specifications|color': 'source.contentSpecification.colorBW',
+  'original master|content specifications|broadcast standard': 'source.contentSpecifications.broadcastStandard',
+  'original master|content specifications|color': 'source.contentSpecifications.colorBW',
   'original master|content specifications|number of audio tracks': 'source.audioRecording.numberOfAudioTracks',
   'original master|date': 'bibliographic.date',
   'original master|disposition': 'source.object.disposition',
@@ -551,24 +556,24 @@ HEADER_CONVERSION = {
   'original master|notes|service copy classmark': 'bibliographic.formerClassmark',
   'original master|notes|service copy disc number': 'bibliographic.formerClassmark',
   'original master|notes|vendor notes': 'digitizationProcess.notes.processNotes',
-  'original master|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.primaryID',
+  'original master|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.barcode',
   'original master|object|barcode': 'bibliographic.barcode',
-  'original master|object|barcode (edit heading to specify type - e.g. barcode)': 'bibliographic.primaryID',
+  'original master|object|barcode (edit heading to specify type - e.g. barcode)': 'bibliographic.barcode',
   'original master|object|barcode of item being preserved': 'bibliographic.barcode',
   'original master|object|disposition': 'source.object.disposition',
   'original master|object|format': 'source.object.format',
   'original master|object|former classmark': 'bibliographic.formerClassmark',
   'original master|object|function': 'source.object.generation',
   'original master|object|generation': 'source.object.generation',
-  'original master|object|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.primaryID',
-  'original master|object|object identifier (barcode)': 'bibliographic.primaryID',
+  'original master|object|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.barcode',
+  'original master|object|object identifier (barcode)': 'bibliographic.barcode',
   'original master|object|original filename (if applicable)': 'technical.filename',
   'original master|object|reel diameter (inches)': 'source.physicalDescription.diameter.measure',
   'original master|object|sequence': 'source.object.sequence',
   'original master|object|volume (if applicable)': 'source.object.volumeNumber',
   'original master|object|volume (required)': 'source.object.volumeNumber',
   'original master|original object|base material': 'source.physicalDescription.baseMaterial',
-  'original master|original object|color': 'source.contentSpecification.colorBW',
+  'original master|original object|color': 'source.contentSpecifications.colorBW',
   'original master|original object|film length (feet)': 'source.physicalDescription.tapeLength.measure',
   'original master|original object|format': 'source.object.format',
   'original master|original object|gauge': 'source.physicalDescription.tapeWidth.measure',
@@ -614,6 +619,7 @@ HEADER_CONVERSION = {
   'preservation file (automatic)|audio encoding|number of audio channels': 'technical.numberOfAudioTracks',
   'preservation file (automatic)|bit rate|(average) data rate (kbit/s)': 'technical.audioBitRate.measure',
   'preservation file (automatic)|bit rate|data rate mode': 'technical.audioBitRate.mode',
+  'preservation file (automatic)|extra files check': 'check',
   'preservation file (automatic)|extra files check|pass': 'check',
   'preservation file (automatic)|file information|date created': 'technical.dateCreated',
   'preservation file (automatic)|file information|duration (hh:mm:ss.sss)': 'technical.durationHuman',
@@ -622,6 +628,7 @@ HEADER_CONVERSION = {
   'preservation file (automatic)|file information|file format': 'technical.fileFormat',
   'preservation file (automatic)|file information|file size (bytes)': 'technical.fileSize.measure',
   'preservation file (automatic)|file information|filename': 'technical.filename',
+  'preservation file (automatic)|filename check': 'check',
   'preservation file (automatic)|filename check|pass': 'check',
   'preservation file (automatic)|filename check|fail': 'check',
   'preservation file (automatic)|notes|notes': 'notes.notes',
@@ -653,6 +660,7 @@ HEADER_CONVERSION = {
   'preservation master file (automatic)|extra files check|pass': 'check',
   'preservation master file (automatic)|file information|date created': 'technical.dateCreated',
   'preservation master file (automatic)|file information|duration (hh:mm:ss)': 'technical.durationHuman',
+  'preservation master file (automatic)|file information|duration (hh:mm:ss.sss)': 'technical.durationHuman',
   'preservation master file (automatic)|file information|extension': 'technical.extension',
   'preservation master file (automatic)|file information|file format': 'technical.fileFormat',
   'preservation master file (automatic)|file information|file size (bytes)': 'technical.fileSize.measure',
@@ -799,7 +807,7 @@ HEADER_CONVERSION = {
   'the materials listed below were not transferred||date': 'bibliographic.date',
   'the materials listed below were not transferred||division code': 'bibliographic.divisionCode',
   'the materials listed below were not transferred||format': 'source.object.format',
-  'the materials listed below were not transferred||object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.primaryID',
+  'the materials listed below were not transferred||object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.barcode',
   'the materials listed below were not transferred||reason not transferred': 'notes.reasonNotTransferred',
   'the materials listed below were not transferred||reel diameter (inches)': 'source.physicalDescription.diameter.measure',
   'the materials listed below were not transferred||title': 'bibliographic.title',
@@ -807,7 +815,7 @@ HEADER_CONVERSION = {
   'the materials listed below were not transferred|date': 'bibliographic.date',
   'the materials listed below were not transferred|division code': 'bibliographic.divisionCode',
   'the materials listed below were not transferred|format': 'source.object.format',
-  'the materials listed below were not transferred|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.primaryID',
+  'the materials listed below were not transferred|object identifier (edit heading to specify type - e.g. barcode)': 'bibliographic.barcode',
   'the materials listed below were not transferred|reason not transferred': 'notes.reasonNotTransferred',
   'the materials listed below were not transferred|reel diameter (inches)': 'source.physicalDescription.diameter.measure',
   'the materials listed below were not transferred|title': 'bibliographic.title',
@@ -835,10 +843,15 @@ Each first-level key is the name of the column the replacements apply to
 Second-level dictionary key-value pairs are used as find-replace
 """
 STRING_REPLACE_DICT = {
-  'bibliographic.barcode.clean': {
+  'bibliographic.barcode': {
     '3343311691': '33433116914270',
     '3343306097524': '33433064097524',
     '334330992267830': '33433099226783'
+  },
+  'bibliographic.divisionCode': {
+    'ncov': 'myt',
+    'myf': 'myt',
+    'myd ': 'myd'
   },
   'digitizationProcess.analogDigitalConverter.id': {
     '0.0': None
@@ -976,8 +989,8 @@ STRING_REPLACE_DICT = {
     'NYPL': 'New York Public Library'
   },
   'source.audioRecording.audioSamplingRate.measure': {
-    48.0: 48000.0,
-    44.1: 44100.0
+    '48.0': '48000.0',
+    '44.1': '44100.0'
   },
   'source.audioRecording.audioSoundField': {
     '4-track': 'quadraphonic',
@@ -994,6 +1007,9 @@ STRING_REPLACE_DICT = {
     'DBX Type 1': 'DBX I',
     'Type I': 'DBX I'
   },
+  'source.audioRecording.designatedSpeed': {
+    'not specified': 'none'
+  },
   'source.audioRecording.numberOfAudioTracks': {
     '4-track': 4.0,
     '/': None,
@@ -1001,15 +1017,21 @@ STRING_REPLACE_DICT = {
     41276.0: 2.0,
     'color': 2.0
   },
-  'source.contentSpecification.broadcastStandard': {
+  'source.audioRecording.trackConfiguration': {
+    'Mixed': 'mixed',
+    'N; A': 'unknown',
+    'Quarter-track': 'quarter-track'
+  },
+  'source.contentSpecifications.broadcastStandard': {
     'NTSC ': 'NTSC'
   },
-  'source.contentSpecification.colorBW': {
+  'source.contentSpecifications.colorBW': {
     'YUV': 'color',
     'Color': 'color',
     'b&w/color': 'color & b/w',
     'b/w & color': 'color & b/w',
-    'color/b&w': 'color & b/w'
+    'color/b&w': 'color & b/w',
+    'color mono': 'color'
   },
   'source.object.format': {
     '1/4 in. reel to reel': 'quarter-inch open-reel audio',
@@ -1037,7 +1059,7 @@ STRING_REPLACE_DICT = {
     'Edison VoiceWriter': 'disc, Edison Voicewriter',
     'EIAJ 1/2" open-reel': 'half-inch open-reel video EIAJ/AV',
     'EIAJ 1/2" r-r': 'half-inch open-reel video EIAJ/AV',
-    'Folder': "Digital file",
+    'Folder': 'Digital file',
     'Instantaneous disc': 'disc, other',
     'instantaneous disc, coated': 'disc, other',
     'instantaneous disc, uncoated': 'disc, other',
@@ -1061,36 +1083,51 @@ STRING_REPLACE_DICT = {
     'No': 'no'
   },
   'source.physicalDescription.baseMaterial': {
-    'black wax': 'wax, black',
-    'polyester and acetate': 'acetate and polyester',
-    'acetate, polyester': 'acetate and polyester',
-    'acetate/polyester': 'acetate and polyester',
-    'polyester [?]/acetate mixed': 'acetate and polyester',
+    'Acetae': 'acetate',
     'acetae & polyester': 'acetate and polyester',
-    'unidentified metal': 'unknown metal',
+    'Acetate': 'acetate',
+    'acetate, polyester': 'acetate and polyester',
+    'Acetate/Polyester': 'acetate and polyester',
+    'acetate/polyester': 'acetate and polyester',
+    'black wax': 'wax, black',
+    'Metal': 'unknown metal',
     'metal': 'unknown metal',
-    'pvc': 'PVC'
+    'Paper': 'paper',
+    'Plaster': 'plaster',
+    'Pokyester': 'polyester',
+    'Polyester': 'polyester',
+    'polyester and acetate': 'acetate and polyester',
+    'polyester [?]/acetate mixed': 'acetate and polyester',
+    'pvc': 'PVC',
+    'Steel': 'steel',
+    'Unidentified metal': 'unknown metal',
+    'unidentified metal': 'unknown metal',
+    'Wax, black': 'wax, black',
+    'Wax, brown': 'wax, brown'
   },
   'source.physicalDescription.dataCapacity.unit': {
     '[unknown]': None,
   },
   'source.physicalDescription.oxideMaterial': {
-    'chromium': 'chromium dioxide',
-    'chromium ': 'chromium dioxide',
-    'chormium': 'chromium dioxide',
-    'ferric': 'ferric oxide',
-    'ferric ': 'ferric oxide',
-    'iron': 'ferric oxide',
-    'ferric oxide?': 'ferric oxide',
-    'ferrric': 'ferric oxide',
-    'ferrid': 'ferric oxide',
-    'ferrci': 'ferric oxide',
-    'ferriec': 'ferric oxide',
-    'ferrica': 'ferric oxide',
-    'ferroc': 'ferric oxide',
-    'feriic': 'ferric oxide',
-    'ferricferric': 'ferric oxide',
-    'ferri': 'ferric oxide',
+    'Chromium': 'chromium',
+    'chromium ': 'chromium',
+    'chormium': 'chromium',
+    'chromium dioxide': 'chromium',
+    'Ferric': 'ferric',
+    'ferric ': 'ferric',
+    'iron': 'ferric',
+    'ferric oxide?': 'ferric',
+    'ferric oxide': 'ferric',
+    'ferrric': 'ferric',
+    'ferrid': 'ferric',
+    'ferrci': 'ferric',
+    'ferriec': 'ferric',
+    'ferrica': 'ferric',
+    'ferroc': 'ferric',
+    'feriic': 'ferric',
+    'ferricferric': 'ferric',
+    'ferri': 'ferric',
+    'Metal': 'metal',
     'metal oxide': 'metal',
     'normal': None,
   },
@@ -1164,6 +1201,7 @@ STRING_REPLACE_DICT = {
     '1.500 (Mostly)': '1.5'
   },
   'source.physicalDescription.tapeWidth.measure': {
+    '1/8': '0.125',
     '1/4"': '0.25',
     '0.025': '0.25',
     '16mm': '16',
@@ -1254,11 +1292,12 @@ Probably too comprehensive in its current state.
 Might speed up code to move all whole-string match-strings to STRING_REPLACE_DICT
 """
 REGEX_REPLACE_DICT = {
-  'bibliographic.barcode.clean': {
+  'bibliographic.barcode': {
     r'^3343([^3]\d+)': r'33433\1',
     r'^3433(\\d+)': r'33433\1',
     r'^34433(\\d+)': r'33433\1',
     r'^33([^4]\\d+)': r'33433\1',
+    r'[^\\d]+': r'',
   },
   'digitizationProcess.analogDigitalConverter.manufacturer': {
     r'AJA.*': 'AJA',
@@ -1430,12 +1469,16 @@ REGEX_REPLACE_DICT = {
   },
   'source.physicalDescription.baseMaterial': {
     r'\s?(\(|\[|\?).*$': '',
-    r'^ac\w+$': 'acetate',
-    r'^po\w+$': 'polyester'
+    r'^(?i)ac\w+$': 'acetate',
+    r'^(?i)po\w+$': 'polyester'
   },
   'source.physicalDescription.diameter.measure': {
     r'\.0$': '',
     r'\sin\.': ''
+  },
+  'source.physicalDescription.stockLength': {
+    r'(?i)\s?min(utes)?\.?': '',
+    r'\?': '',
   },
   'source.physicalDescription.stockManufacturer': {
     r'[\[\(\]\)]': '',
@@ -1464,9 +1507,13 @@ REGEX_REPLACE_DICT = {
     r'^(?i)TDK.*': 'TDK',
     r'^(?i)un.*': None
   },
+  'source.physicalDescription.tapeThickness': {
+    r'\s?(\(|\[|\?).*$': '',
+    r'\s?mil': ''
+  },
   'technical.durationHuman': {
-    r'^000\:00\\\:(.+)$': r'\\1',
-    r'^(\d{2}\:\d{2}\.\d)$': r'00\:\1',
+    r'^000\:00\\\:(.+)$': r'\1',
+    r'^(\d{2}\:\d{2}\.\d+)$': r'00:\1',
     r'^(\d\:\d{2}\:\d{2})$': r'0\1'
   },
   'technical.fileFormat': {
@@ -1478,7 +1525,7 @@ REGEX_REPLACE_DICT = {
 }
 
 """
-Map of all format values present to their format_type category
+Map of all format values present to their type category
 Mapping maintained by Special Collections
 """
 FORMAT_TYPE = {
@@ -1611,7 +1658,7 @@ MEASURE_UNIT_MAPS = {
     'from_column': 'source.audioRecording.designatedSpeed.measure',
     'to_column': 'source.audioRecording.designatedSpeed.unit',
     'constant_value': None,
-    'values_map_column': 'source.object.format_type',
+    'values_map_column': 'source.object.type',
     'values_map': {
       'audio cassette analog': 'ips',
       'audio cassette digital': 'ips',
@@ -1625,7 +1672,7 @@ MEASURE_UNIT_MAPS = {
     'from_column': 'source.physicalDescription.dataCapacity.measure',
     'to_column': 'source.physicalDescription.dataCapacity.unit',
     'constant_value': None,
-    'values_map_column': 'source.object.format_type',
+    'values_map_column': 'source.object.type',
     'values_map': {
       'audio optical disc': 'MiB',
       'video optical disc': 'GB'
@@ -1705,7 +1752,7 @@ MEASURE_UNIT_MAPS = {
     'from_column': 'digitizationProcess.playbackDevice.speed.measure',
     'to_column': 'digitizationProcess.playbackDevice.speed.unit',
     'constant_value': None,
-    'values_map_column': 'source.object.format_type',
+    'values_map_column': 'source.object.type',
     'values_map': {
       'audio cassette analog': 'ips',
       'audio cassette digital': 'ips',
