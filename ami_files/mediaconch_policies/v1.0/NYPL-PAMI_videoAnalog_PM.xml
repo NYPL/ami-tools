@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<policy type="and" name="NYPL_PAMI PreservationMaster_VideoAnalog">
+<policy type="and" name="NYPL-PAMI_videoAnalog_PM">
   <description>Derived from http://calpreservation.org/wp-content/uploads/2014/12/CAVPP-file-specs-2014.11.20.pdf</description>
   <rule name="Video CodecID should be v210." value="CodecID" tracktype="Video" occurrence="*" operator="=">v210</rule>
   <policy type="or" name="Format should be QuickTime">

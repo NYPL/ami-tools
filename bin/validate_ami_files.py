@@ -74,9 +74,6 @@ def main():
   audio_pm_pattern =
 
 
-
-
-
   # Locate our policies files
   #TODO create list to hold filenames of policies
 
@@ -98,16 +95,22 @@ def main():
       # it also lets us redirect standard output (like '>')
       #TODO add the ami_filepath into the command
       #TODO add a path where you want the report to go
+
       subprocess.call(['mediaconch', '-p', policy_filepath, , '-f']
                       stdout=open('path/to/report', 'w'),
                       stderr=subprocess.STDOUT
                       )
+      #TODO above should be "mediaconch -fc -p policy_filepath list-of-files" for csv report
 
   # The current command runs every policy against every file
-  # It overwrite the results onto the same file
+  # It overwrites the results onto the same file
+  #  - If report is named dateAndTImeOfReport.csv, will this eliminate ovrwriting?
   # What do you need to make it write reports for each ami_file to different report files?
+  # - if report is in csv format, each row = different file [this is good]
   # What do you need to do to make sure it only records successful reports?
+  # - "successful" = ?
   # What do you need to do to report if a file doesn't pass any report?
+  # - would be nifty to print list of fails
 
 
 
