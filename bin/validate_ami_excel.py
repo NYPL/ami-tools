@@ -55,9 +55,9 @@ def main():
             wb.save(args.output)
             new_excel = ami_excel(args.output)
             if new_excel.validate_workbook():
-                LOGGER.info("{}: valid".format(args.excel))
+                LOGGER.info("{}: valid".format(args.output))
             else:
-                LOGGER.error("{}: invalid".format(args.excel))
+                LOGGER.error("{}: invalid".format(args.output))
 
 
 
