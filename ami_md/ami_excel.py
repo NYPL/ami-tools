@@ -333,7 +333,7 @@ class ami_excelsheet:
     self.edit_sheetname)
     json_directory -- path to output directory for json files
     """
-    ami_data = self.normalize_values()
+    ami_data = self.normalize_sheet_values()
 
     cols = len(ami_data[0])
 
@@ -531,6 +531,6 @@ class ami_editsheet(ami_excelsheet):
 
     em_df = em_df.join(pm_df.set_index("join_idx"), on = "join_idx")
     em_df = em_df.drop("join_idx", axis = 1)
-    em_df["asset.referenceFilename"] = em_df["asset.referenceFilename"].str.replace("pm", "em")
+    em_df["asset.referenceFilename"] = em_df["technical.filename"]
 
     self.sheet_values = em_df
