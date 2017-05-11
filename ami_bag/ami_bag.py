@@ -10,6 +10,8 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 
+EXTS = ['.mov', '.wav', '.mkv', '.iso', '.tar']
+
 
 class ami_bagValidationError(Exception):
     def __init__(self, message):
@@ -24,6 +26,7 @@ class ami_bag(bagit.Bag):
         self.data_files = self.payload_entries().keys()
         self.data_dirs = set([os.path.split(path)[0][5:] for path in self.data_files])
         self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
+        self.media_files = [path for path in self.data_files if any(ext in path.lower() for ext in EXTS)]
         self.set_type()
         if self.type == "excel":
             self.set_excel_subtype()
@@ -125,7 +128,7 @@ class ami_bag(bagit.Bag):
 
         if "Metadata" in self.data_dirs:
             self.type = "excel"
-        if any(re.search(r"(PreservationMasters|EditMasters|ServiceCopies)/[\w\.]+\.json$", filename) for filename in self.data_files):
+        if ".json" in self.data_exts:
             if self.type == "excel":
                 self.type = "excel-json"
             else:
@@ -198,9 +201,11 @@ class ami_bag(bagit.Bag):
         if (self.compare_structure(set(["Metadata", "PreservationMasters", "ServiceCopies", "Images"])) and
             self.compare_content(set([".mov", ".json", ".mp4", ".jpeg"]))):
             self.subtype = "video"
-        if (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters", "Images"])) and
+        elif (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters", "Images"])) and
             self.compare_content(set([".wav", ".json", ".jpeg"]))):
             self.subtype = "audio"
+
+        return True
 
 
     def check_structure_jsonbag(self):
@@ -221,9 +226,12 @@ class ami_bag(bagit.Bag):
         if (self.compare_structure(set(["Metadata", "PreservationMasters", "ServiceCopies", "Images"])) and
             self.compare_content(set([".mov", ".xlsx", ".json", ".mp4", ".jpeg"]))):
             self.subtype = "video"
-        if (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters", "Images"])) and
+        elif (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters", "Images"])) and
             self.compare_content(set([".wav", ".xlsx", ".json", ".jpeg"]))):
             self.subtype = "audio"
+
+        return True
+
 
 
     def check_structure_exceljsonbag(self):
