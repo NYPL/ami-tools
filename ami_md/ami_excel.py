@@ -94,7 +94,11 @@ class ami_excelsheet:
     self.header_middle = self.get_headerRow(sheet, 1)
     self.header_bottom = self.get_headerRow(sheet, 2)
     self.header_entries = self.get_headerEntries(sheet)
-    self.normalize_sheet(sheet)
+    self.normalized_header_entries = self.get_normalizedHeaderEntries()
+
+    self.sheet_values = pd.read_excel(self.path,
+      sheetname = self.name, skiprows = 2)
+    self.sheet_values.columns = self.normalized_header_entries
 
 
   def get_headerRow(self, sheet, row):
@@ -172,31 +176,7 @@ class ami_excelsheet:
     return entry
 
 
-  def get_headerEntryAsString(self, sheet, column, delimiter = "|"):
-    """
-    Returns delimited string based on the output of
-    get_headerEntryAsTuple()
-
-    Keyword arguments:
-    sheetname -- name of the sheet to extract from (self.pres_sheetname
-    or self.edit_sheetname)
-    column -- index of the column of the 3rd-level header
-    delimiter -- character to separate tuple entries
-    """
-    header_entry = self.get_headerEntryAsTuple(sheet, column)
-
-    header_entry_list = [entry.lower() if entry else None for entry in header_entry]
-
-    #remove empty tuple values before adding delimiter
-    header_string = delimiter.join(filter(None, header_entry_list))
-
-    #remove newlines since they're inconsistent
-    header_string = header_string.replace("\n", " ").strip()
-
-    return header_string
-
-
-  def normalize_sheet(self, sheet):
+  def get_normalizedHeaderEntries(self):
     """
     Convert Excel sheet into pandas dataframe
     Each list represents one row of the spreadsheets
@@ -207,37 +187,20 @@ class ami_excelsheet:
     Keyword arguments:
     sheet -- sheet object from workbook
     """
-    self.sheet_values = []
+    normalized_headers = []
 
-    date_headers = ["bibliographic.date", "technical.dateCreated"]
-    time_headers = ["technical.durationHuman"]
+    for header_entry in self.header_entries:
+      header_entry_list = [entry.lower() if entry else None for entry in header_entry]
 
-    #copy everything from the 3rd row to the last row with a filename
-    for rownum in range(2, sheet.nrows):
-      if sheet.cell(rownum, 0):
-        self.sheet_values.append(sheet.row_values(rownum))
+      #remove empty tuple values before adding delimiter
+      header_string = "|".join(filter(None, header_entry_list))
 
-    for i in range(0, sheet.ncols):
-      #normalize header
-      header_entry = self.get_headerEntryAsString(sheet, i)
-      self.sheet_values[0][i] = self.normalize_headerEntry(
-        header_entry)
+      #remove newlines since they're inconsistent
+      header_string = header_string.replace("\n", " ").strip()
+      normalized_header = self.normalize_headerEntry(header_string)
+      normalized_headers.append(normalized_header)
 
-      #convert excel dates
-      if self.sheet_values[0][i] in date_headers:
-        for j in range(3, sheet.nrows):
-          if sheet.cell(j, i).ctype == 3:
-            value = sheet.cell(j, i).value
-            self.sheet_values[j-2][i] = self.convert_excelDateTime(
-              value, "date")
-
-      #convert excel times
-      if self.sheet_values[0][i] in time_headers:
-        for j in range(3, sheet.nrows):
-          if sheet.cell(j, i).ctype == 3:
-            value = sheet.cell(j, i).value
-            self.sheet_values[j-2][i] = self.convert_excelDateTime(
-              value, "time")
+    return normalized_headers
 
 
   def normalize_headerEntry(self, header_entry):
@@ -250,39 +213,16 @@ class ami_excelsheet:
     """
     if header_entry not in ami_md_constants.HEADER_CONVERSION.keys():
       print(header_entry)
+
     return ami_md_constants.HEADER_CONVERSION[header_entry]
 
 
-  def convert_excelDateTime(self, value, return_type):
-    """
-    Converts Excel's decimal encoded datetimes into ISO format strings.
-    Returns blank string if xldate conversion fails, otherwise, ISO
-    string.
-
-    Keyword arguments:
-    value -- decimal number encoding Excel datetimes
-    return_type -- (date, time) whether to return date or time
-    """
-    try:
-      converted_value = xldate.xldate_as_datetime(value,
-        self.wb.datemode)
-      if return_type == "date":
-        converted_value = converted_value.date().isoformat()
-      if return_type == "time":
-        converted_value = converted_value.time().isoformat()
-    except:
-      converted_value = ""
-
-    return converted_value
-
-
-  def normalize_values(self):
+  def normalize_sheet_values(self):
     """
     Normalize all entries via dictionaries defined in the ami_md_constants
     module. Returns a list of lists
     """
-    df = pd.DataFrame(self.sheet_values[1:],
-      columns = self.sheet_values[0]).astype(str)
+    df = self.sheet_values
 
     df = df.replace(ami_md_constants.NAS)
 
@@ -315,14 +255,12 @@ class ami_excelsheet:
       df = self.map_primaryid(df)
 
     #force all the numerics back to numeric, and drop all empty columns
-    df = df.apply(pd.to_numeric, errors='ignore').dropna(axis = 1, how = "all")
+    df = df.dropna(axis = 1, how = "all")
     df.sort_index(axis=1, inplace=True)
 
-    vals = df.values.tolist()
-    cols = df.columns.tolist()
-    vals.insert(0, cols)
+    self.sheet_values = df
 
-    return vals
+    return
 
 
   def map_formatvalue(self, df, from_column, to_column, value = None,
@@ -374,9 +312,9 @@ class ami_excelsheet:
     csv_filename -- path of the output file
     """
     if normalize:
-      ami_data = self.normalize_values()
-    else:
-      ami_data = self.sheet_values
+      self.normalize_sheet_values()
+
+    ami_data = self.sheet_values
 
     with open(csv_path, 'w') as f:
       LOGGER.info("Writing {}".format(csv_path))
@@ -449,6 +387,13 @@ class ami_pressheet(ami_excelsheet):
         header_entries)
     except AMIExcelError as e:
       print("Error in header entries: ", e.value)
+      valid = False
+
+    #Check that Reference Filename field actually exists
+    try:
+      self.check_reffilenameheader()
+    except AMIExcelError as e:
+      print("Missing R1C1 header: Reference filename (automatic)")
       valid = False
 
     #Check that the preservation sheet does not contain equations
@@ -538,6 +483,12 @@ class ami_pressheet(ami_excelsheet):
 
     return True
 
+  def check_reffilenameheader(self):
+    if 'Reference filename (automatic)' not in self.header_top:
+      raise AMIExcelError("Missing correct filename header.")
+
+    return True
+
 
   def check_noequations(self):
     """
@@ -551,11 +502,12 @@ class ami_pressheet(ami_excelsheet):
     sheet = wb_open.get_sheet_by_name(self.name)
 
     for i in range(1, len(self.header_entries)):
-      value = sheet.cell(row = 4, column = i).value
-      # equation check logic, TODO might be better code out there
-      if (value and isinstance(value, str) and value[0] == "="):
-        raise AMIExcelError("Cell R4C{0} contain equations."
-          .format(i))
+      for j in range(1,5):
+        value = sheet.cell(row = j, column = i).value
+        # equation check logic, TODO might be better code out there
+        if (value and isinstance(value, str) and value[0] == "="):
+          raise AMIExcelError("Cell R4C{0} contain equations."
+            .format(i))
 
     return True
 
@@ -568,12 +520,10 @@ class ami_editsheet(ami_excelsheet):
   def add_PMDataToEM(self, pm_data):
     """
     """
-    em_df = pd.DataFrame(self.sheet_values[1:],
-      columns = self.sheet_values[0]).astype(str)
+    em_df = self.sheet_values
     em_df["join_idx"] = em_df["technical.filename"].str.slice(0, -3)
 
-    pm_df = pd.DataFrame(pm_data[1:],
-      columns = pm_data[0]).astype(str)
+    pm_df = pm_data
     pm_drop_cols = set(pm_df.columns.tolist()).intersection(set(em_df.columns.tolist()))
     #pm_drop_cols = [col for col in pm_df.columns.tolist() if (col.startswith('technical') or col.startswith('digitizer'))]
     pm_df = pm_df.drop(pm_drop_cols, axis = 1)
@@ -583,8 +533,4 @@ class ami_editsheet(ami_excelsheet):
     em_df = em_df.drop("join_idx", axis = 1)
     em_df["asset.referenceFilename"] = em_df["asset.referenceFilename"].str.replace("pm", "em")
 
-    vals = em_df.values.tolist()
-    cols = em_df.columns.tolist()
-    vals.insert(0, cols)
-
-    self.sheet_values = vals
+    self.sheet_values = em_df
