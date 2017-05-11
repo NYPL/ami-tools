@@ -11,7 +11,7 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 
-EXTS = ['.mov', '.wav', '.mkv', '.iso', '.tar']
+EXTS = [".mov", ".wav", ".mkv", ".iso", ".tar"]
 
 
 class ami_bagValidationError(Exception):
@@ -30,13 +30,13 @@ class ami_bag(bagit.Bag):
         self.media_files = set([os.path.basename(path) for path in self.data_files if any(path.lower().endswith(ext) for ext in EXTS)])
         self.set_type()
         if self.type == "excel":
-            self.set_excel_subtype()
+            self.set_subtype_excel()
             self.set_metadata_excel()
         if self.type == "json":
-            self.set_json_subtype()
+            self.set_subtype_json()
             self.set_metadata_json()
         if self.type == "excel-json":
-            self.set_exceljson_subtype()
+            self.set_subtype_exceljson()
             self.set_metadata_json()
 
 
@@ -72,7 +72,7 @@ class ami_bag(bagit.Bag):
 
         if self.type == "excel":
             try:
-                self.check_structure_excelbag()
+                self.check_bagstructure_excel()
             except ami_bagValidationError as e:
                 LOGGER.error("Error in bag structure: {0}".format(e.message))
                 valid = False
@@ -93,14 +93,14 @@ class ami_bag(bagit.Bag):
         else:
             if self.type == "json":
                 try:
-                    self.check_structure_jsonbag()
+                    self.check_bagstructure_json()
                 except ami_bagValidationError as e:
                     LOGGER.error("Error in AMI bag type: {0}".format(e.message))
                     valid = False
 
             elif self.type == "excel-json":
                 try:
-                    self.check_structure_exceljsonbag()
+                    self.check_bagstructure_exceljson()
                 except ami_bagValidationError as e:
                     LOGGER.error("Error in AMI bag type: {0}".format(e.message))
                     valid = False
@@ -177,7 +177,7 @@ class ami_bag(bagit.Bag):
         return True
 
 
-    def set_excel_subtype(self):
+    def set_subtype_excel(self):
         self.subtype = None
 
         if (self.compare_structure(set(["Metadata", "PreservationMasters"])) and
@@ -202,7 +202,7 @@ class ami_bag(bagit.Bag):
         return True
 
 
-    def check_structure_excelbag(self):
+    def check_bagstructure_excel(self):
         expected_dirs = set(["Metadata", "PreservationMasters", "EditMasters", "ArchiveOriginals", "ProjectFiles"])
         if not self.compare_structure(expected_dirs):
             self.raise_bagerror("AMI Excel bags may only have the following directories\nFound: {0}\nExpected: {1}".format(self.data_dirs, expected_dirs))
@@ -213,7 +213,7 @@ class ami_bag(bagit.Bag):
         return True
 
 
-    def set_json_subtype(self):
+    def set_subtype_json(self):
         self.subtype = None
 
         if (self.compare_structure(set(["Metadata", "PreservationMasters", "ServiceCopies", "Images"])) and
@@ -226,7 +226,7 @@ class ami_bag(bagit.Bag):
         return True
 
 
-    def check_structure_jsonbag(self):
+    def check_bagstructure_json(self):
         expected_dirs = set(["PreservationMasters", "ServiceCopies", "EditMasters", "ArchiveOriginals"])
 
         if not self.compare_structure(expected_dirs):
@@ -238,7 +238,7 @@ class ami_bag(bagit.Bag):
         return True
 
 
-    def set_exceljson_subtype(self):
+    def set_subtype_exceljson(self):
         self.subtype = None
 
         if (self.compare_structure(set(["Metadata", "PreservationMasters", "ServiceCopies", "Images"])) and
@@ -251,7 +251,7 @@ class ami_bag(bagit.Bag):
         return True
 
 
-    def check_structure_exceljsonbag(self):
+    def check_bagstructure_exceljson(self):
         expected_dirs = set(["Metadata", "PreservationMasters", "ServiceCopies", "EditMasters", "ArchiveOriginals"])
 
         if not self.compare_structure(expected_dirs):
@@ -273,13 +273,13 @@ class ami_bag(bagit.Bag):
 
             # collect list of filenames in metadata
             if excel.pres_sheet:
-                paths = excel.pres_sheet.sheet_values['asset.referenceFilename'].tolist()
-                exts =  excel.pres_sheet.sheet_values['technical.extension'].tolist()
-                self.media_files_md.extend(['.'.join([path,ext]) for path,ext in zip(paths,exts)])
+                paths = excel.pres_sheet.sheet_values["asset.referenceFilename"].tolist()
+                exts =  excel.pres_sheet.sheet_values["technical.extension"].tolist()
+                self.media_files_md.extend([".".join([path,ext]) for path,ext in zip(paths,exts)])
             if excel.edit_sheet:
-                paths = excel.edit_sheet.sheet_values['technical.filename'].tolist()
-                exts =  excel.edit_sheet.sheet_values['technical.extension'].tolist()
-                self.media_files_md.extend(['.'.join([path,ext]) for path,ext in zip(paths,exts)])
+                paths = excel.edit_sheet.sheet_values["technical.filename"].tolist()
+                exts =  excel.edit_sheet.sheet_values["technical.extension"].tolist()
+                self.media_files_md.extend([".".join([path,ext]) for path,ext in zip(paths,exts)])
 
         self.media_files_md = set(self.media_files_md)
 
@@ -319,7 +319,7 @@ class ami_bag(bagit.Bag):
             json = ami_json(filename = os.path.join(self.path, filename))
             filename = json.dict["technical"]["filename"]
             ext = json.dict["technical"]["extension"]
-            self.media_files_md.append('.'.join([filename, ext]))
+            self.media_files_md.append(".".join([filename, ext]))
 
         self.media_files_md = set(self.media_files_md)
 
@@ -362,7 +362,7 @@ class ami_bag(bagit.Bag):
         '''
 
         raise ami_bagValidationError(msg)
-        logging.error(msg + '\n')
+        logging.error(msg + "\n")
         return False
 
 
