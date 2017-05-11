@@ -1296,8 +1296,7 @@ REGEX_REPLACE_DICT = {
     r'^3343([^3]\d+)': r'33433\1',
     r'^3433(\\d+)': r'33433\1',
     r'^34433(\\d+)': r'33433\1',
-    r'^33([^4]\\d+)': r'33433\1',
-    r'[^\\d]+': r'',
+    r'^33([^4]\\d+)': r'33433\1'
   },
   'digitizationProcess.analogDigitalConverter.manufacturer': {
     r'AJA.*': 'AJA',
