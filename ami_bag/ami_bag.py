@@ -5,6 +5,7 @@ import re
 import ami_bag.bagit as bagit
 #import jsonschema
 from ami_md.ami_excel import ami_excel
+from ami_md.ami_json import ami_json
 import logging
 
 
@@ -26,14 +27,17 @@ class ami_bag(bagit.Bag):
         self.data_files = self.payload_entries().keys()
         self.data_dirs = set([os.path.split(path)[0][5:] for path in self.data_files])
         self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
-        self.media_files = [path for path in self.data_files if any(ext in path.lower() for ext in EXTS)]
+        self.media_files = set([os.path.basename(path) for path in self.data_files if any(path.lower().endswith(ext) for ext in EXTS)])
         self.set_type()
         if self.type == "excel":
             self.set_excel_subtype()
+            self.set_metadata_excel()
         if self.type == "json":
             self.set_json_subtype()
+            self.set_metadata_json()
         if self.type == "excel-json":
             self.set_exceljson_subtype()
+            self.set_metadata_json()
 
 
     def validate_amibag(self, fast = True, metadata = False):
@@ -80,19 +84,33 @@ class ami_bag(bagit.Bag):
                     LOGGER.error("Error in bag metadata: {0}".format(e.message))
                     valid = False
 
-        elif self.type == "json":
-            try:
-                self.check_structure_jsonbag()
-            except ami_bagValidationError as e:
-                LOGGER.error("Error in AMI bag type: {0}".format(e.message))
-                valid = False
+                try:
+                    self.check_filenames_manifest_and_metadata_excel()
+                except ami_bagValidationError as e:
+                    LOGGER.error("Error in bag metadata: {0}".format(e.message))
+                    valid = False
 
-        elif self.type == "excel-json":
-            try:
-                self.check_structure_exceljsonbag()
-            except ami_bagValidationError as e:
-                LOGGER.error("Error in AMI bag type: {0}".format(e.message))
-                valid = False
+        else:
+            if self.type == "json":
+                try:
+                    self.check_structure_jsonbag()
+                except ami_bagValidationError as e:
+                    LOGGER.error("Error in AMI bag type: {0}".format(e.message))
+                    valid = False
+
+            elif self.type == "excel-json":
+                try:
+                    self.check_structure_exceljsonbag()
+                except ami_bagValidationError as e:
+                    LOGGER.error("Error in AMI bag type: {0}".format(e.message))
+                    valid = False
+
+            if metadata:
+                try:
+                    self.check_filenames_manifest_and_metadata_json()
+                except ami_bagValidationError as e:
+                    LOGGER.error("Error in bag metadata: {0}".format(e.message))
+                    valid = False
 
         return valid
 
@@ -233,7 +251,6 @@ class ami_bag(bagit.Bag):
         return True
 
 
-
     def check_structure_exceljsonbag(self):
         expected_dirs = set(["Metadata", "PreservationMasters", "ServiceCopies", "EditMasters", "ArchiveOriginals"])
 
@@ -246,22 +263,74 @@ class ami_bag(bagit.Bag):
         return True
 
 
-    def check_metadata_excel(self):
-        self.excel_metadata = [filename for filename in self.data_files if os.path.splitext(filename)[1] == ".xlsx"]
+    def set_metadata_excel(self):
+        self.metadata_files = [filename for filename in self.data_files if os.path.splitext(filename)[1] == ".xlsx"]
 
-        if not self.excel_metadata:
+        self.media_files_md = []
+
+        for filename in self.metadata_files:
+            excel = ami_excel(os.path.join(self.path, filename))
+
+            # collect list of filenames in metadata
+            if excel.pres_sheet:
+                paths = excel.pres_sheet.sheet_values['asset.referenceFilename'].tolist()
+                exts =  excel.pres_sheet.sheet_values['technical.extension'].tolist()
+                self.media_files_md.extend(['.'.join([path,ext]) for path,ext in zip(paths,exts)])
+            if excel.edit_sheet:
+                paths = excel.edit_sheet.sheet_values['technical.filename'].tolist()
+                exts =  excel.edit_sheet.sheet_values['technical.extension'].tolist()
+                self.media_files_md.extend(['.'.join([path,ext]) for path,ext in zip(paths,exts)])
+
+        self.media_files_md = set(self.media_files_md)
+
+        return
+
+
+    def check_metadata_excel(self):
+        if not self.metadata_files:
             self.raise_bagerror("Excel bag does not contain any files with xlsx extension")
 
         bad_excel = []
 
-        for filename in self.excel_metadata:
-            excel = ami_excel(os.path.join(self.path, filename))
+        for filename in self.metadata_files:
             if not excel.validate_workbook():
                 bad_excel.append(filename)
 
         if bad_excel:
             self.raise_bagerror("Excel files contain formatting errors")
 
+        return True
+
+
+    def check_filenames_manifest_and_metadata_excel(self):
+        if not self.media_files_md >= self.media_files:
+            self.raise_bagerror("Filenames in Excel do not match filenames in manifest. Missing: {}".format(
+                set(self.media_files) - set(self.media_files_md)
+            ))
+        return True
+
+
+    def set_metadata_json(self):
+        self.metadata_files = [filename for filename in self.data_files if os.path.splitext(filename)[1] == ".json"]
+
+        self.media_files_md = []
+
+        for filename in self.metadata_files:
+            json = ami_json(filename = os.path.join(self.path, filename))
+            filename = json.dict["technical"]["filename"]
+            ext = json.dict["technical"]["extension"]
+            self.media_files_md.append('.'.join([filename, ext]))
+
+        self.media_files_md = set(self.media_files_md)
+
+        return
+
+
+    def check_filenames_manifest_and_metadata_json(self):
+        if not self.media_files_md == self.media_files:
+            self.raise_bagerror("Filenames in JSON do not match filenames in manifest.\nMissing from JSON: {}".format(
+                set(self.media_files) - set(self.media_files_md)
+            ))
         return True
 
 
