@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import math
+from pandas.tslib import Timestamp
 
 LOGGER = logging.getLogger(__name__)
 
@@ -34,7 +35,9 @@ class ami_json:
       if "asset.schemaVersion" not in flat_dict.items():
           flat_dict["asset.schemaVersion"] = schema_version
       for key, value in flat_dict.items():
-        if value == value and  value:
+        if value:
+          if type(value) == Timestamp:
+            value = value.strftime('%Y-%m-%d')
           nested_dict = self.convert_dotKeyToNestedDict(
             nested_dict, key, value)
 
