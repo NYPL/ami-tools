@@ -844,9 +844,9 @@ Second-level dictionary key-value pairs are used as find-replace
 """
 STRING_REPLACE_DICT = {
   'bibliographic.barcode': {
-    '3343311691': '33433116914270',
-    '3343306097524': '33433064097524',
-    '334330992267830': '33433099226783'
+    3343311691: 33433116914270,
+    3343306097524: 33433064097524,
+    334330992267830: 33433099226783
   },
   'bibliographic.divisionCode': {
     'ncov': 'myt',
@@ -854,69 +854,58 @@ STRING_REPLACE_DICT = {
     'myd ': 'myd'
   },
   'digitizationProcess.analogDigitalConverter.id': {
-    '0.0': None
+    0: None
   },
   'digitizationProcess.analogDigitalConverter.manufacturer': {
+    0: None,
     'Apple': None,
     'ADA-8XR': 'Prism Sound',
-    'LIO 8': 'Metic Halo',
+    'LIO 8': 'Metric Halo',
+    'MAC OS X 10.6.8': None,
     'none': None
   },
   'digitizationProcess.analogDigitalConverter.model': {
+    0: None,
+    '1.0.25': None,
     '42': None,
     'IO LA': 'Io LA',
-    'Power Mac G5': None
+    'none': None,
+    'Power Mac G5': None,
   },
   'digitizationProcess.analogDigitalConverter.serialNumber': {
-    'Black Magic': None,
+    0: None,
     'AJA': None,
-    'Prism Sound': None,
-    'none': None
+    'Black Magic': None,
+    'EVS': None,
+    'Metric Halo': None,
+    'none': None,
+    'Prism Sound': None
   },
   'digitizationProcess.captureSoftware.manufacturer': {
     'CentOS 2.6.32-279-el6': 'EVS OpenCube Technologies',
     'Metic Halo': 'Metric Halo'
   },
-  'digitizationProcess.captureSoftware.manufacturer': {
-    'Macintosh OS X': None,
-    'X': None
-  },
   'digitizationProcess.playbackDevice.groovedWallPlayback': {
     'Left+Right': 'Left + Right',
-    'L + R summed': 'Left + Right',
+    'L + R summed': 'Left + Right summed',
+    'L, R unsummed': 'Left + Right discrete',
     'vertical + lateral': 'lateral + vertical'
   },
-  'digitizationProcess.playbackDevice.phonoPreamp.1.eqRolloff.measure': {
-    'FLAT': 'flat',
-    '0.0': 'flat',
-    '0': 'flat'
-  },
-  'digitizationProcess.playbackDevice.phonoPreamp.1.manufacturer': {
-    'T-01EQ': 'Time-Step'
-  },
-  'digitizationProcess.playbackDevice.phonoPreamp.1.model': {
-    'Timestep': 'T-01EQ'
-  },
-  'digitizationProcess.playbackDevice.phonoPreamp.2.eqRolloff.measure': {
-    '0.0': 'flat'
-  },
-  'digitizationProcess.playbackDevice.phonoPreamp.3.eqRolloff.measure': {
-    '0.0': 'flat'
-  },
-  'digitizationProcess.playbackDevice.manufacturer': {
-    '42': None
-  },
   'digitizationProcess.playbackDevice.noiseReduction': {
-    'None': 'none',
-    'DBX Type 1': 'DBX I'
+    'DBX Type 1': 'DBX I',
+    'n/a': 'none',
+    'None': 'none'
   },
   'digitizationProcess.playbackDevice.phonoArm.manufacturer': {
-    'SA-750L': 'Jelco'
+    'SA-750L': 'Shure'
   },
   'digitizationProcess.playbackDevice.phonoArm.model': {
     'Shure': 'SA-750L',
     '312.0': '3012-R',
     '3012R': '3012-R'
+  },
+  'digitizationProcess.playbackDevice.phonoArm.serialNumber': {
+    'Jelco': None
   },
   'digitizationProcess.playbackDevice.phonoCartridge.manufacturer':{
     'M44-7': 'Shure'
@@ -927,8 +916,44 @@ STRING_REPLACE_DICT = {
   'digitizationProcess.playbackDevice.phonoCartridge.stylusShape': {
     '0.7': 'elliptical'
   },
+  'digitizationProcess.playbackDevice.phonoPreamp1.eqRolloff.measure': {
+    'FLAT': 'flat',
+    0.0: 'flat',
+    0: 'flat'
+  },
+  'digitizationProcess.playbackDevice.phonoPreamp1.manufacturer': {
+    'T-01EQ': 'Time-Step',
+    'Timestep': 'Time-Step',
+    'TimeStep': 'Time-Step'
+  },
+  'digitizationProcess.playbackDevice.phonoPreamp1.model': {
+    'EQSMK12': 'EQS MK12',
+    'Souvenir EQS MK12': 'EQS MK12',
+    'Timestep': 'T-01EQ'
+  },
+  'digitizationProcess.playbackDevice.phonoPreamp2.eqRolloff.measure': {
+    0.0: 'flat'
+  },
+  'digitizationProcess.playbackDevice.phonoPreamp2.eqTurnover.measure': {
+    'Flat': 'flat'
+  },
+  'digitizationProcess.playbackDevice.phonoPreamp2.manufacturer': {
+    'OWL ': 'OWL'
+  },
+  'digitizationProcess.playbackDevice.phonoPreamp3.eqRolloff.measure': {
+    '0.0': 'flat'
+  },
+  'digitizationProcess.playbackDevice.phonoPreamp3.eqTurnover.measure': {
+    'Flat': 'flat'
+  },
+  'digitizationProcess.playbackDevice.phonoPreamp3.manufacturer': {
+    'OWL ': 'OWL'
+  },
   'digitizationProcess.takeNumber': {
-    'Pami085': None
+    'Pami_085': None
+  },
+  'digitizationProcess.timeBaseCorrector.id': {
+    'none': None
   },
   'digitizationProcess.timeBaseCorrector.manufacturer': {
     '42': None,
@@ -937,33 +962,32 @@ STRING_REPLACE_DICT = {
     'Snell': 'Snell & Wilcox'
   },
   'digitizationProcess.timeBaseCorrector.model': {
-    '42': None,
     'none': None,
+    'DPS 475': 'DPS-475',
     'DPS 575': 'DPS-575',
     'TBS 185AV': 'TBS185AV'
   },
   'digitizationProcess.timeBaseCorrector.serialNumber': {
-    '42': None,
-    'none': None
+    0: None,
+    'none': None,
+    'Sony': None
   },
   'digitizer.firstName': {
+    '#REF!': None,
+    '23': None,
     'Condiotte, Heath': 'Heath',
-    'SADiE': None,
-    '23': None
+    'Gregory': 'Greg',
+    'SADiE': None
   },
   'digitizer.lastName': {
     'Condiotte, Heath': 'Condiotte',
-    'FOrstate': 'Forstate'
+    'FOrstate': 'Forstate',
+    'Prism': None
   },
   'digitizer.organization.address.city': {
+    '#REF!': None,
     'Philadelphpia': 'Philadelphia',
-    'SADiE': None,
-    '23': None
-  },
-  'digitizer.organization.address.state': {
-    'Philadelphia': 'PA',
-    '6.0.7': None,
-    '23': None
+    'SADiE': None
   },
   'digitizer.organization.address.postalCode': {
     'Windows 7': None,
@@ -972,17 +996,24 @@ STRING_REPLACE_DICT = {
     '16066-6424': '16066',
     'PA': '19118'
   },
+  'digitizer.organization.address.state': {
+    'Philadelphia': 'PA',
+    '6.0.7': None,
+    '#REF!': None
+  },
   'digitizer.organization.address.street1': {
-    'Windows 7': None,
+    '#REF!': None,
+    '23': None,
     '40 Lincoln Center Plaza ': '40 Lincoln Center Plaza',
-    'George Blood Audio & Video': '21 West Highland Avenue'
+    'George Blood Audio & Video': '21 West Highland Avenue',
+    'Windows 7': None
   },
   'digitizer.organization.address.street2': {
-    'Windows 7': None,
-    '40 Lincoln Center Plaza ': '40 Lincoln Center Plaza',
+    '#REF!': None,
     '21 West Highland Avenue': None,
+    'PA': None,
     'Prism': None,
-    '23': None
+    'Windows 7': None
   },
   'digitizer.organization.name': {
     '6.0.7': None,
@@ -1411,12 +1442,13 @@ REGEX_REPLACE_DICT = {
     r'(?i)FOR\.?A': 'FOR.A'
   },
   'digitizer.organization.address.postalCode': {
+    r'191\d\d$': '19118',
     r'\.0$': ''
   },
   'digitizer.organization.address.street1': {
     r'Ave\.?$': 'Avenue',
     r'St\.?$': 'Street',
-    r'\sW\.?\s': ' West '
+    r'\d\d(\d|)\sW\.?\s': '21 West '
   },
   'digitizer.organization.name': {
     r'.*(?i)George.*': 'George Blood Audio Video Film',
