@@ -972,14 +972,14 @@ STRING_REPLACE_DICT = {
     'none': None,
     'Sony': None
   },
-  'digitizer.firstName': {
+  'digitizer.operator.firstName': {
     '#REF!': None,
-    '23': None,
+    23: None,
     'Condiotte, Heath': 'Heath',
     'Gregory': 'Greg',
     'SADiE': None
   },
-  'digitizer.lastName': {
+  'digitizer.operator.lastName': {
     'Condiotte, Heath': 'Condiotte',
     'FOrstate': 'Forstate',
     'Prism': None
@@ -991,7 +991,7 @@ STRING_REPLACE_DICT = {
   },
   'digitizer.organization.address.postalCode': {
     'Windows 7': None,
-    '23': None,
+    23: None,
     '1810': '01810',
     '16066-6424': '16066',
     'PA': '19118'
@@ -1003,7 +1003,7 @@ STRING_REPLACE_DICT = {
   },
   'digitizer.organization.address.street1': {
     '#REF!': None,
-    '23': None,
+    23: None,
     '40 Lincoln Center Plaza ': '40 Lincoln Center Plaza',
     'George Blood Audio & Video': '21 West Highland Avenue',
     'Windows 7': None
@@ -1020,8 +1020,8 @@ STRING_REPLACE_DICT = {
     'NYPL': 'New York Public Library'
   },
   'source.audioRecording.audioSamplingRate.measure': {
-    '48.0': '48000.0',
-    '44.1': '44100.0'
+    48.0: 48000.0,
+    44.1: 44100.0
   },
   'source.audioRecording.audioSoundField': {
     '4-track': 'quadraphonic',
@@ -1030,23 +1030,33 @@ STRING_REPLACE_DICT = {
   },
   'source.audioRecording.designatedEQ': {
     '44.1kHz / 16bits': None,
+    'nab': 'NAB',
+    'none': None,
+    'not specified': 'unknown',
     'unspecified': 'unknown'
   },
   'source.audioRecording.designatedNoiseReduction': {
-    'None': 'none',
-    'no NR': 'none',
+    'no NR': None,
+    'None': None,
+    'none': None,
+    'not specified': 'unknown',
     'DBX Type 1': 'DBX I',
     'Type I': 'DBX I'
   },
   'source.audioRecording.designatedSpeed': {
-    'not specified': 'none'
+    'None': 'unknown',
+    'none': 'unknown',
+    'not specified': 'unknown'
   },
   'source.audioRecording.numberOfAudioTracks': {
+    0: None,
+    0.0: None,
     '4-track': 4.0,
     '/': None,
     ' ': None,
-    41276.0: 2.0,
-    'color': 2.0
+    'color': 2.0,
+    'None': None,
+    'none': None
   },
   'source.audioRecording.trackConfiguration': {
     'Mixed': 'mixed',
@@ -1140,26 +1150,26 @@ STRING_REPLACE_DICT = {
     '[unknown]': None,
   },
   'source.physicalDescription.oxideMaterial': {
-    'Chromium': 'chromium',
-    'chromium ': 'chromium',
-    'chormium': 'chromium',
-    'chromium dioxide': 'chromium',
-    'Ferric': 'ferric',
-    'ferric ': 'ferric',
-    'iron': 'ferric',
-    'ferric oxide?': 'ferric',
-    'ferric oxide': 'ferric',
-    'ferrric': 'ferric',
-    'ferrid': 'ferric',
-    'ferrci': 'ferric',
-    'ferriec': 'ferric',
-    'ferrica': 'ferric',
-    'ferroc': 'ferric',
-    'feriic': 'ferric',
-    'ferricferric': 'ferric',
-    'ferri': 'ferric',
-    'Metal': 'metal',
-    'metal oxide': 'metal',
+    'Chromium': 'chromium dioxide',
+    'chromium ': 'chromium dioxide',
+    'chormium': 'chromium dioxide',
+    'chromium oxide': 'chromium dioxide',
+    'Ferric': 'ferric oxide',
+    'ferric ': 'ferric oxide',
+    'iron': 'ferric oxide',
+    'ferric oxide?': 'ferric oxide',
+    'ferric oxide': 'ferric oxide',
+    'ferrric': 'ferric oxide',
+    'ferrid': 'ferric oxide',
+    'ferrci': 'ferric oxide',
+    'ferriec': 'ferric oxide',
+    'ferrica': 'ferric oxide',
+    'ferroc': 'ferric oxide',
+    'feriic': 'ferric oxide',
+    'ferricferric': 'ferric oxide',
+    'ferri': 'ferric oxide',
+    'Metal': 'metal oxide',
+    'metal oxide': 'metal oxide',
     'normal': None,
   },
   'source.physicalDescription.stockManufacturer': {
@@ -1225,92 +1235,104 @@ STRING_REPLACE_DICT = {
     'Unidentified': None,
     'united': 'United'
   },
-  'source.physicalDescription.tapeThickness.measure': {
-    '1.0mil': '1.0',
-    'Unidentified': None,
-    '[unknown]': None,
-    '1.500 (Mostly)': '1.5'
-  },
-  'source.physicalDescription.tapeWidth.measure': {
-    '1/8': '0.125',
-    '1/4"': '0.25',
-    '0.025': '0.25',
-    '16mm': '16',
-    '42008.0': '0.25'
-  },
   'source.physicalDescription.stockProductID': {
     'na': None,
     'none': None
   },
+  'source.physicalDescription.tapeThickness.measure': {
+    '1.0mil': 1.0,
+    '1.0 mil': 1.0,
+    '1.5 mil': 1.5,
+    '1.500 (Mostly)': 1.5,
+    '1.5[?]': 1.5,
+    'Unidentified': None,
+    '[unknown]': None
+  },
+  'source.physicalDescription.tapeWidth.measure': {
+    '1/8': 0.125,
+    '1/4"': 0.25,
+    0.025: 0.25,
+    '16mm': 16,
+    '42008.0': '0.25'
+  },
   'technical.audioBitDepth.measure': {
     '0.0': None,
-    '23': None,
+    23: None,
+    '#REF!': None,
+    'mp4': None,
     'Windows 7': None
   },
   'technical.audioBitRate.measure': {
     '0.0': None,
-    '23': None
+    23: None,
+    '#REF!': None
   },
   'technical.audioBitRate.mode': {
     '0.0': None,
-    '23': None,
+    23: None,
+    '#REF!': None,
     'Windows 7': None
   },
-  'technical.audioCodeVersion': {
-    '0.0': None
+  'technical.audioCodecVersion': {
+    0.0: None
   },
   'technical.audioDataEncoding': {
     '00:00:00': None,
-    '23': None,
-    '6.0.7': None
+    23: None,
+    '6.0.7': None,
+    '#REF!': None
   },
   'technical.audioSamplingRate.measure': {
-    '0.0': None,
-    '23': None,
-    '48.0': '48000.0',
-    'Prism': None
+    0: None,
+    23: None,
+    48: 48000.0,
+    'Prism': None,
+    'MPEG-4': None
   },
   'technical.chromaSubsampling': {
-    '0.16807870370370398': '4:2:2',
+    '04:02:02': '4:2:2',
     '4:02:02': '4:2:2',
-    '4:02:00': '4:2:0'
+    '04:02:00': '4:2:0'
   },
   'technical.durationHuman': {
-    '23': None,
+    23: None,
+    '#REF!': None,
     'SADiE': None
   },
   'technical.extension': {
-    '0.0': None,
-    '23': None
+    0: None,
+    23: None,
+    '#REF!': None,
+    'SADiE': None
   },
   'technical.fieldOrder': {
     '0.0': None
   },
   'technical.fileFormat': {
-    '23': None,
+    23: None,
+    '#REF!': None,
     'Final Cut Pro Project': 'Final Cut Pro Project File',
     'Project File': 'Final Cut Pro Project File',
     'Wave': 'BWF',
     'Windows 7': None
   },
+  'technical.filename': {
+    0: None,
+    23: None,
+    '#REF!': None
+  },
   'technical.fileSize.measure': {
     'Prism': None,
-    '23': None
-  },
-  'technical.frameRate.measure': {
-    ' ': None
+    23: None,
+    '#REF!': None
   },
   'technical.numberOfAudioTracks': {
+    0.0: None,
+    '#REF!': None,
     'SADiE': None
   },
-  'technical.videoBitRate.mode': {
-    ' ': None
-  },
-  'technical.videoCodec': {
-    '42.0': None
-  },
   'technical.videoCodecVersion': {
-    '0.0': None
+    0.0: None
   }
 }
 
