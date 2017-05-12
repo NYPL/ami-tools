@@ -825,16 +825,16 @@ HEADER_CONVERSION = {
 """
 All values that should be regarded as NA's regardless of column
 """
-NAS = {
-  '': None,
-  '#REF!': None,
-  'Unknown': None,
-  'unknown': None,
-  'unidentified': None,
-  'not specified': None,
-  'n/a': None,
-  '[unidentified]': None
-}
+NAS = [
+  '',
+  '#REF!',
+  'Unknown',
+  'unknown',
+  'unidentified',
+  'not specified',
+  'n/a',
+  '[unidentified]'
+]
 
 
 """
