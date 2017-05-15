@@ -319,7 +319,7 @@ class ami_excelsheet:
 
 
   def convert_amiExcelToJSON(self, json_directory,
-    schema_version = "x.0.0", filenames = None):
+    schema_version = "x.0.0", filepaths = None):
     """
     Convert all rows in an Excel sheet into JSON files with
     normalized data. Filename is based on described file's name.
@@ -331,16 +331,29 @@ class ami_excelsheet:
     """
     self.normalize_sheet_values()
 
+    json_directory = os.path.abspath(json_directory)
     df = self.sheet_values
 
-    if filenames:
-      filetable = {os.path.splitext(x)[0]: x for x in filenames}
-      df['asset.referenceFilename'] = df['technical.filename'].map(filetable)
+    if filepaths:
+      for filepath in filepaths:
+        filename = os.path.basename(filepath)
 
-    json_directory = os.path.abspath(json_directory)
-    for (index, row) in self.sheet_values.iterrows():
-      json_tree = ami_json.ami_json(flat_dict = row.to_dict())
-      json_tree.write_json(json_directory)
+        try:
+          row = df[df["technical.filename"] == os.path.splitext(filename)[0]]
+        except:
+          raise_excelerror("Excel sheet does not have a record for {}".format(filename))
+
+        row_dict = row.squeeze().to_dict()
+        row_dict["asset.referenceFilename"] = filename
+
+        json_tree = ami_json.ami_json(flat_dict = row_dict,
+          filepath = filepath, load = False)
+        json_tree.write_json(json_directory)
+
+    else:
+      for (index, row) in self.sheet_values.iterrows():
+        json_tree = ami_json.ami_json(flat_dict = row.to_dict())
+        json_tree.write_json(json_directory)
 
 
   def raise_excelerror(self, msg):
