@@ -314,7 +314,7 @@ class ami_bag(bagit.Bag):
         self.media_files_md = []
 
         for filename in self.metadata_files:
-            json = ami_json(filename = os.path.join(self.path, filename))
+            json = ami_json(filepath = os.path.join(self.path, filename))
             filename = json.dict["technical"]["filename"]
             ext = json.dict["technical"]["extension"]
             self.media_files_md.append(json.dict["asset"]["referenceFilename"])

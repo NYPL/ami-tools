@@ -15,20 +15,20 @@ class AMIJSONError(Exception):
 
 
 class ami_json:
-  def __init__(self, filename=None, flat_dict = None, schema_version = "x.0.0"):
+  def __init__(self, filepath = None, flat_dict = None, schema_version = "x.0.0"):
     """
     Initialize object as nested json
     """
 
-    if filename:
+    if filepath:
       try:
-        self.name = filename
-        with open(filename, 'r', encoding = 'utf-8-sig') as f:
+        self.path = filepath
+        with open(filepath, 'r', encoding = 'utf-8-sig') as f:
           self.dict = json.load(f)
       except:
         print("not a json file")
       else:
-        self.filename = os.path.splitext(os.path.abspath(filename))[0]
+        self.filename = os.path.splitext(os.path.abspath(filepath))[0]
 
     if flat_dict:
       self.filename = flat_dict["asset.referenceFilename"]

@@ -126,7 +126,7 @@ Usage: Convert a valid AMI JSON file to a flat key-value dict
 ```python
 import ami_md.ami_json
 
-json_file = ami_md.ami_json(filename = "path/to/file.json")
+json_file = ami_md.ami_json(filepath = "path/to/file.json")
 new_dict = json_file.convert_nestedDictToDotKey(json_file)
 ```
 
