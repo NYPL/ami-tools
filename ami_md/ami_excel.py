@@ -331,6 +331,12 @@ class ami_excelsheet:
     """
     self.normalize_sheet_values()
 
+    df = self.sheet_values
+
+    if filenames:
+      filetable = {os.path.splitext(x)[0]: x for x in filenames}
+      df['asset.referenceFilename'] = df['technical.filename'].map(filetable)
+
     json_directory = os.path.abspath(json_directory)
     for (index, row) in self.sheet_values.iterrows():
       json_tree = ami_json.ami_json(flat_dict = row.to_dict())

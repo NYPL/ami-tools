@@ -346,10 +346,10 @@ class ami_bag(bagit.Bag):
                 except:
                     LOGGER.error("EM's and PM's do not have 1-1 correspondence")
                 else:
-                    excel.edit_sheet.convert_amiExcelToJSON(em_path)
+                    excel.edit_sheet.convert_amiExcelToJSON(em_path, filenames = self.media_files)
 
             pm_path = os.path.join(self.path, "data/PreservationMasters")
-            excel.pres_sheet.convert_amiExcelToJSON(pm_path)
+            excel.pres_sheet.convert_amiExcelToJSON(pm_path, filenames = self.media_files)
 
 
     def raise_bagerror(self, msg):

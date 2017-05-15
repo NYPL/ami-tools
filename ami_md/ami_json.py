@@ -31,6 +31,7 @@ class ami_json:
         self.filename = os.path.splitext(os.path.abspath(filename))[0]
 
     if flat_dict:
+      self.filename = flat_dict["asset.referenceFilename"]
       nested_dict = {}
       if "asset.schemaVersion" not in flat_dict.items():
           flat_dict["asset.schemaVersion"] = schema_version
