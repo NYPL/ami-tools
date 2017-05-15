@@ -1158,7 +1158,7 @@ STRING_REPLACE_DICT = {
     'ferric ': 'ferric oxide',
     'iron': 'ferric oxide',
     'ferric oxide?': 'ferric oxide',
-    'ferric oxide': 'ferric oxide',
+    'ferric': 'ferric oxide',
     'ferrric': 'ferric oxide',
     'ferrid': 'ferric oxide',
     'ferrci': 'ferric oxide',
@@ -1169,7 +1169,7 @@ STRING_REPLACE_DICT = {
     'ferricferric': 'ferric oxide',
     'ferri': 'ferric oxide',
     'Metal': 'metal oxide',
-    'metal oxide': 'metal oxide',
+    'metal': 'metal oxide',
     'normal': None,
   },
   'source.physicalDescription.stockManufacturer': {
