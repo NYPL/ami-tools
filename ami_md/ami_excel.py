@@ -237,7 +237,9 @@ class ami_excelsheet:
       df['bibliographic.projectCode'] = self.wb[0:8]
 
     if 'asset.fileRole' not in df.columns.tolist():
-      df['asset.fileRole'] = df['asset.referenceFilename'].str.extract('(..)$', expand=False)
+      df['asset.fileRole'] = df['technical.filename'].str.extract('(em|pm|sc)$', expand=False)
+
+    df['asset.referenceFilename'] = df["technical.filename"] + "." + df["technical.extension"]
 
     df['source.object.type'] = df['source.object.format'].map(ami_md_constants.FORMAT_TYPE)
 
@@ -513,12 +515,15 @@ class ami_editsheet(ami_excelsheet):
 
     pm_df = pm_data
     pm_drop_cols = set(pm_df.columns.tolist()).intersection(set(em_df.columns.tolist()))
+    pm_df["join_idx"] = pm_df["technical.filename"].str.slice(0, -3)
     #pm_drop_cols = [col for col in pm_df.columns.tolist() if (col.startswith('technical') or col.startswith('digitizer'))]
     pm_df = pm_df.drop(pm_drop_cols, axis = 1)
-    pm_df["join_idx"] = pm_df["asset.referenceFilename"].str.slice(0, -3)
+
+
+
 
     em_df = em_df.join(pm_df.set_index("join_idx"), on = "join_idx")
     em_df = em_df.drop("join_idx", axis = 1)
-    em_df["asset.referenceFilename"] = em_df["technical.filename"]
+    em_df["asset.referenceFilename"] = em_df["technical.filename"] + "." + em_df["technical.extension"]
 
     self.sheet_values = em_df

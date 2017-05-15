@@ -274,12 +274,10 @@ class ami_bag(bagit.Bag):
             # collect list of filenames in metadata
             if excel.pres_sheet:
                 paths = excel.pres_sheet.sheet_values["asset.referenceFilename"].tolist()
-                exts =  excel.pres_sheet.sheet_values["technical.extension"].tolist()
-                self.media_files_md.extend([".".join([path,ext]) for path,ext in zip(paths,exts)])
+                self.media_files_md.extend(paths)
             if excel.edit_sheet:
-                paths = excel.edit_sheet.sheet_values["technical.filename"].tolist()
-                exts =  excel.edit_sheet.sheet_values["technical.extension"].tolist()
-                self.media_files_md.extend([".".join([path,ext]) for path,ext in zip(paths,exts)])
+                paths = excel.edit_sheet.sheet_values["asset.referenceFilename"].tolist()
+                self.media_files_md.extend(paths)
 
         self.media_files_md = set(self.media_files_md)
 
@@ -319,7 +317,7 @@ class ami_bag(bagit.Bag):
             json = ami_json(filename = os.path.join(self.path, filename))
             filename = json.dict["technical"]["filename"]
             ext = json.dict["technical"]["extension"]
-            self.media_files_md.append(".".join([filename, ext]))
+            self.media_files_md.append(json.dict["asset"]["referenceFilename"])
 
         self.media_files_md = set(self.media_files_md)
 
@@ -348,7 +346,7 @@ class ami_bag(bagit.Bag):
                 except:
                     LOGGER.error("EM's and PM's do not have 1-1 correspondence")
                 else:
-                    excel.edit_sheet.convert_amiExcelToJSON(em_path, )
+                    excel.edit_sheet.convert_amiExcelToJSON(em_path)
 
             pm_path = os.path.join(self.path, "data/PreservationMasters")
             excel.pres_sheet.convert_amiExcelToJSON(pm_path)

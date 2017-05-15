@@ -103,10 +103,9 @@ class ami_json:
     else:
       json_directory = output_directory
 
-    json_filename = "{0}/{1}.{2}.json".format(
+    json_filename = "{0}/{1}.json".format(
       json_directory,
-      self.dict['asset']['referenceFilename'],
-      self.dict['technical']['extension'])
+      self.dict['asset']['referenceFilename'])
 
     with open(json_filename, 'w') as f:
       json.dump(self.dict, f)
