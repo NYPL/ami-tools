@@ -3,6 +3,7 @@ import json
 import logging
 import math
 from pandas.tslib import Timestamp
+import numpy as np
 
 LOGGER = logging.getLogger(__name__)
 
@@ -15,20 +16,21 @@ class AMIJSONError(Exception):
 
 
 class ami_json:
-  def __init__(self, filepath = None, flat_dict = None, schema_version = "x.0.0"):
+  def __init__(self, filepath = None, load = True, flat_dict = None,
+    schema_version = "x.0.0"):
     """
     Initialize object as nested json
     """
 
     if filepath:
-      try:
-        self.path = filepath
-        with open(filepath, 'r', encoding = 'utf-8-sig') as f:
-          self.dict = json.load(f)
-      except:
-        print("not a json file")
-      else:
-        self.filename = os.path.splitext(os.path.abspath(filepath))[0]
+      self.path = filepath
+      self.filename = os.path.splitext(os.path.abspath(filepath))[0]
+      if load:
+        try:
+          with open(filepath, 'r', encoding = 'utf-8-sig') as f:
+            self.dict = json.load(f)
+        except:
+          print("not a json file")
 
     if flat_dict:
       self.filename = flat_dict["asset.referenceFilename"]
@@ -39,6 +41,8 @@ class ami_json:
         if value:
           if type(value) == Timestamp:
             value = value.strftime('%Y-%m-%d')
+          if isinstance(value, np.generic):
+            value = np.asscalar(value)
           nested_dict = self.convert_dotKeyToNestedDict(
             nested_dict, key, value)
 
