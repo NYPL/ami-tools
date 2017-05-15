@@ -27,7 +27,7 @@ class ami_bag(bagit.Bag):
         self.data_files = self.payload_entries().keys()
         self.data_dirs = set([os.path.split(path)[0][5:] for path in self.data_files])
         self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
-        self.media_files = set([os.path.basename(path) for path in self.data_files if any(path.lower().endswith(ext) for ext in EXTS)])
+        self.media_filepaths = set([os.path.join(self.path, path) for path in self.data_files if any(path.lower().endswith(ext) for ext in EXTS)])
         self.set_type()
         if self.type == "excel":
             self.set_subtype_excel()
@@ -276,8 +276,9 @@ class ami_bag(bagit.Bag):
                 paths = excel.pres_sheet.sheet_values["asset.referenceFilename"].tolist()
                 self.media_files_md.extend(paths)
             if excel.edit_sheet:
-                paths = excel.edit_sheet.sheet_values["asset.referenceFilename"].tolist()
-                self.media_files_md.extend(paths)
+                if "asset.referenceFilename" in excel.edit_sheet.sheet_values.columns:
+                    paths = excel.edit_sheet.sheet_values["asset.referenceFilename"].tolist()
+                    self.media_files_md.extend(paths)
 
         self.media_files_md = set(self.media_files_md)
 
@@ -291,6 +292,7 @@ class ami_bag(bagit.Bag):
         bad_excel = []
 
         for filename in self.metadata_files:
+            excel = ami_excel(os.path.join(self.path, filename))
             if not excel.validate_workbook():
                 bad_excel.append(filename)
 
@@ -301,9 +303,10 @@ class ami_bag(bagit.Bag):
 
 
     def check_filenames_manifest_and_metadata_excel(self):
-        if not self.media_files_md >= self.media_files:
+        media_files_basenames = set([os.path.basename(path) for path in self.media_filepaths])
+        if not self.media_files_md >= media_files_basenames:
             self.raise_bagerror("Filenames in Excel do not match filenames in manifest. Missing: {}".format(
-                set(self.media_files) - set(self.media_files_md)
+                media_files_basenames - self.media_files_md
             ))
         return True
 
@@ -325,9 +328,10 @@ class ami_bag(bagit.Bag):
 
 
     def check_filenames_manifest_and_metadata_json(self):
-        if not self.media_files_md == self.media_files:
+        media_files_basenames = set([os.path.basename(path) for path in self.media_filepaths])
+        if not self.media_files_md == media_files_basenames:
             self.raise_bagerror("Filenames in JSON do not match filenames in manifest.\nMissing from JSON: {}".format(
-                set(self.media_files) - set(self.media_files_md)
+                media_files_basenames - self.media_files_md
             ))
         return True
 
@@ -346,10 +350,12 @@ class ami_bag(bagit.Bag):
                 except:
                     LOGGER.error("EM's and PM's do not have 1-1 correspondence")
                 else:
-                    excel.edit_sheet.convert_amiExcelToJSON(em_path, filenames = self.media_files)
+                    em_filepaths = [x for x in self.media_filepaths if em_path in x]
+                    excel.edit_sheet.convert_amiExcelToJSON(em_path, filepaths = em_filepaths)
 
             pm_path = os.path.join(self.path, "data/PreservationMasters")
-            excel.pres_sheet.convert_amiExcelToJSON(pm_path, filenames = self.media_files)
+            pm_filepaths = [x for x in self.media_filepaths if pm_path in x]
+            excel.pres_sheet.convert_amiExcelToJSON(pm_path, filepaths = pm_filepaths)
 
 
     def raise_bagerror(self, msg):
