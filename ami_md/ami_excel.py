@@ -97,7 +97,8 @@ class ami_excelsheet:
     self.normalized_header_entries = self.get_normalizedHeaderEntries()
 
     self.sheet_values = pd.read_excel(self.path,
-      sheetname = self.name, skiprows = 2)
+      sheetname = self.name, skiprows = 2,
+      na_values = ami_md_constants.NAS)
     self.sheet_values.columns = self.normalized_header_entries
 
 
@@ -222,11 +223,9 @@ class ami_excelsheet:
     Normalize all entries via dictionaries defined in the ami_md_constants
     module. Returns a list of lists
     """
-    df = self.sheet_values
+    df = self.sheet_values.dropna(axis = 1, how = "all").astype(object)
 
-    df = df.replace(ami_md_constants.NAS)
-
-    df = df.replace(ami_md_constants.REGEX_REPLACE_DICT, regex=True)
+    df = df.replace(ami_md_constants.REGEX_REPLACE_DICT, regex=True).astype(object)
     df = df.replace(ami_md_constants.STRING_REPLACE_DICT)
 
     # add potentially missing, but required information
@@ -255,7 +254,6 @@ class ami_excelsheet:
       df = self.map_primaryid(df)
 
     #force all the numerics back to numeric, and drop all empty columns
-    df = df.dropna(axis = 1, how = "all")
     df.sort_index(axis=1, inplace=True)
 
     self.sheet_values = df
@@ -314,16 +312,12 @@ class ami_excelsheet:
     if normalize:
       self.normalize_sheet_values()
 
-    ami_data = self.sheet_values
-
-    with open(csv_path, 'w') as f:
-      LOGGER.info("Writing {}".format(csv_path))
-      cw = csv.writer(f, quoting = csv.QUOTE_ALL)
-      for rownum in range(0, len(ami_data)):
-        cw.writerow(ami_data[rownum])
+    LOGGER.info("Writing {}".format(csv_path))
+    self.sheet_values.to_csv(csv_path, index = False)
 
 
-  def convert_amiExcelToJSON(self, json_directory, schema_version = "x.0.0"):
+  def convert_amiExcelToJSON(self, json_directory,
+    schema_version = "x.0.0", filenames = None):
     """
     Convert all rows in an Excel sheet into JSON files with
     normalized data. Filename is based on described file's name.
@@ -333,17 +327,11 @@ class ami_excelsheet:
     self.edit_sheetname)
     json_directory -- path to output directory for json files
     """
-    ami_data = self.normalize_sheet_values()
-
-    cols = len(ami_data[0])
-
-    headers = ami_data[0]
+    self.normalize_sheet_values()
 
     json_directory = os.path.abspath(json_directory)
-
-    for row in ami_data[1:]:
-      tree = dict(zip(headers, row))
-      json_tree = ami_json.ami_json(flat_dict = tree)
+    for (index, row) in self.sheet_values.iterrows():
+      json_tree = ami_json.ami_json(flat_dict = row.to_dict())
       json_tree.write_json(json_directory)
 
 
