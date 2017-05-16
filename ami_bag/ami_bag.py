@@ -350,11 +350,11 @@ class ami_bag(bagit.Bag):
                 except:
                     LOGGER.error("EM's and PM's do not have 1-1 correspondence")
                 else:
-                    em_filepaths = [x for x in self.media_filepaths if em_path in x]
+                    em_filepaths = [x + ".json" for x in self.media_filepaths if em_path in x]
                     excel.edit_sheet.convert_amiExcelToJSON(em_path, filepaths = em_filepaths)
 
             pm_path = os.path.join(self.path, "data/PreservationMasters")
-            pm_filepaths = [x for x in self.media_filepaths if pm_path in x]
+            pm_filepaths = [x + ".json" for x in self.media_filepaths if pm_path in x]
             excel.pres_sheet.convert_amiExcelToJSON(pm_path, filepaths = pm_filepaths)
 
 
