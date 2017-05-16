@@ -533,14 +533,11 @@ class ami_editsheet(ami_excelsheet):
     em_df = self.sheet_values
     em_df["join_idx"] = em_df["technical.filename"].str.slice(0, -3)
 
-    pm_df = pm_data
+    pm_df = pm_data.copy()
     pm_drop_cols = set(pm_df.columns.tolist()).intersection(set(em_df.columns.tolist()))
     pm_df["join_idx"] = pm_df["technical.filename"].str.slice(0, -3)
     #pm_drop_cols = [col for col in pm_df.columns.tolist() if (col.startswith('technical') or col.startswith('digitizer'))]
     pm_df = pm_df.drop(pm_drop_cols, axis = 1)
-
-
-
 
     em_df = em_df.join(pm_df.set_index("join_idx"), on = "join_idx")
     em_df = em_df.drop("join_idx", axis = 1)
