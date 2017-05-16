@@ -348,6 +348,7 @@ class ami_excelsheet:
 
         json_tree = ami_json.ami_json(flat_dict = row_dict,
           filepath = filepath, load = False, media_filepath = os.path.splitext(filepath)[0])
+        json_tree.update_mediainfo()
         json_tree.write_json(json_directory)
 
     else:
