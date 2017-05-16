@@ -336,18 +336,18 @@ class ami_excelsheet:
 
     if filepaths:
       for filepath in filepaths:
-        filename = os.path.basename(filepath)
+        media_filename =  os.path.splitext(os.path.basename(filepath))[0]
 
         try:
-          row = df[df["technical.filename"] == os.path.splitext(filename)[0]]
+          row = df[df["technical.filename"] == os.path.splitext(media_filename)[0]]
         except:
-          raise_excelerror("Excel sheet does not have a record for {}".format(filename))
+          raise_excelerror("Excel sheet does not have a record for {}".format(media_filename))
 
         row_dict = row.squeeze().to_dict()
-        row_dict["asset.referenceFilename"] = filename
+        row_dict["asset.referenceFilename"] = media_filename
 
         json_tree = ami_json.ami_json(flat_dict = row_dict,
-          filepath = filepath, load = False)
+          filepath = filepath, load = False, media_filepath = os.path.splitext(filepath)[0])
         json_tree.write_json(json_directory)
 
     else:
