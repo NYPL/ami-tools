@@ -4,6 +4,7 @@ import logging
 import math
 from pandas.tslib import Timestamp
 import numpy as np
+from pymediainfo import MediaInfo
 
 LOGGER = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ class AMIJSONError(Exception):
 
 class ami_json:
   def __init__(self, filepath = None, load = True, flat_dict = None,
-    schema_version = "x.0.0"):
+    schema_version = "x.0.0", media_filepath = None):
     """
     Initialize object as nested json
     """
@@ -48,6 +49,11 @@ class ami_json:
 
       self.dict = nested_dict
       self.coerce_strings()
+
+      if media_filepath and os.path.isfile(media_filepath):
+        self.media_filepath = media_filepath
+      else:
+        raise_jsonerror("There is no media file found at {}".format(media_filepath))
 
 
   def convert_dotKeyToNestedDict(self, tree, key, value):
@@ -100,6 +106,26 @@ class ami_json:
 
     for key, item in self.dict["digitizer"]["organization"]["address"].items():
       self.dict["digitizer"]["organization"]["address"][key] = str(item).split('.')[0]
+
+
+  def check_mediainfo(self):
+    file_techmd = MediaInfo.parse(self.media_filepath)
+
+    for track in file_techmd.tracks:
+      if track.track_type == "General":
+        self.dict["technical"]["filename"] = track.file_name
+        self.dict["technical"]["extension"] = track.file_extension
+        self.dict["technical"]["fileFormat"] = track.format
+        self.dict["technical"]["fileSize"]["measure"] = track.file_size
+        self.dict["technical"]["dateCreated"] = track.encoded_date.split()[0].replace(":", "-")
+        self.dict["technical"]["durationHuman"] = track.other_duration[-1]
+        if "durationMilli" not in self.dict["technical"].keys():
+          self.dict["technical"]["durationMilli"] = {}
+        self.dict["technical"]["durationMilli"]["measure"] = track.duration
+        self.dict["technical"]["durationMilli"]["unit"] = "ms"
+        self.dict["technical"]["audioCodec"] = track.audio_codecs
+        if track.codecs_video:
+          self.dict["technical"]["videoCodec"] = track.codecs_video
 
 
   def write_json(self, output_directory):
