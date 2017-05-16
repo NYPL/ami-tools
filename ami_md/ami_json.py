@@ -108,7 +108,7 @@ class ami_json:
       self.dict["digitizer"]["organization"]["address"][key] = str(item).split('.')[0]
 
 
-  def check_mediainfo(self):
+  def update_mediainfo(self):
     file_techmd = MediaInfo.parse(self.media_filepath)
 
     for track in file_techmd.tracks:
