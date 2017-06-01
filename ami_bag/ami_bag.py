@@ -11,6 +11,7 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 
+EXTS = [".mov", ".wav", ".mkv", ".iso", ".tar", ".mp4"]
 
 class ami_bagValidationError(Exception):
     def __init__(self, message):
