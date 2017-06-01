@@ -528,7 +528,11 @@ class Bag(object):
         else:
             worker_init = None
 
-        args = ((self.path, rel_path, hashes, available_hashers) for rel_path, hashes in self.entries.items())
+        listed_entries = list(self.entries.items())
+        entry_sizes = [os.stat(os.path.join(self.path,x[0])).st_size for x in listed_entries]
+        sorted_entries = [x for (x,y) in sorted(zip(listed_entries,entry_sizes))]
+
+        args = ((self.path, rel_path, hashes, available_hashers) for rel_path, hashes in sorted_entries)
 
         try:
             if processes == 1:
