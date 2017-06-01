@@ -11,8 +11,6 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 
-EXTS = [".mov", ".wav", ".mkv", ".iso", ".tar"]
-
 
 class ami_bagValidationError(Exception):
     def __init__(self, message):
@@ -303,7 +301,7 @@ class ami_bag(bagit.Bag):
 
 
     def check_filenames_manifest_and_metadata_excel(self):
-        media_files_basenames = set([os.path.basename(path) for path in self.media_filepaths])
+        media_files_basenames = set([os.path.splitext(os.path.basename(path))[0] for path in self.media_filepaths])
         if not self.media_files_md >= media_files_basenames:
             self.raise_bagerror("Filenames in Excel do not match filenames in manifest. Missing: {}".format(
                 media_files_basenames - self.media_files_md
@@ -320,7 +318,7 @@ class ami_bag(bagit.Bag):
             json = ami_json(filepath = os.path.join(self.path, filename))
             filename = json.dict["technical"]["filename"]
             ext = json.dict["technical"]["extension"]
-            self.media_files_md.append(json.dict["asset"]["referenceFilename"])
+            self.media_files_md.append(filename + '.' + ext)
 
         self.media_files_md = set(self.media_files_md)
 
