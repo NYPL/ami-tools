@@ -230,8 +230,8 @@ class ami_excelsheet:
 
     # add potentially missing, but required information
     if 'source.object.volume' not in df.columns.tolist():
-      df['source.object.volumeNumber'] = '1'
-    df['source.object.volumeNumber'].fillna('1')
+      df['source.object.volumeNumber'] = 1
+    df['source.object.volumeNumber'].fillna(1)
 
     if 'bibliographic.projectCode' not in df.columns.tolist():
       df['bibliographic.projectCode'] = self.wb[0:8]
