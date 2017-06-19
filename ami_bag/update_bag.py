@@ -80,6 +80,32 @@ class Repairable_Bag(bagit.Bag):
 
     return True
 
+
+  def update_hash_manifests(self):
+    today = datetime.datetime.strftime(
+      datetime.datetime.now(), "%Y%m%d%H%M%S")
+    for alg in set(self.algs):
+      try:
+        shutil.copyfile('manifest-{}.txt'.format(alg),
+          'manifest-{}-{}.old'.format(alg, today))
+      except:
+        LOGGER.error("Do not have permission to write new manifests")
+
+      try:
+        with open('manifest-%s.txt' % alg, 'w') as manifest:
+          for payload_file, hashes in self.entries.items():
+            if payload_file.startswith("data" + os.sep):
+              manifest.write("%s  %s\n" % (hashes[alg], bagit._encode_filename(payload_file)))
+      except:
+        LOGGER.error("Do not have permission to overwrite hash manifests")
+
+    for alg in set(self.algs):
+      try:
+        bagit._make_tagmanifest_file(alg, self.path)
+      except:
+        LOGGER.error("Do not have permission to overwrite tag manifests")
+
+
   '''
   def remove_manifestentry(self):
   '''
@@ -107,12 +133,8 @@ class Repairable_Bag(bagit.Bag):
       for payload_file in self.payload_files_not_in_manifest():
         self.add_payload_file_to_manifest(payload_file)
 
-      try:
-        self.copy_manifest_files()
-        self.rewrite_manifest_files()
-        self.update_baginfo()
-      except:
-        LOGGER.error("Do not have permission to write new manifests")
+      self.update_hash_manifests()
+      self.update_baginfo()
 
     os.chdir(self.old_dir)
 
@@ -164,28 +186,3 @@ class Repairable_Bag(bagit.Bag):
         self.update_baginfo()
 
     os.chdir(self.old_dir)
-
-
-  def copy_manifest_files(self):
-    today = datetime.datetime.strftime(
-      datetime.datetime.now(), "%Y%m%d%H%M%S")
-    for alg in self.algs:
-      shutil.copyfile('manifest-{}.txt'.format(alg),
-        'manifest-{}-{}.old'.format(alg, today))
-
-
-  def rewrite_manifest_files(self):
-    for alg in set(self.algs):
-      try:
-        with open('manifest-%s.txt' % alg, 'w') as manifest:
-          for payload_file, hashes in self.entries.items():
-            if payload_file.startswith("data" + os.sep):
-              manifest.write("%s  %s\n" % (hashes[alg], bagit._encode_filename(payload_file)))
-      except:
-        LOGGER.error("Do not have permission to overwrite hash manifests")
-
-    for alg in set(self.algs):
-      try:
-        bagit._make_tagmanifest_file(alg, self.path)
-      except:
-        LOGGER.error("Do not have permission to overwrite tag manifests")
