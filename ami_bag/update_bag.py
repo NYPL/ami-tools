@@ -120,6 +120,18 @@ class Repairable_Bag(bagit.Bag):
         yield payload_file
 
 
+  def add_new_hashes_for_file(self, payload_file):
+    """
+    add new hashes for each new files
+    """
+    stuff = {}
+    for alg in set(self.algs):
+      hash, filename, size = bagit._manifest_line(payload_file, alg)
+      stuff[alg] = hash
+
+    self.entries[filename] = stuff
+
+
   def add_payload_files_not_in_manifest(self):
     """
     iterate through all dem new files
@@ -131,24 +143,12 @@ class Repairable_Bag(bagit.Bag):
     if new_payload_files:
       LOGGER.info("Adding the following files to manifests: {}".format(", ".join(new_payload_files)))
       for payload_file in self.payload_files_not_in_manifest():
-        self.add_payload_file_to_manifest(payload_file)
+        self.add_new_hashes_for_file(payload_file)
 
       self.update_hash_manifests()
       self.update_baginfo()
 
     os.chdir(self.old_dir)
-
-
-  def add_payload_file_to_manifest(self, payload_file):
-    """
-    add new hashes for each new files
-    """
-    stuff = {}
-    for alg in set(self.algs):
-      hash, filename, size = bagit._manifest_line(payload_file, alg)
-      stuff[alg] = hash
-
-    self.entries[filename] = stuff
 
 
   def delete_payload_files_not_in_manifest(self, rules = SYSTEM_FILE_PATTERNS):
