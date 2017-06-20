@@ -216,17 +216,17 @@ class ami_bag(bagit.Bag):
         self.subtype = None
 
         if (self.compare_structure(set(["Metadata", "PreservationMasters", "ServiceCopies", "Images"])) and
-            self.compare_content(set([".mov", ".json", ".mp4", ".jpeg"]))):
+            self.compare_content(set([".mov", ".json", ".mp4", ".jpeg", ".jpg"]))):
             self.subtype = "video"
         elif (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters", "Images"])) and
-            self.compare_content(set([".wav", ".json", ".jpeg"]))):
+            self.compare_content(set([".wav", ".json", ".jpeg", ".jpg"]))):
             self.subtype = "audio"
 
         return True
 
 
     def check_bagstructure_json(self):
-        expected_dirs = set(["PreservationMasters", "ServiceCopies", "EditMasters", "ArchiveOriginals"])
+        expected_dirs = set(["PreservationMasters", "ServiceCopies", "EditMasters", "Images"])
 
         if not self.compare_structure(expected_dirs):
             self.raise_bagerror("JSON bags may only have the following directories - {}".format(expected_dirs))
