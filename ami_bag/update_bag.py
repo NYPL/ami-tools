@@ -151,6 +151,28 @@ class Repairable_Bag(bagit.Bag):
     os.chdir(self.old_dir)
 
 
+  def update_hashes(self, filename_pattern = None):
+    os.chdir(self.path)
+
+    payload_files = set(self.payload_entries().keys())
+
+    if filename_pattern:
+      regex = re.compile(filename_pattern)
+      files_to_update = [x for x in payload_files if regex.match(x)]
+    else:
+      files_to_update = payload_files
+
+    if files_to_update:
+      LOGGER.info("Updating hashes for the following files: {}".format(", ".join(files_to_update)))
+      for payload_file in files_to_update:
+        self.add_new_hashes_for_file(payload_file)
+
+      self.update_hash_manifests()
+      self.update_baginfo()
+
+    os.chdir(self.old_dir)
+
+
   def delete_payload_files_not_in_manifest(self, rules = SYSTEM_FILE_PATTERNS):
     """
     iterate through all dem new files
