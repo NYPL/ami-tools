@@ -11,7 +11,7 @@ import sys
 import tempfile
 import unittest
 from os.path import join as j
-import ami_bag.bagit
+import ami_bag.bagit as bagit
 
 import ami_bag.update_bag as update_bag
 
@@ -67,6 +67,7 @@ class TestSingleProcessValidation(unittest.TestCase):
     f = j(self.tmpdir, "data/._.SYSTEMFILE.db\r")
     with open(f, 'w'):
       self.assertEqual(list(bag.payload_files_not_in_manifest()), ['data/._.SYSTEMFILE.db\r'])
+      self.assertRaises(bagit.BagValidationError, bag.validate, bag, fast=False)
 
   def test_add_payload_file_not_in_manifest(self):
     bagit.make_bag(self.tmpdir)
@@ -88,6 +89,38 @@ class TestSingleProcessValidation(unittest.TestCase):
     updated_bag = update_bag.Repairable_Bag(self.tmpdir)
     self.assertTrue(self.validate(updated_bag))
 
+  def test_update_hashes(self):
+    bagit.make_bag(self.tmpdir, checksum=['sha1', 'sha256'])
+    bag = update_bag.Repairable_Bag(self.tmpdir)
+    f = j(self.tmpdir, "data/hello.txt")
+    with open(f, 'w') as r:
+      r.write('♡')
+    bag.update_hashes()
+    updated_bag = update_bag.Repairable_Bag(self.tmpdir)
+    self.assertTrue(self.validate(updated_bag))
+
+  def test_update_hashes_with_no_filter_match(self):
+    bagit.make_bag(self.tmpdir, checksum=['sha1'])
+    bag = update_bag.Repairable_Bag(self.tmpdir)
+    f = j(self.tmpdir, "data/hello.txt")
+    with open(f, 'w') as r:
+      r.write('♡')
+    bag.update_hashes(filename_pattern = r"\d")
+    updated_bag = update_bag.Repairable_Bag(self.tmpdir)
+    self.assertEqual(bag.entries["data/hello.txt"], updated_bag.entries["data/hello.txt"])
+    self.assertRaises(bagit.BagValidationError, bag.validate, bag, fast=False)
+
+  def test_update_hashes_with_filter_match(self):
+    bagit.make_bag(self.tmpdir, checksum=['sha1'])
+    bag = update_bag.Repairable_Bag(self.tmpdir)
+    f = j(self.tmpdir, "data/hello.txt")
+    with open(f, 'w') as r:
+      r.write('♡')
+    bag.update_hashes(filename_pattern = r"\w")
+    updated_bag = update_bag.Repairable_Bag(self.tmpdir)
+    self.assertEqual(bag.entries["data/hello.txt"], updated_bag.entries["data/hello.txt"])
+    self.assertTrue(self.validate(updated_bag))
+
   def test_delete_payload_files_not_in_manifest(self):
     bagit.make_bag(self.tmpdir)
     bag = update_bag.Repairable_Bag(self.tmpdir)
@@ -106,7 +139,7 @@ class TestSingleProcessValidation(unittest.TestCase):
     with open(f, 'w') as r:
       r.write('♡')
     self.assertEqual(list(bag.payload_files_not_in_manifest()), ['data/Thumbs.db'])
-    bag.delete_payload_files_not_in_manifest(rules = {"Thumbs.db": {"regex": r"[Tt]humbs\\.db$", "match": False}})
+    bag.delete_payload_files_not_in_manifest(rules = {"Thumbs.db": {"regex": r"[Tt]humbs\.db$", "match": False}})
     updated_bag = update_bag.Repairable_Bag(self.tmpdir)
     self.assertTrue(updated_bag.is_valid(fast = True))
 
@@ -120,6 +153,7 @@ class TestSingleProcessValidation(unittest.TestCase):
     bag.delete_payload_files_not_in_manifest(rules = {"Thumbs.db": {"regex": r"[Tt]humbs\\.db$", "match": False}})
     updated_bag = update_bag.Repairable_Bag(self.tmpdir)
     self.assertEqual(list(bag.payload_files_not_in_manifest()), ['data/._.SYSTEMFILE.db\r'])
+    self.assertRaises(bagit.BagValidationError)
 
 
 class TestMultiprocessValidation(TestSingleProcessValidation):
