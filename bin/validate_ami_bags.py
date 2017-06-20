@@ -71,7 +71,7 @@ def main():
         try:
             bag = ami_bag(bagpath)
         except:
-            LOGGER.error("{}: Not a bag".format(bagpath))
+            LOGGER.error("{}: Not an AMI bag".format(bagpath))
         else:
             if bag.validate_amibag(fast = args.slow, metadata = args.metadata):
                 LOGGER.info("Valid {} {} bag: {}".format(bag.type, bag.subtype, bagpath))
