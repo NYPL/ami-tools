@@ -106,6 +106,12 @@ class ami_bag(bagit.Bag):
 
             if metadata:
                 try:
+                    self.check_metadata_json()
+                except ami_bagValidationError as e:
+                    LOGGER.error("Error in bag metadata: {0}".format(e.message))
+                    valid = False
+
+                try:
                     self.check_filenames_manifest_and_metadata_json()
                 except ami_bagValidationError as e:
                     LOGGER.error("Error in bag metadata: {0}".format(e.message))
@@ -324,6 +330,23 @@ class ami_bag(bagit.Bag):
         self.media_files_md = set(self.media_files_md)
 
         return
+
+
+    def check_metadata_json(self):
+        if not self.metadata_files:
+            self.raise_bagerror("JSON bag does not contain any files with json extension")
+
+        bad_json = []
+
+        for filename in self.metadata_files:
+            json = ami_json(filepath = os.path.join(self.path, filename))
+            if not json.validate_json():
+                bad_json.append(filename)
+
+        if bad_json:
+            self.raise_bagerror("JSON files contain formatting errors")
+
+        return True
 
 
     def check_filenames_manifest_and_metadata_json(self):
