@@ -1,9 +1,15 @@
 import os
 import json
+import re
 import logging
 from pandas.tslib import Timestamp
 import numpy as np
 from pymediainfo import MediaInfo
+
+
+FULL_TECHFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)$"
+STUB_TECHFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)"
+FULL_REFFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)\.(mov|wav|mkv|dv)$"
 
 LOGGER = logging.getLogger(__name__)
 
@@ -125,6 +131,61 @@ class ami_json:
         self.dict["technical"]["audioCodec"] = track.audio_codecs
         if track.codecs_video:
           self.dict["technical"]["videoCodec"] = track.codecs_video
+
+
+  def check_techfn(self):
+    if not re.match(FULL_TECHFN_RE, self.dict["technical"]["filename"]):
+      self.raise_jsonerror("Value for technical.filename does not meet expectations: {}"
+        .format(self.dict["technical"]["filename"]))
+
+    return True
+
+
+  def repair_techfn(self, techfn = None):
+    if techfn:
+      self.dict["technical"]["filename"] = techfn
+    else:
+      if not re.match(FULL_TECHFN_RE, self.dict["technical"]["filename"]):
+        correct_techfn = re.match(STUB_TECHFN_RE, self.dict["technical"]["filename"])
+        if correct_techfn:
+          self.dict["technical"]["filename"] = correct_techfn[0]
+          LOGGER.info("{} technical.filename updated to: {}".format(self.filename, self.dict["technical"]["filename"]))
+        else:
+          raise_jsonerror("Correct technical.filename cannot be determined from current value")
+
+
+  def check_reffn(self):
+    if not re.match(FULL_REFFN_RE, self.dict["asset"]["referenceFilename"]):
+      self.raise_jsonerror("Value for asset.referenceFilename does not meet expectations: {}"
+        .format(self.dict["asset"]["referenceFilename"]))
+
+    return True
+
+
+  def repair_reffn(self, reffn = None):
+    if reffn:
+      self.dict["asset"]["referenceFilename"] = reffn
+    else:
+      if not re.match(FULL_REFFN_RE, self.dict["asset"]["referenceFilename"]):
+        if self.check_techfn():
+          original_value = self.dict["asset"]["referenceFilename"]
+          replacement_value = self.dict["technical"]["filename"] + '.' + self.dict["technical"]["extension"]
+          self.dict["asset"]["referenceFilename"] = replacement_value
+
+          if self.check_reffn():
+            LOGGER.info("{} asset.referenceFilename updated to: {}".format(self.filename, self.dict["asset"]["referenceFilename"]))
+          else:
+            self.dict["asset"]["referenceFilename"] = original_value
+            raise_jsonerror("Correct asset.referenceFilename cannot be created from technical.filename and technical.extension.")
+
+
+  def compare_techfn_reffn(self):
+    if self.dict["asset"]["referenceFilename"] != self.dict["technical"]["filename"] + '.' + self.dict["technical"]["extension"]:
+      self.raise_jsonerror("Value for asset.referenceFilename should equal technical.filename.technical.extension: {} != {}.{}"
+        .format(self.dict["asset"]["referenceFilename"],
+          self.dict["technical"]["filename"], self.dict["technical"]["extension"]))
+
+    return True
 
 
   def write_json(self, output_directory):
