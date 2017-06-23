@@ -1,7 +1,6 @@
 import os
 import json
 import logging
-import math
 from pandas.tslib import Timestamp
 import numpy as np
 from pymediainfo import MediaInfo
@@ -10,10 +9,10 @@ LOGGER = logging.getLogger(__name__)
 
 
 class AMIJSONError(Exception):
-  def __init__(self, value):
-    self.value = value
+  def __init__(self, message):
+    self.message = message
   def __str__(self):
-    return repr(self.value)
+    return repr(self.message)
 
 
 class ami_json:
@@ -25,7 +24,7 @@ class ami_json:
 
     if filepath:
       self.path = filepath
-      self.filename = os.path.splitext(os.path.abspath(filepath))[0]
+      self.filename = os.path.splitext(os.path.basename(filepath))[0]
       if load:
         try:
           with open(filepath, 'r', encoding = 'utf-8-sig') as f:
@@ -34,7 +33,7 @@ class ami_json:
           print("not a json file")
 
     if flat_dict:
-      self.filename = flat_dict["asset.referenceFilename"]
+      self.filename = os.path.splitext(flat_dict["asset.referenceFilename"])[0] + ".json"
       nested_dict = {}
       if "asset.schemaVersion" not in flat_dict.items():
           flat_dict["asset.schemaVersion"] = schema_version
