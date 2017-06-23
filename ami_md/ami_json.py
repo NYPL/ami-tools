@@ -199,7 +199,9 @@ class ami_json:
     if techfn:
       self.dict["technical"]["filename"] = techfn
     else:
-      if not re.match(FULL_TECHFN_RE, self.dict["technical"]["filename"]):
+      try:
+        self.check_techfn()
+      except AMIJSONError as e:
         correct_techfn = re.match(STUB_TECHFN_RE, self.dict["technical"]["filename"])
         if correct_techfn:
           self.dict["technical"]["filename"] = correct_techfn[0]
@@ -220,7 +222,9 @@ class ami_json:
     if reffn:
       self.dict["asset"]["referenceFilename"] = reffn
     else:
-      if not re.match(FULL_REFFN_RE, self.dict["asset"]["referenceFilename"]):
+      try:
+        self.check_reffn()
+      except AMIJSONError as e:
         if self.check_techfn():
           original_value = self.dict["asset"]["referenceFilename"]
           replacement_value = self.dict["technical"]["filename"] + '.' + self.dict["technical"]["extension"]
