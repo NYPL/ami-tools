@@ -196,6 +196,8 @@ class ami_json:
 
 
   def repair_techfn(self, techfn = None):
+    original_value = self.dict["technical"]["filename"]
+
     if techfn:
       self.dict["technical"]["filename"] = techfn
     else:
@@ -205,9 +207,13 @@ class ami_json:
         correct_techfn = re.match(STUB_TECHFN_RE, self.dict["technical"]["filename"])
         if correct_techfn:
           self.dict["technical"]["filename"] = correct_techfn[0]
-          LOGGER.info("{} technical.filename updated to: {}".format(self.filename, self.dict["technical"]["filename"]))
-        else:
-          raise_jsonerror("Correct technical.filename cannot be determined from current value")
+
+    try:
+      self.check_techfn()
+    except:
+      raise_jsonerror("Replacement technical.filename is not valid")
+    else:
+      LOGGER.info("{} technical.filename updated to: {}".format(self.filename, self.dict["technical"]["filename"]))
 
 
   def check_reffn(self):
@@ -219,6 +225,8 @@ class ami_json:
 
 
   def repair_reffn(self, reffn = None):
+    original_value = self.dict["asset"]["referenceFilename"]
+
     if reffn:
       self.dict["asset"]["referenceFilename"] = reffn
     else:
@@ -226,15 +234,15 @@ class ami_json:
         self.check_reffn()
       except AMIJSONError as e:
         if self.check_techfn():
-          original_value = self.dict["asset"]["referenceFilename"]
           replacement_value = self.dict["technical"]["filename"] + '.' + self.dict["technical"]["extension"]
           self.dict["asset"]["referenceFilename"] = replacement_value
 
-          if self.check_reffn():
-            LOGGER.info("{} asset.referenceFilename updated to: {}".format(self.filename, self.dict["asset"]["referenceFilename"]))
-          else:
-            self.dict["asset"]["referenceFilename"] = original_value
-            raise_jsonerror("Correct asset.referenceFilename cannot be created from technical.filename and technical.extension.")
+    try:
+      self.check_reffn()
+    except:
+      raise_jsonerror("Correct asset.referenceFilename cannot be created from technical.filename and technical.extension.")
+    else:
+      LOGGER.info("{} asset.referenceFilename updated to: {}".format(self.filename, self.dict["asset"]["referenceFilename"]))
 
 
   def compare_techfn_reffn(self):
