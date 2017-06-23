@@ -158,7 +158,7 @@ class Repairable_Bag(bagit.Bag):
 
     if filename_pattern:
       regex = re.compile(filename_pattern)
-      files_to_update = [x for x in payload_files if regex.match(x)]
+      files_to_update = [x for x in payload_files if regex.search(x)]
     else:
       files_to_update = payload_files
 
