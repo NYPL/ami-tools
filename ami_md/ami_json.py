@@ -113,6 +113,60 @@ class ami_json:
       self.dict["digitizer"]["organization"]["address"][key] = str(item).split('.')[0]
 
 
+  def validate_json(self):
+    """
+    Check the metadata values for common errors.
+    """
+    valid = True
+
+    #Check for a sheet that should have preservation metadata data
+    try:
+      self.check_techfn()
+    except AMIJSONError as e:
+      LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+      valid = False
+
+    try:
+      self.check_reffn()
+    except AMIJSONError as e:
+      LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+      valid = False
+
+    try:
+      self.compare_techfn_reffn()
+    except AMIJSONError as e:
+      LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+      valid = False
+
+    try:
+      self.check_techmd()
+    except AMIJSONError as e:
+      LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+      valid = False
+
+    return valid
+
+
+  def check_techmd(self):
+    audiofields = ["filename", "extension", "fileFormat",
+      "fileSize", "dateCreated", "durationHuman", "durationMilli",
+      "audioCodec"]
+
+    found_fields = set(list(self.dict["technical"].keys()))
+
+    format_type = self.dict["source"]["object"]["type"][0:5]
+    if format_type == "audio":
+      expected_fields = set(audiofields)
+    elif format_type == "video":
+      expected_fields = set(audiofields.append("videoCodec"))
+
+    if not found_fields >= expected_fields:
+      self.raise_jsonerror("Metadata is missing the following fields: {}".format(
+        expected_fields - found_fields))
+
+    return True
+
+
   def update_mediainfo(self):
     file_techmd = MediaInfo.parse(self.media_filepath)
 
