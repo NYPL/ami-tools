@@ -159,6 +159,28 @@ class TestSingleProcessValidation(unittest.TestCase):
       set(['Event-Date-Time', 'Event-Type', 'Event-Detail-Information',
       'Event-Outcome', 'Event-Software-Agent']))
 
+  def test_record_premis_default_human_agent(self):
+    bagit.make_bag(self.tmpdir)
+    bag = update_bag.Repairable_Bag(self.tmpdir, repairer = "Smokey Yunick")
+    bag.add_premisevent(process = "Peek into bag",
+      msg = "Just looking around", outcome = "Pass",
+      sw_agent = "update_bag.py")
+    bag.write_bag_updates()
+    updated_bag = update_bag.Repairable_Bag(self.tmpdir)
+    self.assertEqual(updated_bag.premis_events[0]['Event-Human-Agent'],
+      "Smokey Yunick")
+
+  def test_record_premis_nondefault_human_agent(self):
+    bagit.make_bag(self.tmpdir)
+    bag = update_bag.Repairable_Bag(self.tmpdir, repairer = "Smokey Yunick")
+    bag.add_premisevent(process = "Peek into bag",
+      msg = "Just looking around", outcome = "Pass",
+      sw_agent = "update_bag.py", human_agent = "Yogi Bear")
+    bag.write_bag_updates()
+    updated_bag = update_bag.Repairable_Bag(self.tmpdir)
+    self.assertEqual(updated_bag.premis_events[0]['Event-Human-Agent'],
+      "Yogi Bear")
+
 class TestMultiprocessValidation(TestSingleProcessValidation):
 
     def validate(self, bag, *args, **kwargs):
