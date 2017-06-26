@@ -5,6 +5,7 @@ import shutil
 import datetime
 import re
 import logging
+import json
 
 SYSTEM_FILE_PATTERNS = {
     "Thumbs.db": {
@@ -34,6 +35,7 @@ class Repairable_Bag(bagit.Bag):
   def __init__(self, *args, **kwargs):
     super(Repairable_Bag, self).__init__(*args, **kwargs)
     self.old_dir = os.path.abspath(os.path.curdir)
+    self.manifests_updated = False
 
     self.premis_path = os.path.join(self.path, 'premis-events.json')
     if os.path.isfile(self.premis_path):
@@ -43,37 +45,40 @@ class Repairable_Bag(bagit.Bag):
       self.premis_events = []
 
 
-  def add_premisevent(self, process, msg, outcome, sw_agent, human_agent):
+  def add_premisevent(self, process, msg, outcome, sw_agent,
+    human_agent = None):
     premis_event = {
-      'Event-Date-Time': 20170622155934EDT,
+      'Event-Date-Time': datetime.datetime.strftime(
+        datetime.datetime.now(), "%Y%m%d%H%M%S%Z"),
       'Event-Type': process,
       'Event-Detail-Information': msg,
       'Event-Outcome': outcome,
       'Event-Software-Agent': sw_agent
-      if human_agent:
-        'Event-Human-Agent': human_agent
     }
+    if human_agent:
+      premis_event['Event-Human-Agent']: human_agent
 
     self.premis_events.append(premis_event)
-    
 
-  def write_premisjson:
+
+  def write_premisjson(self):
     with open(self.premis_path, 'w') as f:
       json.dump(self.premis_events, f)
 
+    return True
 
-  def check_baginfo(self):
+
+  def check_oxum(self):
     try:
-      self.validate(fast = True)
+      self._validate_oxum()
     except bagit.BagValidationError:
       return False
     return True
 
 
-  def update_baginfo(self, message = None):
-
-    today = datetime.datetime.strftime(
-      datetime.datetime.now(), "%Y%m%d%H%M%S")
+  def write_baginfo(self):
+    if self.check_oxum():
+      return False
 
     total_bytes = 0
     total_files = 0
@@ -86,50 +91,71 @@ class Repairable_Bag(bagit.Bag):
     generated_oxum = "{0}.{1}".format(total_bytes, total_files)
 
     if self.info["Payload-Oxum"] != generated_oxum:
-      self.info["Payload-Oxum-Before-{}".format(today)] = self.info["Payload-Oxum"]
-      self.info["Most-Recent-Update-Date"] = today
       self.info["Payload-Oxum"] = generated_oxum
 
-    if message:
-      self.info["Update-Message-{}".format(today)] = message
-      self.info["Most-Recent-Update-Date"] = today
-
+      self.add_premisevent(process = "Bag Info Update",
+        msg = "Update 0xum from {} to {}".format(
+          self.info["Payload-Oxum"], generated_oxum),
+        outcome = "Pass", sw_agent = "update_bag.py")
 
     try:
       bagit._make_tag_file(os.path.join(self.path, "bag-info.txt"), self.info)
     except:
       LOGGER.error("Do not have permission to overwrite bag-info")
-      return False
-
-    for alg in set(self.algs):
-      bagit._make_tagmanifest_file(alg, self.path)
 
     return True
 
 
-  def update_hash_manifests(self):
+  def write_hash_manifests(self):
+    if not self.manifests_updated:
+      return False
+
     today = datetime.datetime.strftime(
       datetime.datetime.now(), "%Y%m%d%H%M%S")
     for alg in set(self.algs):
+      manifest_path = os.path.join(self.path, 'manifest-{}.txt'.format(alg))
+      copy_manifest_path = os.path.join(self.path, 'manifest-{}-{}.old'.format(alg, today))
       try:
-        shutil.copyfile('manifest-{}.txt'.format(alg),
-          'manifest-{}-{}.old'.format(alg, today))
+        shutil.copyfile(manifest_path, copy_manifest_path)
       except:
         LOGGER.error("Do not have permission to write new manifests")
+      else:
+        self.add_premisevent(process = "Copy Bag Manifest",
+          msg = "{} copied to {} before writing new manifest".format(
+            manifest_path, copy_manifest_path),
+          outcome = "Pass", sw_agent = "update_bag.py")
 
       try:
-        with open('manifest-%s.txt' % alg, 'w') as manifest:
+        with open(manifest_path, 'w') as manifest:
           for payload_file, hashes in self.entries.items():
             if payload_file.startswith("data" + os.sep):
-              manifest.write("%s  %s\n" % (hashes[alg], bagit._encode_filename(payload_file)))
+              manifest.write("{} {}\n".format(hashes[alg], bagit._encode_filename(payload_file)))
       except:
         LOGGER.error("Do not have permission to overwrite hash manifests")
+      else:
+        self.add_premisevent(process = "Write Bag Manifest",
+          msg = "{} written as a result of new or updated payload files".format(
+            manifest_path),
+          outcome = "Pass", sw_agent = "update_bag.py")
 
+    return True
+
+
+  def write_tag_manifests(self):
     for alg in set(self.algs):
       try:
         bagit._make_tagmanifest_file(alg, self.path)
       except:
         LOGGER.error("Do not have permission to overwrite tag manifests")
+
+    return True
+
+
+  def write_bag_updates(self):
+    self.write_baginfo()
+    self.write_hash_manifests()
+    self.write_premisjson()
+    self.write_tag_manifests()
 
 
   '''
@@ -168,11 +194,17 @@ class Repairable_Bag(bagit.Bag):
 
     if new_payload_files:
       LOGGER.info("Adding the following files to manifests: {}".format(", ".join(new_payload_files)))
+      self.manifests_updated = True
+
       for payload_file in self.payload_files_not_in_manifest():
         self.add_new_hashes_for_file(payload_file)
 
-      self.update_hash_manifests()
-      self.update_baginfo()
+      self.add_premisevent(process = "Bag Payload Update",
+        msg = "Added the following files to the bag payload: {}".format(
+          ", ".join(new_payload_files)),
+        outcome = "Pass", sw_agent = "update_bag.py")
+
+      self.write_bag_updates()
 
     os.chdir(self.old_dir)
 
@@ -190,11 +222,17 @@ class Repairable_Bag(bagit.Bag):
 
     if files_to_update:
       LOGGER.info("Updating hashes for the following files: {}".format(", ".join(files_to_update)))
+      self.manifests_updated = True
+
       for payload_file in files_to_update:
         self.add_new_hashes_for_file(payload_file)
 
-      self.update_hash_manifests()
-      self.update_baginfo()
+      self.add_premisevent(process = "Bag Payload Hash Update",
+        msg = "Changed hashes for the following files: {}".format(
+          ", ".join(files_to_update)),
+        outcome = "Pass", sw_agent = "update_bag.py")
+
+      self.write_bag_updates()
 
     os.chdir(self.old_dir)
 
@@ -229,8 +267,13 @@ class Repairable_Bag(bagit.Bag):
           os.remove(payload_file)
         except OSError:
           LOGGER.error("Do not have permission to delete {}".format(payload_file))
+          
+      self.add_premisevent(process = "Update Bag Payload",
+        msg = "Deleted untracked files from the payload directory: {}".format(
+          ", ".join(files_to_delete)),
+        outcome = "Pass", sw_agent = "update_bag.py")
 
-      if not self.check_baginfo():
-        self.update_baginfo()
+      if not self.check_oxum():
+        self.write_bag_updates()
 
     os.chdir(self.old_dir)
