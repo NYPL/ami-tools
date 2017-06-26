@@ -30,10 +30,10 @@ class ami_json:
 
     if filepath:
       self.path = filepath
-      self.filename = os.path.splitext(os.path.basename(filepath))[0]
+      self.filename = os.path.basename(filepath)
       if load:
         try:
-          with open(filepath, 'r', encoding = 'utf-8-sig') as f:
+          with open(self.path, 'r', encoding = 'utf-8-sig') as f:
             self.dict = json.load(f)
         except:
           print("not a json file")
@@ -55,10 +55,15 @@ class ami_json:
       self.dict = nested_dict
       self.coerce_strings()
 
-      if media_filepath and os.path.isfile(media_filepath):
-        self.media_filepath = media_filepath
-      else:
-        raise_jsonerror("There is no media file found at {}".format(media_filepath))
+    if media_filepath:
+      self.set_mediafilepath(media_filepath)
+
+
+  def set_mediafilepath(self, media_filepath):
+    if os.path.isfile(media_filepath):
+      self.media_filepath = media_filepath
+    else:
+      self.raise_jsonerror("There is no media file found at {}".format(media_filepath))
 
 
   def convert_dotKeyToNestedDict(self, tree, key, value):
@@ -211,7 +216,7 @@ class ami_json:
     try:
       self.check_techfn()
     except:
-      raise_jsonerror("Replacement technical.filename is not valid")
+      self.raise_jsonerror("Replacement technical.filename is not valid")
     else:
       LOGGER.info("{} technical.filename updated to: {}".format(self.filename, self.dict["technical"]["filename"]))
 
@@ -240,7 +245,7 @@ class ami_json:
     try:
       self.check_reffn()
     except:
-      raise_jsonerror("Correct asset.referenceFilename cannot be created from technical.filename and technical.extension.")
+      self.raise_jsonerror("Correct asset.referenceFilename cannot be created from technical.filename and technical.extension.")
     else:
       LOGGER.info("{} asset.referenceFilename updated to: {}".format(self.filename, self.dict["asset"]["referenceFilename"]))
 
