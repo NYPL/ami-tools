@@ -47,19 +47,9 @@ class TestSingleProcessValidation(unittest.TestCase):
     bag = update_bag.Repairable_Bag(self.tmpdir)
     bag.info['Payload-Oxum'] = '0.0'
     self.assertFalse(bag.is_valid())
-    bag.update_baginfo()
+    bag.write_baginfo()
     updated_bag = update_bag.Repairable_Bag(self.tmpdir)
     self.assertTrue(self.validate(updated_bag))
-    self.assertTrue("Most-Recent-Update-Date" in updated_bag.info.keys())
-
-  def test_bag_update_msg(self):
-    bagit.make_bag(self.tmpdir)
-    bag = update_bag.Repairable_Bag(self.tmpdir)
-    test_message =  "How did this get here? I'm not good with computers."
-    bag.update_baginfo(message = test_message)
-    updated_bag = update_bag.Repairable_Bag(self.tmpdir)
-    self.assertTrue(self.validate(updated_bag))
-    self.assertTrue(test_message in updated_bag.info.values())
 
   def test_payload_file_not_in_manifest(self):
     bagit.make_bag(self.tmpdir)
