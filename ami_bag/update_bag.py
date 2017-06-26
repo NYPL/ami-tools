@@ -32,10 +32,15 @@ LOGGER = logging.getLogger(__name__)
 
 class Repairable_Bag(bagit.Bag):
 
-  def __init__(self, *args, **kwargs):
+  def __init__(self, *args, repairer = None, **kwargs):
     super(Repairable_Bag, self).__init__(*args, **kwargs)
     self.old_dir = os.path.abspath(os.path.curdir)
     self.manifests_updated = False
+
+    if repairer:
+      self.repairer = repairer
+    else:
+      self.repairer = None
 
     self.premis_path = os.path.join(self.path, 'premis-events.json')
     if os.path.isfile(self.premis_path):
@@ -55,8 +60,11 @@ class Repairable_Bag(bagit.Bag):
       'Event-Outcome': outcome,
       'Event-Software-Agent': sw_agent
     }
+
     if human_agent:
-      premis_event['Event-Human-Agent']: human_agent
+      premis_event['Event-Human-Agent'] = human_agent
+    elif self.repairer:
+      premis_event['Event-Human-Agent'] = self.repairer
 
     self.premis_events.append(premis_event)
 
@@ -267,7 +275,7 @@ class Repairable_Bag(bagit.Bag):
           os.remove(payload_file)
         except OSError:
           LOGGER.error("Do not have permission to delete {}".format(payload_file))
-          
+
       self.add_premisevent(process = "Update Bag Payload",
         msg = "Deleted untracked files from the payload directory: {}".format(
           ", ".join(files_to_delete)),
