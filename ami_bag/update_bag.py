@@ -35,6 +35,32 @@ class Repairable_Bag(bagit.Bag):
     super(Repairable_Bag, self).__init__(*args, **kwargs)
     self.old_dir = os.path.abspath(os.path.curdir)
 
+    self.premis_path = os.path.join(self.path, 'premis-events.json')
+    if os.path.isfile(self.premis_path):
+      with open(self.premis_path, 'r') as f:
+        self.premis_events = json.load(f)
+    else:
+      self.premis_events = []
+
+
+  def add_premisevent(self, process, msg, outcome, sw_agent, human_agent):
+    premis_event = {
+      'Event-Date-Time': 20170622155934EDT,
+      'Event-Type': process,
+      'Event-Detail-Information': msg,
+      'Event-Outcome': outcome,
+      'Event-Software-Agent': sw_agent
+      if human_agent:
+        'Event-Human-Agent': human_agent
+    }
+
+    self.premis_events.append(premis_event)
+    
+
+  def write_premisjson:
+    with open(self.premis_path, 'w') as f:
+      json.dump(self.premis_events, f)
+
 
   def check_baginfo(self):
     try:
