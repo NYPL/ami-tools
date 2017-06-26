@@ -142,8 +142,8 @@ class TestSingleProcessValidation(unittest.TestCase):
     self.assertEqual(list(bag.payload_files_not_in_manifest()), ['data/._.SYSTEMFILE.db\r'])
     bag.delete_payload_files_not_in_manifest(rules = {"Thumbs.db": {"regex": r"[Tt]humbs\\.db$", "match": False}})
     updated_bag = update_bag.Repairable_Bag(self.tmpdir)
-    self.assertEqual(list(bag.payload_files_not_in_manifest()), ['data/._.SYSTEMFILE.db\r'])
-    self.assertRaises(bagit.BagValidationError)
+    self.assertEqual(list(updated_bag.payload_files_not_in_manifest()), ['data/._.SYSTEMFILE.db\r'])
+    self.assertRaises(bagit.BagValidationError, bag.validate, updated_bag, fast=False)
 
   def test_record_premis_events(self):
     bagit.make_bag(self.tmpdir)
