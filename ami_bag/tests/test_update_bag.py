@@ -55,9 +55,10 @@ class TestSingleProcessValidation(unittest.TestCase):
     bagit.make_bag(self.tmpdir)
     bag = update_bag.Repairable_Bag(self.tmpdir)
     f = j(self.tmpdir, "data/._.SYSTEMFILE.db\r")
-    with open(f, 'w'):
-      self.assertEqual(list(bag.payload_files_not_in_manifest()), ['data/._.SYSTEMFILE.db\r'])
-      self.assertRaises(bagit.BagValidationError, bag.validate, bag, fast=False)
+    with open(f, 'w') as r:
+      r.write('♡')
+    self.assertEqual(list(bag.payload_files_not_in_manifest()), ['data/._.SYSTEMFILE.db\r'])
+    self.assertRaises(bagit.BagValidationError, bag.validate, bag, fast=False)
 
   def test_add_payload_file_not_in_manifest(self):
     bagit.make_bag(self.tmpdir)
