@@ -172,24 +172,40 @@ class ami_json:
     return True
 
 
-  def update_mediainfo(self):
+  def repair_techmd(self):
     file_techmd = MediaInfo.parse(self.media_filepath)
 
     for track in file_techmd.tracks:
       if track.track_type == "General":
-        self.dict["technical"]["filename"] = track.file_name
-        self.dict["technical"]["extension"] = track.file_extension
-        self.dict["technical"]["fileFormat"] = track.format
-        self.dict["technical"]["fileSize"]["measure"] = track.file_size
-        self.dict["technical"]["dateCreated"] = track.encoded_date.split()[0].replace(":", "-")
-        self.dict["technical"]["durationHuman"] = track.other_duration[-1]
-        if "durationMilli" not in self.dict["technical"].keys():
-          self.dict["technical"]["durationMilli"] = {}
-        self.dict["technical"]["durationMilli"]["measure"] = track.duration
-        self.dict["technical"]["durationMilli"]["unit"] = "ms"
-        self.dict["technical"]["audioCodec"] = track.audio_codecs
-        if track.codecs_video:
-          self.dict["technical"]["videoCodec"] = track.codecs_video
+        techmd_track = track
+
+    self.dict["technical"]["filename"] = techmd_track.file_name
+    self.dict["technical"]["extension"] = techmd_track.file_extension
+    self.dict["technical"]["fileFormat"] = techmd_track.format
+
+    if "fileSize" not in self.dict["technical"].keys():
+      self.dict["technical"]["fileSize"] = {}
+    self.dict["technical"]["fileSize"]["measure"] = techmd_track.file_size
+    self.dict["technical"]["fileSize"]["unit"] = "B"
+
+    #retain original dates
+    if not "dateCreated" in self.dict["technical"].keys():
+      if techmd_track.encoded_date:
+        self.dict["technical"]["dateCreated"] = techmd_track.encoded_date.split()[0].replace(":", "-")
+      elif techmd_track.recorded_date:
+        self.dict["technical"]["dateCreated"] = techmd_track.recorded_date.split()[0].replace(":", "-")
+      elif techmd_track.file_last_modification_date__local:
+        self.dict["technical"]["dateCreated"] = techmd_track.file_last_modification_date__local.split()[0].replace(":", "-")
+
+    self.dict["technical"]["durationHuman"] = techmd_track.other_duration[-1]
+    if "durationMilli" not in self.dict["technical"].keys():
+      self.dict["technical"]["durationMilli"] = {}
+    self.dict["technical"]["durationMilli"]["measure"] = techmd_track.duration
+    self.dict["technical"]["durationMilli"]["unit"] = "ms"
+
+    self.dict["technical"]["audioCodec"] = techmd_track.audio_codecs
+    if techmd_track.codecs_video:
+      self.dict["technical"]["videoCodec"] = techmd_track.codecs_video
 
 
   def check_techfn(self):
