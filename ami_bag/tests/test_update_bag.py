@@ -145,6 +145,18 @@ class TestSingleProcessValidation(unittest.TestCase):
     self.assertEqual(list(bag.payload_files_not_in_manifest()), ['data/._.SYSTEMFILE.db\r'])
     self.assertRaises(bagit.BagValidationError)
 
+  def test_record_premis_events(self):
+    bagit.make_bag(self.tmpdir)
+    bag = update_bag.Repairable_Bag(self.tmpdir)
+    bag.add_premisevent(process = "Peek into bag",
+      msg = "Just looking around",
+      outcome = "Pass", sw_agent = "update_bag.py")
+    bag.write_bag_updates()
+    updated_bag = update_bag.Repairable_Bag(self.tmpdir)
+    self.assertEqual(len(updated_bag.premis_events), 1)
+    self.assertEqual(set(updated_bag.premis_events[0].keys()),
+      set(['Event-Date-Time', 'Event-Type', 'Event-Detail-Information',
+      'Event-Outcome', 'Event-Software-Agent']))
 
 class TestMultiprocessValidation(TestSingleProcessValidation):
 
