@@ -58,6 +58,12 @@ class ami_bag(bagit.Bag):
             valid = False
 
         try:
+            self.check_simple_filenames()
+        except ami_bagValidationError as e:
+            LOGGER.error("Error in filenames: {0}".format(e.message))
+            valid = False
+
+        try:
             self.check_directory_depth()
         except ami_bagValidationError as e:
             LOGGER.error("Error in path names: {0}".format(e.message))
@@ -129,6 +135,19 @@ class ami_bag(bagit.Bag):
 
         if bad_filenames:
             self.raise_bagerror("Illegal characters in the following filenames - {}".format(bad_filenames))
+
+        return True
+
+
+    def check_simple_filenames(self):
+        complex_filenames = []
+
+        for filename in self.data_files:
+            if re.search(r"_v\d+[rspt]\d+\w+_", os.path.split(filename)[1]):
+                complex_filenames.append(filename)
+
+        if complex_filenames:
+            self.raise_bagerror("Complex digitized objects represented by - {}".format(complex_filenames))
 
         return True
 
