@@ -70,6 +70,7 @@ class ami_excel:
     """
     valid = True
 
+    LOGGER.info("Checking: {}".format(self.name))
     #Check for a sheet that should have preservation metadata data
     if not self.pres_sheet:
       valid = False
