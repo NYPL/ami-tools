@@ -175,10 +175,12 @@ class ami_json:
   def repair_techmd(self):
     file_techmd = MediaInfo.parse(self.media_filepath)
 
+
     for track in file_techmd.tracks:
       if track.track_type == "General":
         techmd_track = track
 
+    LOGGER.info("Rewriting technical md for {}".format(os.path.basename(self.filename)))
     self.dict["technical"]["filename"] = techmd_track.file_name
     self.dict["technical"]["extension"] = techmd_track.file_extension
     self.dict["technical"]["fileFormat"] = techmd_track.format
@@ -209,6 +211,9 @@ class ami_json:
 
 
   def check_techfn(self):
+    if not "filename" in self.dict["technical"].keys():
+      self.raise_jsonerror("Key missing for technical.filename")
+
     if not re.match(FULL_TECHFN_RE, self.dict["technical"]["filename"]):
       self.raise_jsonerror("Value for technical.filename does not meet expectations: {}"
         .format(self.dict["technical"]["filename"]))
@@ -216,28 +221,23 @@ class ami_json:
     return True
 
 
-  def repair_techfn(self, techfn = None):
-    original_value = self.dict["technical"]["filename"]
+  def repair_techfn(self):
+    correct_techfn = re.match(STUB_TECHFN_RE, self.dict["technical"]["filename"])
 
-    if techfn:
-      self.dict["technical"]["filename"] = techfn
-    else:
-      try:
-        self.check_techfn()
-      except AMIJSONError as e:
-        correct_techfn = re.match(STUB_TECHFN_RE, self.dict["technical"]["filename"])
-        if correct_techfn:
-          self.dict["technical"]["filename"] = correct_techfn[0]
-
-    try:
-      self.check_techfn()
-    except:
-      self.raise_jsonerror("Replacement technical.filename is not valid")
-    else:
+    if correct_techfn:
+      self.dict["technical"]["filename"] = correct_techfn[0]
       LOGGER.info("{} technical.filename updated to: {}".format(self.filename, self.dict["technical"]["filename"]))
+      return True
+
+    else:
+      LOGGER.warning("Valid technical.filename could not be extracted from {}".format(original_value))
+      return False
 
 
   def check_reffn(self):
+    if not "referenceFilename" in self.dict["asset"].keys():
+      self.raise_jsonerror("Key missing for asset.referenceFilename")
+
     if not re.match(FULL_REFFN_RE, self.dict["asset"]["referenceFilename"]):
       self.raise_jsonerror("Value for asset.referenceFilename does not meet expectations: {}"
         .format(self.dict["asset"]["referenceFilename"]))
@@ -245,25 +245,20 @@ class ami_json:
     return True
 
 
-  def repair_reffn(self, reffn = None):
-    original_value = self.dict["asset"]["referenceFilename"]
-
-    if reffn:
-      self.dict["asset"]["referenceFilename"] = reffn
-    else:
-      try:
-        self.check_reffn()
-      except AMIJSONError as e:
-        if self.check_techfn():
-          replacement_value = self.dict["technical"]["filename"] + '.' + self.dict["technical"]["extension"]
-          self.dict["asset"]["referenceFilename"] = replacement_value
-
+  def repair_reffn(self):
     try:
-      self.check_reffn()
-    except:
-      self.raise_jsonerror("Correct asset.referenceFilename cannot be created from technical.filename and technical.extension.")
+      self.check_techfn()
+
+    except AMIJSONError as e:
+      LOGGER.warning("Valid asset.referenceFilename cannot be created from technical fields: {}".format(
+        self.dict["technical"]["filename"], self.dict["technical"]["extension"]))
+      return False
+
     else:
+      replacement_value = self.dict["technical"]["filename"] + '.' + self.dict["technical"]["extension"]
+      self.dict["asset"]["referenceFilename"] = replacement_value
       LOGGER.info("{} asset.referenceFilename updated to: {}".format(self.filename, self.dict["asset"]["referenceFilename"]))
+      return True
 
 
   def compare_techfn_reffn(self):
