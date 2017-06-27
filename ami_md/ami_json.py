@@ -9,7 +9,7 @@ from pymediainfo import MediaInfo
 
 FULL_TECHFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)$"
 STUB_TECHFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)"
-FULL_REFFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)\.(mov|wav|mkv|dv)$"
+FULL_REFFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)\.(mov|wav|mkv|dv|mp4)$"
 
 AUDIOFIELDS = ["filename", "extension", "fileFormat",
   "fileSize", "dateCreated", "durationHuman", "durationMilli",
@@ -151,7 +151,7 @@ class ami_json:
       valid = False
 
     try:
-      self.check_techmd()
+      self.check_techmd_fields)
     except AMIJSONError as e:
       LOGGER.error("Error in JSON metadata: {0}".format(e.message))
       valid = False
@@ -159,7 +159,7 @@ class ami_json:
     return valid
 
 
-  def check_techmd(self):
+  def check_techmd_fields(self):
     found_fields = set(list(self.dict["technical"].keys()))
 
     format_type = self.dict["source"]["object"]["type"][0:5]
