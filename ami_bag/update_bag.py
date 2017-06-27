@@ -6,6 +6,7 @@ import datetime
 import re
 import logging
 import json
+import sys
 
 SYSTEM_FILE_PATTERNS = {
     "Thumbs.db": {
@@ -54,7 +55,7 @@ class Repairable_Bag(bagit.Bag):
     human_agent = None):
     premis_event = {
       'Event-Date-Time': datetime.datetime.strftime(
-        datetime.datetime.now(), "%Y%m%d%H%M%S%Z"),
+        datetime.datetime.now(), "%Y%m%d%H%M%S.%f%Z"),
       'Event-Type': process,
       'Event-Detail-Information': msg,
       'Event-Outcome': outcome,
@@ -103,7 +104,7 @@ class Repairable_Bag(bagit.Bag):
       self.add_premisevent(process = "Bag Info Update",
         msg = "Update 0xum from {} to {}".format(
           self.info["Payload-Oxum"], generated_oxum),
-        outcome = "Pass", sw_agent = "update_bag.py")
+        outcome = "Pass", sw_agent = sys._getframe().f_code.co_name)
       self.info["Payload-Oxum"] = generated_oxum
 
     try:
@@ -130,8 +131,9 @@ class Repairable_Bag(bagit.Bag):
       else:
         self.add_premisevent(process = "Copy Bag Manifest",
           msg = "{} copied to {} before writing new manifest".format(
-            manifest_path, copy_manifest_path),
-          outcome = "Pass", sw_agent = "update_bag.py")
+            os.path.basename(manifest_path),
+            os.path.basename(copy_manifest_path)),
+          outcome = "Pass", sw_agent = sys._getframe().f_code.co_name)
 
       try:
         with open(manifest_path, 'w') as manifest:
@@ -143,8 +145,8 @@ class Repairable_Bag(bagit.Bag):
       else:
         self.add_premisevent(process = "Write Bag Manifest",
           msg = "{} written as a result of new or updated payload files".format(
-            manifest_path),
-          outcome = "Pass", sw_agent = "update_bag.py")
+            os.path.basename(manifest_path)),
+          outcome = "Pass", sw_agent = sys._getframe().f_code.co_name)
 
     return True
 
@@ -217,7 +219,7 @@ class Repairable_Bag(bagit.Bag):
       self.add_premisevent(process = "Bag Payload Update",
         msg = "Added the following files to the bag payload: {}".format(
           ", ".join(new_payload_files)),
-        outcome = "Pass", sw_agent = "update_bag.py")
+        outcome = "Pass", sw_agent = sys._getframe().f_code.co_name)
 
       self.write_bag_updates()
 
@@ -247,8 +249,8 @@ class Repairable_Bag(bagit.Bag):
       if self.manifests_updated:
         self.add_premisevent(process = "Bag Payload Hash Update",
           msg = "Changed hashes for the following files: {}".format(
-            ", ".join(updated_files)),
-          outcome = "Pass", sw_agent = "update_bag.py")
+            ", ".join([os.path.basename(x) for x in updated_files])),
+          outcome = "Pass", sw_agent = sys._getframe().f_code.co_name)
 
       self.write_bag_updates()
 
@@ -288,8 +290,8 @@ class Repairable_Bag(bagit.Bag):
 
       self.add_premisevent(process = "Update Bag Payload",
         msg = "Deleted untracked files from the payload directory: {}".format(
-          ", ".join(files_to_delete)),
-        outcome = "Pass", sw_agent = "update_bag.py")
+          ", ".join([os.path.basename(x) for x in files_to_delete])),
+        outcome = "Pass", sw_agent = sys._getframe().f_code.co_name)
 
       if not self.check_oxum():
         self.write_bag_updates()
