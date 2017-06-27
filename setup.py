@@ -52,6 +52,7 @@ setup(
                'bin/validate_bags.py',
                'ami_bag/bagit.py',
                'bin/survey_drive.py',
+               'bin/repair_ami_json_bag.py',
                'bin/convert_excelbag_to_jsonbag.py'],
     platforms = ['POSIX'],
     install_requires = ['argparse', 'pandas'],
