@@ -33,10 +33,11 @@ LOGGER = logging.getLogger(__name__)
 
 class Repairable_Bag(bagit.Bag):
 
-  def __init__(self, *args, repairer = None, **kwargs):
+  def __init__(self, *args, repairer = None, dryrun = False, **kwargs):
     super(Repairable_Bag, self).__init__(*args, **kwargs)
     self.old_dir = os.path.abspath(os.path.curdir)
     self.manifests_updated = False
+    self.dryrun = dryrun
 
     if repairer:
       self.repairer = repairer
@@ -107,10 +108,12 @@ class Repairable_Bag(bagit.Bag):
         outcome = "Pass", sw_agent = sys._getframe().f_code.co_name)
       self.info["Payload-Oxum"] = generated_oxum
 
-    try:
-      bagit._make_tag_file(os.path.join(self.path, "bag-info.txt"), self.info)
-    except:
-      LOGGER.error("Do not have permission to overwrite bag-info")
+      try:
+        bagit._make_tag_file(os.path.join(self.path, "bag-info.txt"), self.info)
+      except:
+        LOGGER.error("Do not have permission to overwrite bag-info")
+      else:
+        LOGGER.info("bag-info.txt written")
 
     return True
 
@@ -143,6 +146,7 @@ class Repairable_Bag(bagit.Bag):
       except:
         LOGGER.error("Do not have permission to overwrite hash manifests")
       else:
+        LOGGER.info("{} written".format(manifest_path))
         self.add_premisevent(process = "Write Bag Manifest",
           msg = "{} written as a result of new or updated payload files".format(
             os.path.basename(manifest_path)),
@@ -162,10 +166,11 @@ class Repairable_Bag(bagit.Bag):
 
 
   def write_bag_updates(self):
-    self.write_baginfo()
-    self.write_hash_manifests()
-    self.write_premisjson()
-    self.write_tag_manifests()
+    if not self.dryrun:
+      self.write_baginfo()
+      self.write_hash_manifests()
+      self.write_premisjson()
+      self.write_tag_manifests()
 
 
   '''
