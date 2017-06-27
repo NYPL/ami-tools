@@ -99,12 +99,12 @@ class Repairable_Bag(bagit.Bag):
     generated_oxum = "{0}.{1}".format(total_bytes, total_files)
 
     if self.info["Payload-Oxum"] != generated_oxum:
-      self.info["Payload-Oxum"] = generated_oxum
 
       self.add_premisevent(process = "Bag Info Update",
         msg = "Update 0xum from {} to {}".format(
           self.info["Payload-Oxum"], generated_oxum),
         outcome = "Pass", sw_agent = "update_bag.py")
+      self.info["Payload-Oxum"] = generated_oxum
 
     try:
       bagit._make_tag_file(os.path.join(self.path, "bag-info.txt"), self.info)
@@ -184,12 +184,19 @@ class Repairable_Bag(bagit.Bag):
     """
     add new hashes for each new files
     """
-    stuff = {}
+    new_hashes = {}
     for alg in set(self.algs):
       hash, filename, size = bagit._manifest_line(payload_file, alg)
-      stuff[alg] = hash
+      new_hashes[alg] = hash
 
-    self.entries[filename] = stuff
+    if filename not in self.entries.keys():
+      self.entries[filename] = new_hashes
+      return True
+    elif self.entries[filename] != new_hashes:
+      self.entries[filename] = new_hashes
+      return True
+    else:
+      return False
 
 
   def add_payload_files_not_in_manifest(self):
@@ -229,16 +236,19 @@ class Repairable_Bag(bagit.Bag):
       files_to_update = payload_files
 
     if files_to_update:
-      LOGGER.info("Updating hashes for the following files: {}".format(", ".join(files_to_update)))
-      self.manifests_updated = True
+      LOGGER.info("Potentially updating hashes for the following files: {}".format(", ".join(files_to_update)))
 
       for payload_file in files_to_update:
-        self.add_new_hashes_for_file(payload_file)
+        updated_files = []
+        if self.add_new_hashes_for_file(payload_file):
+          self.manifests_updated = True
+          updated_files.append(payload_file)
 
-      self.add_premisevent(process = "Bag Payload Hash Update",
-        msg = "Changed hashes for the following files: {}".format(
-          ", ".join(files_to_update)),
-        outcome = "Pass", sw_agent = "update_bag.py")
+      if self.manifests_updated:
+        self.add_premisevent(process = "Bag Payload Hash Update",
+          msg = "Changed hashes for the following files: {}".format(
+            ", ".join(updated_files)),
+          outcome = "Pass", sw_agent = "update_bag.py")
 
       self.write_bag_updates()
 
