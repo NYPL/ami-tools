@@ -31,6 +31,9 @@ def _make_parser():
     parser.add_argument("-b", "--bagpath",
                         default = None,
                         help = "Path to the base directory of the AMI bag")
+    parser.add_argument("-p", "--repairer",
+                        default = None,
+                        help = "Name of person running the tool.")
     parser.add_argument("--filenames", action='store_true',
                         help = "Fix common errors in asset.referenceFilename and technical.filename")
     parser.add_argument("--techmd", action='store_true',
@@ -44,7 +47,7 @@ def _make_parser():
     return parser
 
 
-def repair_bag_filenamemd(bag):
+def repair_bag_filenamemd(bag, repairer):
     media_files_filenames = set([os.path.basename(path) for path in bag.media_filepaths])
 
     repaired_fn = []
@@ -78,7 +81,7 @@ def repair_bag_filenamemd(bag):
                     filename))
 
     if repaired_fn:
-        updateable_bag = Repairable_Bag(bag.path)
+        updateable_bag = Repairable_Bag(bag.path, repairer = repairer)
         updateable_bag.add_premisevent(process = "Repair Metadata",
             msg = "Repaired filename fields: {}".format(
                 ", ".join(repaired_fn)),
@@ -86,7 +89,7 @@ def repair_bag_filenamemd(bag):
         updateable_bag.update_hashes(filename_pattern = r"json")
 
 
-def repair_bag_techmd(bag):
+def repair_bag_techmd(bag, repairer):
     media_files_filenames = set([os.path.basename(path) for path in bag.media_filepaths])
 
     updated_json = []
@@ -109,7 +112,7 @@ def repair_bag_techmd(bag):
             updated_json.append(json.filename)
 
     if updated_json:
-        updateable_bag = Repairable_Bag(bag.path)
+        updateable_bag = Repairable_Bag(bag.path, repairer = repairer)
         updateable_bag.add_premisevent(process = "Repair Metadata",
             msg = "Regenerated tech md fields with MediaInfo: {}".format(
                 ", ".join(updated_json)),
@@ -152,10 +155,10 @@ def main():
         except:
             LOGGER.error("{}: Not an AMI bag".format(bagpath))
         if args.filenames:
-            repair_bag_filenamemd(bag)
+            repair_bag_filenamemd(bag, args.repairer)
             bag._open()
         if args.techmd:
-            repair_bag_techmd(bag)
+            repair_bag_techmd(bag, args.repairer)
             bag._open()
 
 
