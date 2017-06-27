@@ -11,6 +11,13 @@ FULL_TECHFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)$"
 STUB_TECHFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)"
 FULL_REFFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)\.(mov|wav|mkv|dv)$"
 
+AUDIOFIELDS = ["filename", "extension", "fileFormat",
+  "fileSize", "dateCreated", "durationHuman", "durationMilli",
+  "audioCodec"]
+VIDEOFIELDS = ["filename", "extension", "fileFormat",
+  "fileSize", "dateCreated", "durationHuman", "durationMilli",
+  "audioCodec", "videoCodec"]
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -153,19 +160,15 @@ class ami_json:
 
 
   def check_techmd(self):
-    audiofields = ["filename", "extension", "fileFormat",
-      "fileSize", "dateCreated", "durationHuman", "durationMilli",
-      "audioCodec"]
-
     found_fields = set(list(self.dict["technical"].keys()))
 
     format_type = self.dict["source"]["object"]["type"][0:5]
     if format_type == "audio":
-      expected_fields = set(audiofields)
+      expected_fields = AUDIOFIELDS
     elif format_type == "video":
-      expected_fields = set(audiofields.append("videoCodec"))
+      expected_fields = VIDEOFIELDS
 
-    if not found_fields >= expected_fields:
+    if not found_fields >= set(expected_fields):
       self.raise_jsonerror("Metadata is missing the following fields: {}".format(
         expected_fields - found_fields))
 
@@ -263,7 +266,7 @@ class ami_json:
 
   def compare_techfn_reffn(self):
     if self.dict["asset"]["referenceFilename"] != self.dict["technical"]["filename"] + '.' + self.dict["technical"]["extension"]:
-      self.raise_jsonerror("Value for asset.referenceFilename should equal technical.filename.technical.extension: {} != {}.{}"
+      self.raise_jsonerror("Value for asset.referenceFilename should equal technical.filename + technical.extension: {} != {}.{}"
         .format(self.dict["asset"]["referenceFilename"],
           self.dict["technical"]["filename"], self.dict["technical"]["extension"]))
 
