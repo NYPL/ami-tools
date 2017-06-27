@@ -152,7 +152,7 @@ def main():
         except:
             LOGGER.error("{}: Not an AMI bag".format(bagpath))
         if args.filenames:
-            repair_bag_filename(bag)
+            repair_bag_filenamemd(bag)
             bag._open()
         if args.techmd:
             repair_bag_techmd(bag)
