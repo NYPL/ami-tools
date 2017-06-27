@@ -66,6 +66,8 @@ def main():
 
     LOGGER.info("Checking {} folder(s).".format(len(bags)))
 
+    invalid_bags = []
+    valid_bags = []
     for bagpath in tqdm(bags):
         LOGGER.info("Checking: {}".format(bagpath))
         try:
@@ -75,8 +77,16 @@ def main():
         else:
             if bag.validate_amibag(fast = args.slow, metadata = args.metadata):
                 LOGGER.info("Valid {} {} bag: {}".format(bag.type, bag.subtype, bagpath))
+                valid_bags.append(os.path.basename(bagpath))
             else:
                 LOGGER.error("Invalid bag: {}".format(bagpath))
+                invalid_bags.append(os.path.basename(bagpath))
+
+    if invalid_bags:
+        LOGGER.info("The following bags are not ready for media ingest: {}".format(", ".join(invalid_bags)))
+    if valid_bags:
+        LOGGER.info("The following bags are ready for media ingest: {}".format(", ".join(valid_bags)))
+
 
 
 if __name__ == "__main__":
