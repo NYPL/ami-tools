@@ -47,7 +47,7 @@ def _make_parser():
     return parser
 
 
-def repair_bag_filenamemd(bag, repairer):
+def repair_bag_filenamemd(bag, repairer, dryrun):
     media_files_filenames = set([os.path.basename(path) for path in bag.media_filepaths])
 
     repaired_fn = []
@@ -74,14 +74,15 @@ def repair_bag_filenamemd(bag, repairer):
         if repaired:
             if (reffn in media_files_filenames and
                 techfn in media_files_filenames):
-                json.write_json(os.path.split(json_path)[0])
-                repaired_fn.append(json.filename)
+                if not dryrun:
+                    json.write_json(os.path.split(json_path)[0])
+                    repaired_fn.append(json.filename)
             else:
                 LOGGER.error("Filenames still not great, not writing changes to file for {}".format(
                     filename))
 
     if repaired_fn:
-        updateable_bag = Repairable_Bag(bag.path, repairer = repairer)
+        updateable_bag = Repairable_Bag(bag.path, repairer = repairer, dryrun = dryrun)
         updateable_bag.add_premisevent(process = "Repair Metadata",
             msg = "Repaired filename fields: {}".format(
                 ", ".join(repaired_fn)),
@@ -89,13 +90,12 @@ def repair_bag_filenamemd(bag, repairer):
         updateable_bag.update_hashes(filename_pattern = r"json")
 
 
-def repair_bag_techmd(bag, repairer):
+def repair_bag_techmd(bag, repairer, dryrun):
     media_files_filenames = set([os.path.basename(path) for path in bag.media_filepaths])
 
     updated_json = []
 
     for filename in bag.metadata_files:
-        repaired = False
         json_path = os.path.join(bag.path, filename)
         json = ami_json(filepath = json_path)
 
@@ -104,15 +104,15 @@ def repair_bag_techmd(bag, repairer):
         json.set_mediafilepath(media_filepath)
 
         try:
-            json.check_techmd()
+            json.check_techmd_values()
         except:
             json.repair_techmd()
-            json.write_json(os.path.split(json_path)[0])
-            repaired = True
             updated_json.append(json.filename)
+            if not dryrun:
+                json.write_json(os.path.split(json_path)[0])
 
     if updated_json:
-        updateable_bag = Repairable_Bag(bag.path, repairer = repairer)
+        updateable_bag = Repairable_Bag(bag.path, repairer = repairer, dryrun = dryrun)
         updateable_bag.add_premisevent(process = "Repair Metadata",
             msg = "Regenerated tech md fields with MediaInfo: {}".format(
                 ", ".join(updated_json)),
@@ -155,10 +155,10 @@ def main():
         except:
             LOGGER.error("{}: Not an AMI bag".format(bagpath))
         if args.filenames:
-            repair_bag_filenamemd(bag, args.repairer)
+            repair_bag_filenamemd(bag, args.repairer, args.dryrun)
             bag._open()
         if args.techmd:
-            repair_bag_techmd(bag, args.repairer)
+            repair_bag_techmd(bag, args.repairer, args.dryrun)
             bag._open()
 
 
