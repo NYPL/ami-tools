@@ -10,20 +10,20 @@ class AMIFileError(Exception):
 
 class ami_file:
   def __init__(self, filepath):
-    if os.path.isfile(media_filepath):
-      self.filepath = os.path.absolute(filepath)
+    if os.path.isfile(filepath):
+      self.filepath = os.path.abspath(filepath)
       self.filename = os.path.basename(self.filepath)
     else:
       self.raise_AMIFileError("Not an valid filepath")
 
-    self.set_techmd()
+    self.set_techmd_values()
     if hasattr(self, "video_codec"):
       self.type = "video"
     else:
       self.type = "audio"
 
 
-  def set_techmd():
+  def set_techmd_values(self):
     techmd = MediaInfo.parse(self.filepath)
 
     for track in techmd.tracks:
