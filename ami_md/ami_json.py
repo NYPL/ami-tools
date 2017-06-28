@@ -66,11 +66,30 @@ class ami_json:
       self.set_mediafilepath(media_filepath)
 
 
-  def set_mediafilepath(self, media_filepath):
+  def set_mediafilepath(self, media_filepath = None):
+    if not media_filepath:
+      if hasattr(self, "path"):
+        try:
+          self.check_reffn()
+        except:
+          try:
+            self.check_techfn()
+          except:
+            raise_jsonerror("Cannot determine described media file based on filename metdata")
+          else:
+            media_filename = self.dict["technical"]["filename"] + '.' + self.dict["technical"]["extension"]
+        else:
+          media_filename = self.dict["asset"]["referenceFilename"]
+
+        media_filepath = os.path.join(os.path.split(self.path)[0], media_filename)
+      else:
+        raise_jsonerror("Cannot determine described media file location with json file location")
+
     if os.path.isfile(media_filepath):
       self.media_filepath = media_filepath
     else:
       self.raise_jsonerror("There is no media file found at {}".format(media_filepath))
+
 
 
   def convert_dotKeyToNestedDict(self, tree, key, value):
@@ -131,6 +150,7 @@ class ami_json:
     """
     valid = True
 
+    LOGGER.info("Checking: {}".format(os.path.basename(self.filename)))
     #Check for a sheet that should have preservation metadata data
     try:
       self.check_techfn()
@@ -156,10 +176,17 @@ class ami_json:
       LOGGER.error("Error in JSON metadata: {0}".format(e.message))
       valid = False
 
+    try:
+      self.check_techmd_values()
+    except AMIJSONError as e:
+      LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+      valid = False
+
     return valid
 
 
   def check_techmd_fields(self):
+    self.techmd_field_valid = False
     found_fields = set(list(self.dict["technical"].keys()))
 
     format_type = self.dict["source"]["object"]["type"][0:5]
@@ -172,15 +199,50 @@ class ami_json:
       self.raise_jsonerror("Metadata is missing the following fields: {}".format(
         expected_fields - found_fields))
 
+    self.valid_techmd_fields = True
+
     return True
 
 
   def set_techmd(self):
+    if not hasattr(self, 'media_filepath'):
+      self.set_mediafilepath()
+
     file_techmd = MediaInfo.parse(self.media_filepath)
 
     for track in file_techmd.tracks:
       if track.track_type == "General":
         self.techmd = track
+
+
+  def check_techmd_values(self):
+    if not hasattr(self, 'valid_techmd_fields'):
+      self.check_techmd_fields()
+
+    if not hasattr(self, 'techmd'):
+      self.set_techmd()
+
+    techmd_mapping = []
+
+    for item in techmd_mapping:
+      try:
+        self.check_md_value(item[0], item[1])
+      except AMIJSONError as e:
+        self.raise_jsonerror(e)
+
+
+  def check_md_value(self, field, expected_value, separator = '.'):
+    keys = field.split(separator)
+    md_value = self.dict
+    for key in keys:
+      md_value = md_value[key]
+
+    if md_value != expected_value:
+      self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}".format(
+        field, expected_value, md_value
+      ))
+
+    return True
 
 
   def repair_techmd(self):
@@ -206,15 +268,15 @@ class ami_json:
       elif self.techmd.file_last_modification_date__local:
         self.dict["technical"]["dateCreated"] = self.techmd.file_last_modification_date__local.split()[0].replace(":", "-")
 
-    self.dict["technical"]["durationHuman"] = self.techmd.other_duration[-1]
+    self.dict["technical"]["durationHuman"] = self.techmd.other_duration[-3]
     if "durationMilli" not in self.dict["technical"].keys():
       self.dict["technical"]["durationMilli"] = {}
     self.dict["technical"]["durationMilli"]["measure"] = self.techmd.duration
     self.dict["technical"]["durationMilli"]["unit"] = "ms"
 
-    self.dict["technical"]["audioCodec"] = self.techmd.audio_codecs
+    self.dict["technical"]["audioCodec"] = self.techmd.audio_format_list
     if self.techmd.codecs_video:
-      self.dict["technical"]["videoCodec"] = self.techmd.codecs_video
+      self.dict["technical"]["videoCodec"] = self.techmd.video_format_list
 
 
   def check_techfn(self):
