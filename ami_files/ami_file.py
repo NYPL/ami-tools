@@ -40,9 +40,9 @@ class ami_file:
           self.date_create = track.file_last_modification_date__local.split()[0].replace(":", "-")
         self.duration_human = track.other_duration[-3]
         self.duration_milli = track.duration
-      elif track.type == "Video":
+      elif track.track_type == "Audio":
         self.audio_codec = track.codec_id
-      elif track.type == "Audio":
+      elif track.track_type == "Video":
         self.video_codec = track.codec_id
 
 
