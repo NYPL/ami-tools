@@ -30,8 +30,8 @@ class ami_file:
       if track.track_type == "General":
         self.base_filename = track.file_name
         self.extension = track.file_extension
-        self.file_format = track.format
-        self.file_size = track.file_size
+        self.format = track.format
+        self.size = track.file_size
         if track.encoded_date:
           self.date_create = track.encoded_date.split()[0].replace(":", "-")
         elif track.recorded_date:
