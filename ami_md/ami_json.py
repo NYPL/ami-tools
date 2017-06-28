@@ -5,6 +5,7 @@ import logging
 from pandas.tslib import Timestamp
 import numpy as np
 from pymediainfo import MediaInfo
+import ami_files.ami_file as ami_file
 
 
 FULL_TECHFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)$"
@@ -191,11 +192,11 @@ class ami_json:
 
     format_type = self.dict["source"]["object"]["type"][0:5]
     if format_type == "audio":
-      expected_fields = AUDIOFIELDS
+      expected_fields = set(AUDIOFIELDS)
     elif format_type == "video":
-      expected_fields = VIDEOFIELDS
+      expected_fields = set(VIDEOFIELDS)
 
-    if not found_fields >= set(expected_fields):
+    if not found_fields >= expected_fields:
       self.raise_jsonerror("Metadata is missing the following fields: {}".format(
         expected_fields - found_fields))
 
@@ -204,23 +205,19 @@ class ami_json:
     return True
 
 
-  def set_techmd(self):
+  def set_media_file(self):
     if not hasattr(self, 'media_filepath'):
       self.set_mediafilepath()
 
-    file_techmd = MediaInfo.parse(self.media_filepath)
-
-    for track in file_techmd.tracks:
-      if track.track_type == "General":
-        self.techmd = track
+    self.media_file = ami_file.ami_file(self.media_filepath)
 
 
   def check_techmd_values(self):
     if not hasattr(self, 'valid_techmd_fields'):
       self.check_techmd_fields()
 
-    if not hasattr(self, 'techmd'):
-      self.set_techmd()
+    if not hasattr(self, 'media_file'):
+      self.set_media_file()
 
     techmd_mapping = []
 
@@ -246,37 +243,32 @@ class ami_json:
 
 
   def repair_techmd(self):
-    if not hasattr(self, 'techmd'):
-      self.set_techmd()
+    if not hasattr(self, 'media_file'):
+      self.set_media_file()
 
     LOGGER.info("Rewriting technical md for {}".format(os.path.basename(self.filename)))
-    self.dict["technical"]["filename"] = self.techmd.file_name
-    self.dict["technical"]["extension"] = self.techmd.file_extension
-    self.dict["technical"]["fileFormat"] = self.techmd.format
+    self.dict["technical"]["filename"] = self.media_file.base_filename
+    self.dict["technical"]["extension"] = self.media_file.extension
+    self.dict["technical"]["fileFormat"] = self.media_file.format
 
     if "fileSize" not in self.dict["technical"].keys():
       self.dict["technical"]["fileSize"] = {}
-    self.dict["technical"]["fileSize"]["measure"] = self.techmd.file_size
+    self.dict["technical"]["fileSize"]["measure"] = self.media_file.size
     self.dict["technical"]["fileSize"]["unit"] = "B"
 
     #retain original dates
     if not "dateCreated" in self.dict["technical"].keys():
-      if self.techmd.encoded_date:
-        self.dict["technical"]["dateCreated"] = self.techmd.encoded_date.split()[0].replace(":", "-")
-      elif self.techmd.recorded_date:
-        self.dict["technical"]["dateCreated"] = self.techmd.recorded_date.split()[0].replace(":", "-")
-      elif self.techmd.file_last_modification_date__local:
-        self.dict["technical"]["dateCreated"] = self.techmd.file_last_modification_date__local.split()[0].replace(":", "-")
+      self.dict["technical"]["dateCreated"] = self.media_file.date_created
 
-    self.dict["technical"]["durationHuman"] = self.techmd.other_duration[-3]
+    self.dict["technical"]["durationHuman"] = self.media_file.duration_human
     if "durationMilli" not in self.dict["technical"].keys():
       self.dict["technical"]["durationMilli"] = {}
-    self.dict["technical"]["durationMilli"]["measure"] = self.techmd.duration
+    self.dict["technical"]["durationMilli"]["measure"] = self.media_file.duration_milli
     self.dict["technical"]["durationMilli"]["unit"] = "ms"
 
-    self.dict["technical"]["audioCodec"] = self.techmd.audio_format_list
-    if self.techmd.codecs_video:
-      self.dict["technical"]["videoCodec"] = self.techmd.video_format_list
+    self.dict["technical"]["audioCodec"] = self.media_file.audio_codec
+    if self.media_file.type == "Video":
+      self.dict["technical"]["videoCodec"] = self.media_file.video_codec
 
 
   def check_techfn(self):
