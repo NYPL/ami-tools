@@ -1,12 +1,9 @@
-import argparse
-import ami_bag.bagit as bagit
-import os
-import shutil
+import os, re, json, shutil, logging
 import datetime
-import re
-import logging
-import json
 import sys
+
+import ami_bag.bagit as bagit
+
 
 SYSTEM_FILE_PATTERNS = {
     "Thumbs.db": {
