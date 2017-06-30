@@ -14,6 +14,10 @@ This package can be used to work with NYPL AMI packages.
 # for older pythons ...
 requirements = []
 try:
+    import argparse
+except:
+    requirements.append("argparse")
+try:
     import bagit
 except:
     requirements.append("bagit")
@@ -55,7 +59,7 @@ setup(
                'bin/repair_ami_json_bag.py',
                'bin/convert_excelbag_to_jsonbag.py'],
     platforms = ['POSIX'],
-    install_requires = ['argparse', 'pandas'],
+    install_requires = requirements,
     classifiers = [
         'Programming Language :: Python :: 3.1',
         'Programming Language :: Python :: 3.2',
