@@ -1,12 +1,10 @@
-import os
-import csv
-import argparse
-import re
+import os, csv, re, logging
+
 import ami_bag.bagit as bagit
-#import jsonschema
+
+# ami modules
 from ami_md.ami_excel import ami_excel
 from ami_md.ami_json import ami_json
-import logging
 
 
 LOGGER = logging.getLogger(__name__)

@@ -1,10 +1,10 @@
-import os
-import json
-import re
-import logging
+import os, json, re, logging
+
+# data manipulation
 from pandas.tslib import Timestamp
 import numpy as np
-from pymediainfo import MediaInfo
+
+# ami modules
 import ami_files.ami_file as ami_file
 import ami_md.ami_md_constants as ami_md_constants
 
