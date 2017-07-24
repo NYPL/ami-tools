@@ -130,7 +130,7 @@ class ami_bag(bagit.Bag):
         bad_filenames = []
 
         for filename in self.data_files:
-            if not re.search(r"[\w]+\.\w+$", os.path.split(filename)[1]):
+            if re.search(r"_v\d{2}(f\d{2})?([rspt]\d{2})+_", os.path.split(filename)[1]):
                 bad_filenames.append(filename)
 
         if bad_filenames:
