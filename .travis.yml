@@ -1,0 +1,18 @@
+language: python
+python:
+ - "3.6"
+ - "3.6-dev"
+
+matrix:
+  allow_failures:
+    python: "3.6-dev"
+
+install:
+    - pip install --upgrade pip
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2; fi
+    - pip install coveralls coverage
+
+script: pytest
+
+after_success:
+    coveralls
