@@ -6,6 +6,7 @@ from pandas.tslib import Timestamp
 import numpy as np
 from pymediainfo import MediaInfo
 import ami_files.ami_file as ami_file
+import ami_md.ami_md_constants as ami_md_constants
 
 
 FULL_TECHFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)$"
@@ -65,6 +66,8 @@ class ami_json:
 
     if media_filepath:
       self.set_mediafilepath(media_filepath)
+
+    self.media_format_type = self.dict["source"]["object"]["type"][0:5]
 
 
   def set_mediafilepath(self, media_filepath = None):
@@ -190,10 +193,9 @@ class ami_json:
     self.techmd_field_valid = False
     found_fields = set(list(self.dict["technical"].keys()))
 
-    format_type = self.dict["source"]["object"]["type"][0:5]
-    if format_type == "audio":
+    if self.media_format_type == "audio":
       expected_fields = set(AUDIOFIELDS)
-    elif format_type == "video":
+    elif self.media_format_type == "video":
       expected_fields = set(VIDEOFIELDS)
 
     if not found_fields >= expected_fields:
@@ -219,22 +221,40 @@ class ami_json:
     if not hasattr(self, 'media_file'):
       self.set_media_file()
 
-    techmd_mapping = []
+    if self.media_format_type == "audio":
+      field_mapping = ami_md_constants.JSON_TO_AUDIO_FILE_MAPPING
+    elif self.media_format_type == "video":
+      field_mapping = ami_md_constants.JSON_TO_VIDEO_FILE_MAPPING
 
-    for item in techmd_mapping:
+    for key, value in field_mapping.items():
       try:
-        self.check_md_value(item[0], item[1])
+        self.check_md_value(key, value)
       except AMIJSONError as e:
         self.raise_jsonerror(e)
 
+    return True
 
-  def check_md_value(self, field, expected_value, separator = '.'):
-    keys = field.split(separator)
-    md_value = self.dict
-    for key in keys:
-      md_value = md_value[key]
 
-    if md_value != expected_value:
+  def check_md_value(self, field, mapped_field, separator = '.'):
+    try:
+      file_value = getattr(self.media_file, mapped_field)
+    except AttributeError:
+      if 'date' not in mapped_field:
+        self.raise_jsonerror("File does not have expected attribute {}".format(
+          mapped_field
+        ))
+      else:
+        return True
+
+    md_value = self.dict["technical"]
+    if '.' in field:
+      field_parts = field.split('.')
+      for part in field_parts:
+        md_value = md_value[part]
+    else:
+      md_value = md_value[field]
+
+    if md_value != file_value:
       self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}".format(
         field, expected_value, md_value
       ))

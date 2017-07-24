@@ -25,6 +25,21 @@ MEDIAINGEST_EXPECTED_HEADERS = [
 ]
 
 
+JSON_TO_AUDIO_FILE_MAPPING = {
+  'filename': 'base_filename',
+  'extension': 'extension',
+  'fileFormat': 'format',
+  'fileSize.measure': 'size',
+  'dateCreated': 'date_created',
+  'durationHuman': 'duration_human',
+  'durationMilli.measure': 'duration_milli',
+  'audioCodec': 'audio_codec'
+}
+
+JSON_TO_VIDEO_FILE_MAPPING = JSON_TO_AUDIO_FILE_MAPPING.copy()
+JSON_TO_VIDEO_FILE_MAPPING['videoCodec'] = 'video_codec'
+
+
 HEADER_CONVERSION = {
   '|bibliographic item|class mark/id': 'bibliographic.classmark',
   '|bibliographic item|date': 'bibliographic.date',
