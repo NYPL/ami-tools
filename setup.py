@@ -37,6 +37,10 @@ try:
     import openpyxl
 except:
     requirements.append("openpyxl")
+try:
+    import pymediainfo
+except:
+    requirements.append("pymediainfo")
 
 
 
