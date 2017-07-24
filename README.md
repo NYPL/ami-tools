@@ -1,4 +1,6 @@
 # AMI Tools
+[![Build Status](https://travis-ci.org/NYPL/ami-tools.svg?branch=master)](https://travis-ci.org/NYPL/ami-tools)
+[![Coverage Status](https://coveralls.io/repos/github/NYPL/ami-tools/badge.svg?branch=master)](https://coveralls.io/github/NYPL/ami-tools?branch=master)
 Python3 scripts and classes to help with managing bags of NYPL AMI files
 
 ## Installation
