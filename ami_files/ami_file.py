@@ -1,5 +1,6 @@
 import os
 from pymediainfo import MediaInfo
+from datetime import datetime
 
 class AMIFileError(Exception):
   def __init__(self, message):
@@ -32,18 +33,27 @@ class ami_file:
         self.extension = track.file_extension
         self.format = track.format
         self.size = track.file_size
+
         if track.encoded_date:
-          self.date_create = track.encoded_date.split()[0].replace(":", "-")
+          self.date_created = track.encoded_date.split()[0].replace(":", "-")
         elif track.recorded_date:
-          self.date_create = track.recorded_date.split()[0].replace(":", "-")
-        elif track.file_last_modification_date__local:
-          self.date_create = track.file_last_modification_date__local.split()[0].replace(":", "-")
-        self.duration_human = track.other_duration[-3]
+          self.date_created = track.recorded_date.split()[0].replace(":", "-")
+
+        for duration in track.other_duration:
+          try:
+            datetime.strptime(duration, '%H:%M:%S.%f')
+          except:
+            continue
+          else:
+            self.duration_human = duration
+            break
+
         self.duration_milli = track.duration
+
       elif track.track_type == "Audio":
-        self.audio_codec = track.codec_id
+        self.audio_codec = track.codec
       elif track.track_type == "Video":
-        self.video_codec = track.codec_id
+        self.video_codec = track.codec
 
 
   def raise_jsonerror(self, msg):
