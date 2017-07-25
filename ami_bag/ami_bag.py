@@ -3,15 +3,19 @@ import os, csv, re, logging
 import ami_bag.bagit as bagit
 
 # ami modules
+import constants
 from ami_md.ami_excel import ami_excel
 from ami_md.ami_json import ami_json
 
 
 LOGGER = logging.getLogger(__name__)
 
-EXTS = [".mov", ".wav", ".mkv", ".iso", ".tar", ".mp4"]
 
-class ami_bagValidationError(Exception):
+
+class ami_BagError(Exception):
+    pass
+
+class ami_bagValidationError(ami_BagError):
     def __init__(self, message):
         self.message = message
     def __str__(self):
@@ -21,7 +25,7 @@ class ami_bag(bagit.Bag):
 
     def __init__(self, *args, **kwargs):
         super(ami_bag, self).__init__(*args, **kwargs)
-        self.data_files = self.payload_entries().keys()
+        self.data_files = set(self.payload_entries().keys())
         self.data_dirs = set([os.path.split(path)[0][5:] for path in self.data_files])
         self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
         self.media_filepaths = set([os.path.join(self.path, path) for path in self.data_files if any(path.lower().endswith(ext) for ext in EXTS)])
@@ -175,14 +179,14 @@ class ami_bag(bagit.Bag):
                 self.type = "json"
 
         if not self.type:
-            self.raise_bagerror("Bag is not an Excel bag or JSON bag")
+            raise ami_BagError("AMI bag must contain either Excel or JSON metadata")
 
         return True
 
 
     def check_type(self):
         if not self.type:
-            self.raise_bagerror("Bag is not an Excel bag or JSON bag")
+            raise ami_BagError("Bag is not an Excel bag or JSON bag")
 
         return True
 
