@@ -24,7 +24,7 @@ class TestSingleProcessValidation(unittest.TestCase):
     self.tmpdir = tempfile.mkdtemp()
     if os.path.isdir(self.tmpdir):
       shutil.rmtree(self.tmpdir)
-    shutil.copytree('tests/test-data', self.tmpdir)
+    shutil.copytree('tests/test-data/unbagged', self.tmpdir)
 
   def tearDown(self):
     if os.path.isdir(self.tmpdir):
@@ -33,7 +33,7 @@ class TestSingleProcessValidation(unittest.TestCase):
   def validate(self, bag, *args, **kwargs):
     return bag.validate(*args, **kwargs)
 
-  def test_make_bag_sha1_sha256_manifest(self):
+  def test_load_bagmake_bag_sha1_sha256_manifest(self):
     bagit.make_bag(self.tmpdir, checksum=['sha1', 'sha256'])
     bag = update_bag.Repairable_Bag(path = self.tmpdir)
     # check that relevant manifests are created
