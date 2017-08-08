@@ -11,7 +11,7 @@ import sys
 import tempfile
 import unittest
 from os.path import join as j
-import ami_bag.bagit as bagit
+import bagit
 
 import ami_bag.update_bag as update_bag
 
@@ -21,6 +21,7 @@ logging.basicConfig(filename="test.log", level=logging.DEBUG)
 
 class TestSingleProcessValidation(unittest.TestCase):
   def setUp(self):
+    print(os.curdir)
     self.tmpdir = tempfile.mkdtemp()
     if os.path.isdir(self.tmpdir):
       shutil.rmtree(self.tmpdir)

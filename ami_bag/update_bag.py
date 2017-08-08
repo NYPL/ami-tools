@@ -189,15 +189,16 @@ class Repairable_Bag(bagit.Bag):
     add new hashes for each new files
     """
     new_hashes = {}
-    for alg in set(self.algs):
-      hash, filename, size = bagit._manifest_line(payload_file, alg)
-      new_hashes[alg] = hash
+    results = bagit.generate_manifest_lines(payload_file, self.algs)
 
-    if filename not in self.entries.keys():
-      self.entries[filename] = new_hashes
+    for line in results:
+        new_hashes[line[0]] = line[1]
+
+    if payload_file not in self.entries.keys():
+      self.entries[payload_file] = new_hashes
       return True
-    elif self.entries[filename] != new_hashes:
-      self.entries[filename] = new_hashes
+    elif self.entries[payload_file] != new_hashes:
+      self.entries[payload_file] = new_hashes
       return True
     else:
       return False
