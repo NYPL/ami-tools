@@ -2,7 +2,7 @@ import os, re, json, shutil, logging
 import datetime
 import sys
 
-import ami_bag.bagit as bagit
+import bagit
 
 
 SYSTEM_FILE_PATTERNS = {
@@ -31,7 +31,7 @@ LOGGER = logging.getLogger(__name__)
 class Repairable_Bag(bagit.Bag):
 
   def __init__(self, repairer = None, dryrun = False, *args, **kwargs):
-    super().__init__(*args, **kwargs)
+    super(Repairable_Bag, self).__init__(*args, **kwargs)
     self.old_dir = os.path.abspath(os.path.curdir)
     self.manifests_updated = False
     self.dryrun = dryrun

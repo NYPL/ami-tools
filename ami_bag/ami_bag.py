@@ -1,16 +1,15 @@
 import os, csv, re, logging
-
-import ami_bag.bagit as bagit
+import ami_bag.update_bag as update_bag
+import bagit
 
 # ami modules
-import constants
 from ami_md.ami_excel import ami_excel
 from ami_md.ami_json import ami_json
 
 
 LOGGER = logging.getLogger(__name__)
 
-
+EXTS = [".mov", ".wav", ".mkv", ".iso", ".tar", ".mp4"]
 
 class ami_BagError(Exception):
     pass
@@ -21,14 +20,17 @@ class ami_bagValidationError(ami_BagError):
     def __str__(self):
         return repr(self.message)
 
-class ami_bag(bagit.Bag):
+class ami_bag(update_bag.Repairable_Bag):
 
     def __init__(self, *args, **kwargs):
         super(ami_bag, self).__init__(*args, **kwargs)
+
         self.data_files = set(self.payload_entries().keys())
         self.data_dirs = set([os.path.split(path)[0][5:] for path in self.data_files])
         self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
+
         self.media_filepaths = set([os.path.join(self.path, path) for path in self.data_files if any(path.lower().endswith(ext) for ext in EXTS)])
+        
         self.set_type()
         if self.type == "excel":
             self.set_subtype_excel()
@@ -48,7 +50,7 @@ class ami_bag(bagit.Bag):
 
         valid = True
         try:
-            self.validate(fast = fast, complete = fast)
+            self.validate(fast = fast, completeness_only = fast)
         except bagit.BagValidationError as e:
             LOGGER.error("Error in bag: {0}".format(e.message))
             valid = False
