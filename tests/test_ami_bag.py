@@ -93,6 +93,7 @@ class TestAMIBag(SelfCleaningTestCase):
     bagit.make_bag(self.tmpdir)
     bag = ami_bag.ami_bag(path = self.tmpdir)
     self.assertRaises(ami_bag.ami_BagError, bag.check_filenames)
+    self.assertFalse(bag.validate_amibag())
 
   def test_complex_subobject(self):
     pm = os.path.join(self.tmpdir, 'PreservationMasters/myd_263524_v01_pm.mov')
@@ -101,6 +102,7 @@ class TestAMIBag(SelfCleaningTestCase):
     bagit.make_bag(self.tmpdir)
     bag = ami_bag.ami_bag(path = self.tmpdir)
     self.assertRaises(ami_bag.ami_BagError, bag.check_simple_filenames)
+    self.assertFalse(bag.validate_amibag())
 
 
 if __name__ == '__main__':

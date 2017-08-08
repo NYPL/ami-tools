@@ -69,19 +69,19 @@ class ami_bag(update_bag.Repairable_Bag):
         try:
             self.validate(fast = fast, completeness_only = fast)
         except bagit.BagValidationError as e:
-            LOGGER.error("Error in bag: {0}".format(e.message))
+            LOGGER.warning("Error in bag: {0}".format(e.message))
             valid = False
 
         try:
             self.check_filenames()
         except ami_bagValidationError as e:
-            LOGGER.error("Error in filenames: {0}".format(e.message))
+            LOGGER.warning("Error in filenames: {0}".format(e.message))
             valid = False
 
         try:
             self.check_simple_filenames()
         except ami_bagValidationError as e:
-            LOGGER.error("Error in filenames: {0}".format(e.message))
+            LOGGER.warning("Error in filenames: {0}".format(e.message))
             valid = False
 
         try:
