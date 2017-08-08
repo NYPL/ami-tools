@@ -111,6 +111,16 @@ class TestAMIBag(SelfCleaningTestCase):
     self.assertRaises(ami_bag.ami_BagError, bag.check_simple_filenames)
     self.assertFalse(bag.validate_amibag())
 
+  def test_deepdirectories(self):
+    new_dir = os.path.join(self.tmpdir, 'PreservationMasters/new_dir')
+    os.makedirs(new_dir)
+    pm_json = os.path.join(self.tmpdir, 'PreservationMasters/myd_263524_v01_pm.json')
+    shutil.move(pm_json, pm_json.replace('/myd', '/new_dir/myd'))
+    bagit.make_bag(self.tmpdir)
+    bag = ami_bag.ami_bag(path = self.tmpdir)
+    self.assertRaises(ami_bag.ami_BagError, bag.check_directory_depth)
+    self.assertFalse(bag.validate_amibag())
+
 
 if __name__ == '__main__':
     unittest.main()

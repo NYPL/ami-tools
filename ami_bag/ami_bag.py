@@ -183,7 +183,7 @@ class ami_bag(update_bag.Repairable_Bag):
                 bad_dirs.append(dir_path)
 
         if bad_dirs:
-            self.raise_bagerror("Too many levels of directories in data/ - {}".format(bad_dirs))
+            self.raise_bagerror("Too many levels of directories in data/: {}".format(bad_dirs))
 
         return True
 
