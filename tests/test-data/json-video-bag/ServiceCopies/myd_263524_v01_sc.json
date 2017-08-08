@@ -1,0 +1,113 @@
+{
+	"asset": {
+		"referenceFilename": "myd_263524_v01",
+		"fileRole": "sc",
+		"schemaVersion": "1.0.0"
+	},
+	"bibliographic": {
+		"primaryID": "263524",
+		"classmark": "*MGZIDF 9036",
+		"formerClassmark": "95627",
+		"cmsItemID": "263524",
+		"cmsCollectionID": "23180",
+		"barcode": "33433064042785",
+		"divisionCode": "myd",
+		"vernacularDivisionCode": "DAN",
+		"projectCode": "NHPRC",
+		"title": "[Choreography by Won Kim] [videorecording]",
+		"date": ""
+	},
+	"technical": {
+		"filename": "myd_263524_v01_sc",
+		"extension": "mp4",
+		"dateCreated": "2016-09-14",
+		"fileFormat": "MPEG-4",
+		"audioCodec": "AAC",
+		"videoCodec": "avc1",
+		"fileSize": {
+			"measure": 837434,
+			"unit": "B"
+		},
+		"durationMilli": {
+			"measure": 5000,
+			"unit": "ms"
+		},
+		"durationHuman": "00:00:05.000",
+		"signalNotes": "9/13/2016 JVo: 'Play' on screen at beginning "
+	},
+	"source": {
+		"object": {
+			"type": "video cassette",
+			"format": "VHS",
+			"generation": "AO",
+			"volumeNumber": 1
+		},
+		"physicalDescription": {
+			"stockLength": {
+				"measure": 60,
+				"unit": "min"
+			},
+			"stockManufacturer": "SKC",
+			"stockProductID": "T-60",
+			"tapeWidth": {
+				"measure": 0.5,
+				"unit": "in"
+			},
+			"baseMaterial": "polyester",
+			"oxideMaterial": "chromium dioxide"
+		},
+		"contentSpecifications": {
+			"broadcastStandard": "NTSC",
+			"colorBW": "color"
+		},
+		"audioRecording": {
+			"audioSoundField": "Ch1: Stereo Left; Ch2: Stereo Right",
+			"numberOfAudioTracks": 2
+		},
+		"notes": {
+			"physicalConditionPreShipNotes": "",
+			"physicalConditionDigitizationNotes": ""
+		}
+	},
+	"digitizationProcess": {
+		"playbackDevice": {
+			"serialNumber": "H1TC00065",
+			"manufacturer": "Panasonic",
+			"model": "AG-1980P"
+		},
+		"timeBaseCorrector": {
+			"serialNumber": "BH47AN0007",
+			"manufacturer": "Leitch",
+			"model": "DPS-475 "
+		},
+		"analogDigitalConverter": {
+			"serialNumber": "BH47AN0007",
+			"manufacturer": "Leitch",
+			"model": "DPS-475 "
+		},
+		"captureSoftware": {
+			"manufacturer": "EVS",
+			"productName": "OpenCube",
+			"version": "2.11.0",
+			"platform": "CentOS 2.6.32-279-el6"
+		},
+		"notes": {
+			"processNotes": "Cleaned w/ RTI Machine"
+		}
+	},
+	"digitizer": {
+		"operator": {
+			"firstName": "John",
+			"lastName": "Vogel"
+		},
+		"organization": {
+			"name": "George Blood Audio/Video/Film",
+			"address": {
+				"street1": "21 W. Highland Ave",
+				"city":    "Philadelphia",
+				"state":   "PA",
+				"postalCode": "19145"
+			}
+		}
+	}
+}

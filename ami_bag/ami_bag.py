@@ -25,12 +25,24 @@ class ami_bag(update_bag.Repairable_Bag):
     def __init__(self, *args, **kwargs):
         super(ami_bag, self).__init__(*args, **kwargs)
 
+        try:
+            self.validate(completeness_only = True)
+        except bagit.BagValidationError as e:
+            raise ami_BagError("Unable to load bag, oxum or manifest is invalid")
+
         self.data_files = set(self.payload_entries().keys())
-        self.data_dirs = set([os.path.split(path)[0][5:] for path in self.data_files])
         self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
 
+        self.data_dirs = set([os.path.split(path)[0][5:] for path in self.data_files])
+        if "PreservationMasters" not in self.data_dirs:
+            raise ami_BagError("Payload does not contain a PreservationMasters directory")
+
         self.media_filepaths = set([os.path.join(self.path, path) for path in self.data_files if any(path.lower().endswith(ext) for ext in EXTS)])
-        
+        if not self.media_filepaths:
+            raise ami_BagError("Payload does not contain files with accepted extensions: {}".format(
+                EXTS
+            ))
+
         self.set_type()
         if self.type == "excel":
             self.set_subtype_excel()
