@@ -1,15 +1,15 @@
 import os, csv, re, logging
+
 import ami_bag.update_bag as update_bag
 import bagit
 
 # ami modules
+import ami_bag.ami_bag_constants as ami_bag_constants
 from ami_md.ami_excel import ami_excel
 from ami_md.ami_json import ami_json
 
 
 LOGGER = logging.getLogger(__name__)
-
-EXTS = [".mov", ".wav", ".mkv", ".iso", ".tar", ".mp4"]
 
 class ami_BagError(Exception):
     pass
@@ -37,10 +37,11 @@ class ami_bag(update_bag.Repairable_Bag):
         if "PreservationMasters" not in self.data_dirs:
             raise ami_BagError("Payload does not contain a PreservationMasters directory")
 
-        self.media_filepaths = set([os.path.join(self.path, path) for path in self.data_files if any(path.lower().endswith(ext) for ext in EXTS)])
+        self.media_filepaths = set([os.path.join(self.path, path) for
+            path in self.data_files if any(path.lower().endswith(ext) for ext in ami_bag_constants.EXTS)])
         if not self.media_filepaths:
             raise ami_BagError("Payload does not contain files with accepted extensions: {}".format(
-                EXTS
+                ami_bag_constants.EXTS
             ))
 
         self.set_type()

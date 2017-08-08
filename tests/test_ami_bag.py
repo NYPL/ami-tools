@@ -6,6 +6,7 @@ import glob
 import bagit
 
 import ami_bag.ami_bag as ami_bag
+import ami_bag.ami_bag_constants as ami_bag_constants
 
 
 class SelfCleaningTestCase(unittest.TestCase):
@@ -57,7 +58,7 @@ class TestNotAnAMIBag(SelfCleaningTestCase):
       path = self.tmpdir)
 
   def test_no_mediafiles(self):
-    for ext in ami_bag.EXTS:
+    for ext in ami_bag_constants.EXTS:
       for filename in glob.glob(self.tmpdir + "/**/*" + ext):
         os.remove(filename)
     bagit.make_bag(self.tmpdir)
