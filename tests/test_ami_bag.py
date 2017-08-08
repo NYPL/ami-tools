@@ -58,7 +58,7 @@ class TestNotAnAMIBag(SelfCleaningTestCase):
       path = self.tmpdir)
 
   def test_no_mediafiles(self):
-    for ext in ami_bag_constants.EXTS:
+    for ext in ami_bag_constants.MEDIA_EXTS:
       for filename in glob.glob(self.tmpdir + "/**/*" + ext):
         os.remove(filename)
     bagit.make_bag(self.tmpdir)
@@ -85,6 +85,22 @@ class TestAMIBag(SelfCleaningTestCase):
       self.assertTrue(hasattr(bag, attr))
     self.assertTrue(bag.type == 'json')
     self.assertTrue(bag.subtype == 'video')
+
+  def test_invalid_filename(self):
+    pm = os.path.join(self.tmpdir, 'PreservationMasters/myd_263524_v01_pm.mov')
+    new_pm = pm[:-5]
+    os.rename(pm, new_pm)
+    bagit.make_bag(self.tmpdir)
+    bag = ami_bag.ami_bag(path = self.tmpdir)
+    self.assertRaises(ami_bag.ami_BagError, bag.check_filenames)
+
+  def test_complex_subobject(self):
+    pm = os.path.join(self.tmpdir, 'PreservationMasters/myd_263524_v01_pm.mov')
+    new_pm = pm.replace('v01', 'v01r01p01')
+    os.rename(pm, new_pm)
+    bagit.make_bag(self.tmpdir)
+    bag = ami_bag.ami_bag(path = self.tmpdir)
+    self.assertRaises(ami_bag.ami_BagError, bag.check_simple_filenames)
 
 
 if __name__ == '__main__':

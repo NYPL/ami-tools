@@ -38,10 +38,10 @@ class ami_bag(update_bag.Repairable_Bag):
             raise ami_BagError("Payload does not contain a PreservationMasters directory")
 
         self.media_filepaths = set([os.path.join(self.path, path) for
-            path in self.data_files if any(path.lower().endswith(ext) for ext in ami_bag_constants.EXTS)])
+            path in self.data_files if any(path.lower().endswith(ext) for ext in ami_bag_constants.MEDIA_EXTS)])
         if not self.media_filepaths:
             raise ami_BagError("Payload does not contain files with accepted extensions: {}".format(
-                ami_bag_constants.EXTS
+                ami_bag_constants.MEDIA_EXTS
             ))
 
         self.set_type()
@@ -54,6 +54,10 @@ class ami_bag(update_bag.Repairable_Bag):
         if self.type == "excel-json":
             self.set_subtype_exceljson()
             self.set_metadata_json()
+
+        LOGGER.info("{} successfully loaded as {} {} bag".format(
+            self.path, self.type, self.subtype
+        ))
 
 
     def validate_amibag(self, fast = True, metadata = False):
@@ -146,12 +150,13 @@ class ami_bag(update_bag.Repairable_Bag):
     def check_filenames(self):
         bad_filenames = []
 
-        for filename in self.data_files:
-            if re.search(r"_v\d{2}(f\d{2})?([rspt]\d{2})+_", os.path.split(filename)[1]):
+        for filepath in self.data_files:
+            filename = os.path.split(filepath)[1]
+            if not ami_bag_constants.FILENAME_REGEX.search(filename):
                 bad_filenames.append(filename)
 
         if bad_filenames:
-            self.raise_bagerror("Illegal characters in the following filenames - {}".format(bad_filenames))
+            self.raise_bagerror("Non-standard filenames for the following: {}".format(bad_filenames))
 
         return True
 
@@ -159,12 +164,13 @@ class ami_bag(update_bag.Repairable_Bag):
     def check_simple_filenames(self):
         complex_filenames = []
 
-        for filename in self.data_files:
-            if re.search(r"_v\d+[rspt]\d+\w+_", os.path.split(filename)[1]):
+        for filepath in self.data_files:
+            filename = os.path.split(filepath)[1]
+            if ami_bag_constants.SUBOBJECT_REGEX.search(filename):
                 complex_filenames.append(filename)
 
         if complex_filenames:
-            self.raise_bagerror("Complex digitized objects represented by - {}".format(complex_filenames))
+            self.raise_bagerror("Complex digitized objects represented by: {}".format(complex_filenames))
 
         return True
 
@@ -420,9 +426,9 @@ class ami_bag(update_bag.Repairable_Bag):
         '''
         lazy error reporting
         '''
-
+        LOGGER.error(msg)
         raise ami_bagValidationError(msg)
-        logging.error(msg + "\n")
+
         return False
 
 

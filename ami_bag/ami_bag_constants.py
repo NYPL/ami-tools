@@ -1,5 +1,7 @@
-EXTS = [".mov", ".wav", ".mkv", ".iso", ".tar", ".mp4"]
+import re
 
+FILENAME_REGEX = re.compile("[a-z]{3}_[a-z0-9]+_v\d{2}(([frspt]\d{2})+)?_(pm|em|sc|pf)\.[a-z0-9]+")
+SUBOBJECT_REGEX = re.compile("_v\d{2}(f\d{2})?([rspt]\d{2})+")
 
 MD_DIR = "Metadata"
 PM_DIR = "PreservationMasters"
@@ -19,6 +21,8 @@ EXCEL_EXT = ".xlsx"
 EDITEDEXCEL_EXT = ".old"
 JSON_EXT = ".json"
 JPEG_EXT = ".jpeg"
+
+MEDIA_EXTS = [MOV_EXT, MKV_EXT, MP4_EXT, ISO_EXT, TAR_EXT, WAV_EXT]
 
 EXCEL_SUBTYPES = {
     "video": ([MD_DIR, PM_DIR],
