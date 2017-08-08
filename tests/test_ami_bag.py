@@ -86,6 +86,13 @@ class TestAMIBag(SelfCleaningTestCase):
     self.assertTrue(bag.type == 'json')
     self.assertTrue(bag.subtype == 'video')
 
+  def test_incompleted_bag(self):
+    bagit.make_bag(self.tmpdir)
+    bag = ami_bag.ami_bag(path = self.tmpdir)
+    bagit_txt = os.path.join(self.tmpdir, 'bagit.txt')
+    os.remove(bagit_txt)
+    self.assertFalse(bag.validate_amibag())
+
   def test_invalid_filename(self):
     pm = os.path.join(self.tmpdir, 'PreservationMasters/myd_263524_v01_pm.mov')
     new_pm = pm[:-5]
