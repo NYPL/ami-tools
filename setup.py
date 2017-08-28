@@ -12,36 +12,15 @@ This package can be used to work with NYPL AMI packages.
 """
 
 # for older pythons ...
-requirements = []
-try:
-    import argparse
-except:
-    requirements.append("argparse")
-try:
-    import bagit
-except:
-    requirements.append("bagit")
-try:
-    import pandas
-except:
-    requirements.append("pandas")
-try:
-    import tqdm
-except:
-    requirements.append("tqdm")
-try:
-    import xlrd
-except:
-    requirements.append("xlrd")
-try:
-    import openpyxl
-except:
-    requirements.append("openpyxl")
-try:
-    import pymediainfo
-except:
-    requirements.append("pymediainfo")
-
+requirements = [
+    "argparse",
+    "bagit",
+    "pandas",
+    "tqdm",
+    "xlrd",
+    "openpyxl",
+    "pymediainfo"
+]
 
 
 setup(
@@ -63,6 +42,7 @@ setup(
                'bin/convert_excelbag_to_jsonbag.py'],
     platforms = ['POSIX'],
     install_requires = requirements,
+    dependency_links = 'https://github.com/LibraryOfCongress/bagit-python/tarball/master#egg=bagit-1.6.0b8',
     classifiers = [
         'Programming Language :: Python :: 3.1',
         'Programming Language :: Python :: 3.2',
