@@ -42,7 +42,7 @@ setup(
                'bin/convert_excelbag_to_jsonbag.py'],
     platforms = ['POSIX'],
     install_requires = requirements,
-    dependency_links = 'https://github.com/LibraryOfCongress/bagit-python/tarball/master#egg=bagit-1.6.0b8',
+    dependency_links = ['https://github.com/LibraryOfCongress/bagit-python/tarball/master#egg=bagit-1.6.0b8'],
     classifiers = [
         'Programming Language :: Python :: 3.1',
         'Programming Language :: Python :: 3.2',
