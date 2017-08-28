@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<policy type="and" name="NYPL-PAMI_v2-MP_videoAnalog_PM">
+<policy type="and" name="NYPL-PAMI_v2-noScanOrder_videoAnalog_PM">
   <rule name="Is it Matroska?" value="Format" tracktype="General" occurrence="*" operator="=">Matroska</rule>
   <rule name="Matroska version 4 or greater?" value="Format_Version" tracktype="General" occurrence="*" operator="&gt;=">4</rule>
   <rule name="Is the video FFV1?" value="Format" tracktype="Video" occurrence="*">FFV1</rule>
