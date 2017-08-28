@@ -14,7 +14,7 @@ This package can be used to work with NYPL AMI packages.
 # for older pythons ...
 requirements = [
     "argparse",
-    "bagit",
+    "bagit>=1.6.0b8",
     "pandas",
     "tqdm",
     "xlrd",
