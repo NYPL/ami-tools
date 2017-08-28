@@ -60,14 +60,6 @@ Usage: Check a single bag
 validate_bags.py -b path/to/bag --slow
 ```
 
-* bagit.py - local fork of bagit-python to expose option for completeness checking
-
-Usage: Check bag Oxum and completeness but not hashes
-
-```sh
-bagit.py --validate --fast --complete path/to/bag
-```
-
 ### Bag Management Tools
 #### fix_baginfo.py
 Update Oxum in bag-info.txt to match actual Oxum
