@@ -12,12 +12,7 @@ matrix:
     python: "3.6-dev"
 
 before_script:
-  - wget http://mediaarea.net/download/binary/libmediainfo0/0.7.85/libmediainfo0_0.7.85-1_amd64.xUbuntu_12.04.deb
-  - wget http://mediaarea.net/download/binary/libzen0/0.4.33/libzen0_0.4.33-1_amd64.xUbuntu_12.04.deb
-  - ar x libmediainfo0_0.7.85-1_amd64.xUbuntu_12.04.deb
-  - tar xf data.tar.gz
-  - ar x libzen0_0.4.33-1_amd64.xUbuntu_12.04.deb
-  - tar xf data.tar.gz
+  - sudo apt-get install -y mediainfo
 
 install:
   - pip install --upgrade pip
