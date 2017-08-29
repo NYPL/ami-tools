@@ -74,7 +74,7 @@ class TestNotAnAMIBag(SelfCleaningTestCase):
       path = self.tmpdir)
 
 
-class TestAMIBag(SelfCleaningTestCase):
+class TestJSONVideoAMIBag(SelfCleaningTestCase):
 
   def test_load_bag(self):
     bagit.make_bag(self.tmpdir)
@@ -85,6 +85,11 @@ class TestAMIBag(SelfCleaningTestCase):
       self.assertTrue(hasattr(bag, attr))
     self.assertTrue(bag.type == 'json')
     self.assertTrue(bag.subtype == 'video')
+
+  def test_valid_bag(self):
+    bagit.make_bag(self.tmpdir)
+    bag = ami_bag.ami_bag(path = self.tmpdir)
+    self.assertTrue(bag.validate_amibag(metadata = True))
 
   def test_incompleted_bag(self):
     bagit.make_bag(self.tmpdir)
