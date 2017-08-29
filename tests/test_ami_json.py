@@ -14,6 +14,9 @@ class TestAMIJSON(unittest.TestCase):
     self.assertEqual(pm_json.filename, pm_json_filename)
     self.assertTrue(hasattr(pm_json, 'dict'))
 
+  def test_dont_load_json_file(self):
+    pm_json = ami_json(filepath = pm_json_path, load = False)
+    self.assertFalse(hasattr(pm_json, 'dict'))
 
 if __name__ == '__main__':
   unittest.main()
