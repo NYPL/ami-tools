@@ -268,7 +268,7 @@ class ami_json:
 
     if md_value != file_value:
       self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}".format(
-        field, expected_value, md_value
+        field, md_value, file_value
       ))
 
     return True
