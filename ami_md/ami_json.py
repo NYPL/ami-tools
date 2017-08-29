@@ -45,7 +45,9 @@ class ami_json:
           with open(self.path, 'r', encoding = 'utf-8-sig') as f:
             self.dict = json.load(f)
         except:
-          print("not a json file")
+          self.raise_jsonerror('Not a JSON file')
+        else:
+          self.set_mediaformattype()
 
     if flat_dict:
       self.filename = os.path.splitext(flat_dict["asset.referenceFilename"])[0] + ".json"
@@ -62,12 +64,22 @@ class ami_json:
             nested_dict, key, value)
 
       self.dict = nested_dict
+      self.set_mediaformattype()
       self.coerce_strings()
 
     if media_filepath:
       self.set_mediafilepath(media_filepath)
 
+
+
+  def set_mediaformattype(self):
+    try:
+      hasattr(self, 'dict')
+    except AttributeError:
+      raise_jsonerror('Cannot set format type, metadata dictionary not loaded.')
+
     self.media_format_type = self.dict["source"]["object"]["type"][0:5]
+
 
 
   def set_mediafilepath(self, media_filepath = None):
