@@ -1,7 +1,7 @@
 language: python
 python:
- - "3.6"
- - "3.6-dev"
+  - "3.6"
+  - "3.6-dev"
 
 branches:
   only:
@@ -11,13 +11,21 @@ matrix:
   allow_failures:
     python: "3.6-dev"
 
+before_script:
+  - wget http://mediaarea.net/download/binary/libmediainfo0/0.7.85/libmediainfo0_0.7.85-1_amd64.xUbuntu_12.04.deb
+  - wget http://mediaarea.net/download/binary/libzen0/0.4.33/libzen0_0.4.33-1_amd64.xUbuntu_12.04.deb
+  - ar x libmediainfo0_0.7.85-1_amd64.xUbuntu_12.04.deb
+  - tar xf data.tar.gz
+  - ar x libzen0_0.4.33-1_amd64.xUbuntu_12.04.deb
+  - tar xf data.tar.gz
+
 install:
-    - pip install --upgrade pip
-    - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2; fi
-    - pip install coveralls coverage
-    - pip install .
+  - pip install --upgrade pip
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2; fi
+  - pip install coveralls coverage
+  - pip install .
 
 script: coverage run --source=ami_bag,ami_md,ami_files setup.py test
 
 after_success:
-    coveralls
+  coveralls
