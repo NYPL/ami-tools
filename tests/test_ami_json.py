@@ -65,6 +65,13 @@ class TestAMIJSON(unittest.TestCase):
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.check_reffn)
 
+  def test_validate_md_filename_disagreement(self):
+    pm_json = aj.ami_json(filepath = pm_json_path,
+      media_filepath = pm_mov_path)
+    pm_json.dict['asset']['referenceFilename'] = pm_mov_filename.replace('2', '3')
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.compare_techfn_reffn)
+
 
 if __name__ == '__main__':
   unittest.main()
