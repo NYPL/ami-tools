@@ -78,6 +78,25 @@ class TestAMIJSON(unittest.TestCase):
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.compare_techfn_media_filename)
 
+  def test_repair_techfn(self):
+    pm_json = aj.ami_json(filepath = pm_json_path)
+    pm_json.dict['technical']['filename'] = pm_mov_filename
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
+    pm_json.repair_techfn()
+    self.assertTrue(pm_json.validate_json())
+    self.assertTrue(pm_json.check_techfn)
+
+  def test_unrepairable_techfn(self):
+    pm_json = aj.ami_json(filepath = pm_json_path)
+    pm_json.dict['technical']['filename'] = pm_mov_filename[:-6]
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
+    pm_json.repair_techfn()
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
+
+
   def test_validate_missing_techmd_field(self):
     pm_json = aj.ami_json(filepath = pm_json_path)
     pm_json.dict['technical'].pop('durationHuman', None)
