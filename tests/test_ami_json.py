@@ -51,6 +51,12 @@ class TestAMIJSON(unittest.TestCase):
       media_filepath = pm_mov_path)
     self.assertTrue(pm_json.validate_json())
 
+  def test_validate_bad_tech_filename(self):
+    pm_json = aj.ami_json(filepath = pm_json_path,
+      media_filepath = pm_mov_path)
+    pm_json.dict['technical']['filename'] = pm_mov_filename
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
 
 
 if __name__ == '__main__':
