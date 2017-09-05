@@ -186,6 +186,13 @@ class ami_json:
       LOGGER.error("Error in JSON metadata: {0}".format(e.message))
       valid = False
 
+    if hasattr(self, 'media_filepath'):
+      try:
+        self.compare_techfn_media_filename()
+      except AMIJSONError as e:
+        LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+        valid = False
+
     try:
       self.check_techmd_fields()
     except AMIJSONError as e:
@@ -361,6 +368,17 @@ class ami_json:
       self.raise_jsonerror("Value for asset.referenceFilename should equal technical.filename + technical.extension: {} != {}.{}"
         .format(self.dict["asset"]["referenceFilename"],
           self.dict["technical"]["filename"], self.dict["technical"]["extension"]))
+
+    return True
+
+
+  def compare_techfn_media_filename(self):
+    expected_media_filename = self.dict["technical"]["filename"] + '.' + self.dict["technical"]["extension"]
+    provided_media_filename = os.path.basename(self.media_filepath)
+
+    if expected_media_filename != provided_media_filename:
+      self.raise_jsonerror("Value for technical.filename + technical.extension should equal media filename: {} != {}"
+        .format(expected_media_filename, provided_media_filename))
 
     return True
 
