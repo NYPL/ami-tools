@@ -45,7 +45,9 @@ class ami_json:
           with open(self.path, 'r', encoding = 'utf-8-sig') as f:
             self.dict = json.load(f)
         except:
-          print("not a json file")
+          self.raise_jsonerror('Not a JSON file')
+        else:
+          self.set_mediaformattype()
 
     if flat_dict:
       self.filename = os.path.splitext(flat_dict["asset.referenceFilename"])[0] + ".json"
@@ -62,12 +64,22 @@ class ami_json:
             nested_dict, key, value)
 
       self.dict = nested_dict
+      self.set_mediaformattype()
       self.coerce_strings()
 
     if media_filepath:
       self.set_mediafilepath(media_filepath)
 
+
+
+  def set_mediaformattype(self):
+    try:
+      hasattr(self, 'dict')
+    except AttributeError:
+      raise_jsonerror('Cannot set format type, metadata dictionary not loaded.')
+
     self.media_format_type = self.dict["source"]["object"]["type"][0:5]
+
 
 
   def set_mediafilepath(self, media_filepath = None):
@@ -174,23 +186,32 @@ class ami_json:
       LOGGER.error("Error in JSON metadata: {0}".format(e.message))
       valid = False
 
+    if hasattr(self, 'media_filepath'):
+      try:
+        self.compare_techfn_media_filename()
+      except AMIJSONError as e:
+        LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+        valid = False
+
     try:
       self.check_techmd_fields()
     except AMIJSONError as e:
       LOGGER.error("Error in JSON metadata: {0}".format(e.message))
       valid = False
 
+    '''
     try:
       self.check_techmd_values()
     except AMIJSONError as e:
       LOGGER.error("Error in JSON metadata: {0}".format(e.message))
       valid = False
+    '''
 
     return valid
 
 
   def check_techmd_fields(self):
-    self.techmd_field_valid = False
+    self.valid_techmd_fields = False
     found_fields = set(list(self.dict["technical"].keys()))
 
     if self.media_format_type == "audio":
@@ -256,7 +277,7 @@ class ami_json:
 
     if md_value != file_value:
       self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}".format(
-        field, expected_value, md_value
+        field, md_value, file_value
       ))
 
     return True
@@ -306,12 +327,24 @@ class ami_json:
     correct_techfn = re.match(STUB_TECHFN_RE, self.dict["technical"]["filename"])
 
     if correct_techfn:
+      if hasattr(self, 'media_filepath'):
+        try:
+          self.compare_techfn_media_filename()
+        except:
+          LOGGER.error('Extracted technical filename does not match provide media filename.')
+          return False
+      try:
+        self.compare_techfn_reffn()
+      except:
+        LOGGER.warning('Extracted technical filename does not match referenceFilename value.')
       self.dict["technical"]["filename"] = correct_techfn[0]
-      LOGGER.info("{} technical.filename updated to: {}".format(self.filename, self.dict["technical"]["filename"]))
+      LOGGER.info("{} technical.filename updated to: {}".format(
+        self.filename, self.dict["technical"]["filename"]))
       return True
 
     else:
-      LOGGER.warning("Valid technical.filename could not be extracted from {}".format(original_value))
+      LOGGER.error("Valid technical.filename could not be extracted from {}".format(
+        self.dict["technical"]["filename"]))
       return False
 
 
@@ -331,7 +364,7 @@ class ami_json:
       self.check_techfn()
 
     except AMIJSONError as e:
-      LOGGER.warning("Valid asset.referenceFilename cannot be created from technical fields: {}".format(
+      LOGGER.error("Valid asset.referenceFilename cannot be created from technical fields: {}, {}".format(
         self.dict["technical"]["filename"], self.dict["technical"]["extension"]))
       return False
 
@@ -343,10 +376,26 @@ class ami_json:
 
 
   def compare_techfn_reffn(self):
+    if not ("filename" in self.dict["technical"].keys() and
+      "extension" in self.dict["technical"].keys() and
+      "referenceFilename" in self.dict["asset"].keys()):
+      self.raise_jsonerror("Key or keys related to filenames missing")
+
     if self.dict["asset"]["referenceFilename"] != self.dict["technical"]["filename"] + '.' + self.dict["technical"]["extension"]:
       self.raise_jsonerror("Value for asset.referenceFilename should equal technical.filename + technical.extension: {} != {}.{}"
         .format(self.dict["asset"]["referenceFilename"],
           self.dict["technical"]["filename"], self.dict["technical"]["extension"]))
+
+    return True
+
+
+  def compare_techfn_media_filename(self):
+    expected_media_filename = self.dict["technical"]["filename"] + '.' + self.dict["technical"]["extension"]
+    provided_media_filename = os.path.basename(self.media_filepath)
+
+    if expected_media_filename != provided_media_filename:
+      self.raise_jsonerror("Value for technical.filename + technical.extension should equal media filename: {} != {}"
+        .format(expected_media_filename, provided_media_filename))
 
     return True
 

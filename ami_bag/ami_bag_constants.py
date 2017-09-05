@@ -1,6 +1,8 @@
 import re
 
-FILENAME_REGEX = re.compile("[a-z]{3}_[a-z0-9]+_v\d{2}(([frspt]\d{2})+)?_(pm|em|sc|pf)\.[a-z0-9]+")
+FILENAME_REGEX = re.compile(
+    "[a-z]{3}_[a-z0-9]+_v\d{2}(([frspt]\d{2})+)?_(pm|em|sc|pf|assetfront|assetback)\.[a-z0-9]+",
+    re.IGNORECASE)
 SUBOBJECT_REGEX = re.compile("_v\d{2}(f\d{2})?([rspt]\d{2})+")
 
 MD_DIR = "Metadata"
