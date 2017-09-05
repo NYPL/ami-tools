@@ -2,6 +2,7 @@ import unittest
 import os
 import tempfile
 import shutil
+import warnings
 
 import ami_md.ami_json as aj
 
@@ -95,6 +96,28 @@ class TestAMIJSON(unittest.TestCase):
     pm_json.repair_techfn()
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
+
+  def test_repair_reffn(self):
+    pm_json = aj.ami_json(filepath = pm_json_path)
+    pm_json.dict['asset']['referenceFilename'] = pm_mov_filename[:-6]
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.check_reffn)
+    pm_json.repair_reffn()
+    self.assertTrue(pm_json.validate_json())
+    self.assertTrue(pm_json.check_reffn())
+    self.assertTrue(pm_json.compare_techfn_reffn())
+
+  def test_unrepairable_reffn(self):
+    pm_json = aj.ami_json(filepath = pm_json_path)
+    pm_json.dict['asset']['referenceFilename'] = pm_mov_filename[:-6]
+    pm_json.dict['technical']['filename'] = pm_mov_filename[:-6]
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.check_reffn)
+    with self.assertLogs('ami_md.ami_json', 'WARN') as cm:
+      pm_json.repair_reffn()
+    self.assertEqual(cm.output, ['WARNING:ami_md.ami_json:Valid asset.referenceFilename cannot be created from technical fields: myd_263524_v01_, mov'])
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.check_reffn)
 
 
   def test_validate_missing_techmd_field(self):
