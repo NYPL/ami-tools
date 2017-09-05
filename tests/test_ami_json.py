@@ -1,11 +1,15 @@
 import unittest
 import os
+import tempfile
+import shutil
 
 import ami_md.ami_json as aj
 
 pm_json_dir = 'tests/test-data/json-video-bag/PreservationMasters'
 pm_json_filename = 'myd_263524_v01_pm.json'
+pm_mov_filename = 'myd_263524_v01_pm.mov'
 pm_json_path = os.path.join(pm_json_dir, pm_json_filename)
+pm_mov_path = os.path.join(pm_json_dir, pm_mov_filename)
 
 class TestAMIJSON(unittest.TestCase):
 
@@ -19,10 +23,18 @@ class TestAMIJSON(unittest.TestCase):
     pm_json = aj.ami_json(filepath = pm_json_path, load = False)
     self.assertFalse(hasattr(pm_json, 'dict'))
 
-  def test_load_bad_json_file(self):
-    not_json_path = pm_json_path.replace('json', 'mov')
+  def test_load_not_json_file(self):
     self.assertRaises(aj.AMIJSONError, aj.ami_json,
-      filepath = not_json_path)
+      filepath = pm_mov_path)
+
+  def test_load_bad_json_file(self):
+    tmpdir = tempfile.mkdtemp()
+    shutil.copy(pm_json_path, tmpdir)
+    bad_json_path = os.path.join(tmpdir, pm_json_filename)
+    with open(bad_json_path, 'r+') as f:
+      f.write(f.read()[1:])
+    self.assertRaises(aj.AMIJSONError, aj.ami_json,
+      filepath = bad_json_path)
 
 if __name__ == '__main__':
   unittest.main()
