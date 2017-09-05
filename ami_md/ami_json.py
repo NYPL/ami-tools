@@ -376,6 +376,11 @@ class ami_json:
 
 
   def compare_techfn_reffn(self):
+    if not ("filename" in self.dict["technical"].keys() and
+      "extension" in self.dict["technical"].keys() and
+      "referenceFilename" in self.dict["asset"].keys()):
+      self.raise_jsonerror("Key or keys related to filenames missing")
+
     if self.dict["asset"]["referenceFilename"] != self.dict["technical"]["filename"] + '.' + self.dict["technical"]["extension"]:
       self.raise_jsonerror("Value for asset.referenceFilename should equal technical.filename + technical.extension: {} != {}.{}"
         .format(self.dict["asset"]["referenceFilename"],
