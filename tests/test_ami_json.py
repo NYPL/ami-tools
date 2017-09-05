@@ -2,7 +2,6 @@ import unittest
 import os
 import tempfile
 import shutil
-import warnings
 
 import ami_md.ami_json as aj
 
@@ -52,11 +51,23 @@ class TestAMIJSON(unittest.TestCase):
       media_filepath = pm_mov_path)
     self.assertTrue(pm_json.validate_json())
 
+  def test_validate_missing_tech_filename(self):
+    pm_json = aj.ami_json(filepath = pm_json_path)
+    pm_json.dict['technical'].pop('filename', None)
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
+
   def test_validate_bad_tech_filename(self):
     pm_json = aj.ami_json(filepath = pm_json_path)
     pm_json.dict['technical']['filename'] = pm_mov_filename
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
+
+  def test_validate_missing_ref_filename(self):
+    pm_json = aj.ami_json(filepath = pm_json_path)
+    pm_json.dict['asset'].pop('referenceFilename', None)
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.check_reffn)
 
   def test_validate_bad_ref_filename(self):
     pm_json = aj.ami_json(filepath = pm_json_path)
