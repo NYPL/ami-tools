@@ -327,13 +327,23 @@ class ami_json:
     correct_techfn = re.match(STUB_TECHFN_RE, self.dict["technical"]["filename"])
 
     if correct_techfn:
+      if hasattr(self, 'media_filepath'):
+        try:
+          self.compare_techfn_media_filename()
+        except:
+          LOGGER.error('Extracted technical filename does not match provide media filename.')
+          return False
+      try:
+        self.compare_techfn_reffn()
+      except:
+        LOGGER.warning('Extracted technical filename does not match referenceFilename value.')
       self.dict["technical"]["filename"] = correct_techfn[0]
       LOGGER.info("{} technical.filename updated to: {}".format(
         self.filename, self.dict["technical"]["filename"]))
       return True
 
     else:
-      LOGGER.warning("Valid technical.filename could not be extracted from {}".format(
+      LOGGER.error("Valid technical.filename could not be extracted from {}".format(
         self.dict["technical"]["filename"]))
       return False
 
@@ -354,7 +364,7 @@ class ami_json:
       self.check_techfn()
 
     except AMIJSONError as e:
-      LOGGER.warning("Valid asset.referenceFilename cannot be created from technical fields: {}".format(
+      LOGGER.error("Valid asset.referenceFilename cannot be created from technical fields: {}, {}".format(
         self.dict["technical"]["filename"], self.dict["technical"]["extension"]))
       return False
 
