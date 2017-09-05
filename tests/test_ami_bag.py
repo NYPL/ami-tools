@@ -4,6 +4,7 @@ import os
 import shutil
 import glob
 import bagit
+import json
 
 import ami_bag.ami_bag as ami_bag
 import ami_bag.ami_bag_constants as ami_bag_constants
@@ -129,7 +130,7 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
     self.assertRaises(ami_bag.ami_BagError, bag.check_directory_depth)
     self.assertFalse(bag.validate_amibag())
 
-  def test_metadata_mismatch(self):
+  def test_metadata_filename_mismatch(self):
     pm_path = os.path.join(self.tmpdir,
       'PreservationMasters/myd_263524_v01_pm.mov')
     new_pm_path = pm_path.replace('_263524_', '_263523_')
@@ -138,6 +139,20 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
     bag = ami_bag.ami_bag(path = self.tmpdir)
     self.assertRaises(ami_bag.ami_BagError,
         bag.check_filenames_manifest_and_metadata_json)
+    self.assertFalse(bag.validate_amibag(metadata = True))
+
+  def test_bad_json_metadata(self):
+    json_path = os.path.join(self.tmpdir,
+      'PreservationMasters/myd_263524_v01_pm.json')
+    with open(json_path, 'r') as f:
+      json_data = json.load(f)
+    json_data['technical'].pop('durationHuman', None)
+    with open(json_path, 'w') as f:
+      json.dump(json_data, f, ensure_ascii=False)
+    bagit.make_bag(self.tmpdir)
+    bag = ami_bag.ami_bag(path = self.tmpdir)
+    self.assertRaises(ami_bag.ami_BagError,
+      bag.check_metadata_json)
     self.assertFalse(bag.validate_amibag(metadata = True))
 
 
