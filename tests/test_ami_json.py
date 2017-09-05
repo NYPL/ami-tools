@@ -78,6 +78,14 @@ class TestAMIJSON(unittest.TestCase):
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.compare_techfn_media_filename)
 
+  def test_validate_missing_techmd_field(self):
+    pm_json = aj.ami_json(filepath = pm_json_path)
+    pm_json.dict['technical'].pop('durationHuman', None)
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.check_techmd_fields)
+
+
+
 
 if __name__ == '__main__':
   unittest.main()
