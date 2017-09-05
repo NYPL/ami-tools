@@ -328,11 +328,13 @@ class ami_json:
 
     if correct_techfn:
       self.dict["technical"]["filename"] = correct_techfn[0]
-      LOGGER.info("{} technical.filename updated to: {}".format(self.filename, self.dict["technical"]["filename"]))
+      LOGGER.info("{} technical.filename updated to: {}".format(
+        self.filename, self.dict["technical"]["filename"]))
       return True
 
     else:
-      LOGGER.warning("Valid technical.filename could not be extracted from {}".format(original_value))
+      LOGGER.warning("Valid technical.filename could not be extracted from {}".format(
+        self.dict["technical"]["filename"]))
       return False
 
 
