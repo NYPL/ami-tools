@@ -202,7 +202,7 @@ class ami_json:
 
 
   def check_techmd_fields(self):
-    self.techmd_field_valid = False
+    self.valid_techmd_fields = False
     found_fields = set(list(self.dict["technical"].keys()))
 
     if self.media_format_type == "audio":
