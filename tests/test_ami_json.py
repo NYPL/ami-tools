@@ -52,25 +52,31 @@ class TestAMIJSON(unittest.TestCase):
     self.assertTrue(pm_json.validate_json())
 
   def test_validate_bad_tech_filename(self):
-    pm_json = aj.ami_json(filepath = pm_json_path,
-      media_filepath = pm_mov_path)
+    pm_json = aj.ami_json(filepath = pm_json_path)
     pm_json.dict['technical']['filename'] = pm_mov_filename
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
 
   def test_validate_bad_ref_filename(self):
-    pm_json = aj.ami_json(filepath = pm_json_path,
-      media_filepath = pm_mov_path)
+    pm_json = aj.ami_json(filepath = pm_json_path)
     pm_json.dict['asset']['referenceFilename'] = pm_json.dict['technical']['filename']
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.check_reffn)
 
   def test_validate_md_filename_disagreement(self):
-    pm_json = aj.ami_json(filepath = pm_json_path,
-      media_filepath = pm_mov_path)
+    pm_json = aj.ami_json(filepath = pm_json_path)
     pm_json.dict['asset']['referenceFilename'] = pm_mov_filename.replace('2', '3')
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.compare_techfn_reffn)
+
+  def test_validate_techfn_media_filepath_disagreement(self):
+    pm_json = aj.ami_json(filepath = pm_json_path,
+      media_filepath = pm_mov_path)
+    bad_mov_filename = pm_mov_filename.replace('2', '3')
+    pm_json.dict['asset']['referenceFilename'] = bad_mov_filename
+    pm_json.dict['technical']['filename'] = bad_mov_filename.replace('.mov', '')
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.compare_techfn_media_filename)
 
 
 if __name__ == '__main__':
