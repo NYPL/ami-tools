@@ -93,9 +93,39 @@ class TestAMIJSON(unittest.TestCase):
     pm_json.dict['technical']['filename'] = pm_mov_filename[:-6]
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
-    pm_json.repair_techfn()
+    with self.assertLogs('ami_md.ami_json', 'ERROR') as cm:
+      pm_json.repair_techfn()
+    self.assertEqual(cm.output,
+      ['ERROR:ami_md.ami_json:Valid technical.filename could not be extracted from myd_263524_v01_'])
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
+
+  def test_bad_techfn(self):
+    pm_json = aj.ami_json(filepath = pm_json_path)
+    pm_json.dict['technical']['filename'] = pm_mov_filename.replace('2', '3')[:-3]
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
+    with self.assertLogs('ami_md.ami_json', 'WARN') as cm:
+      pm_json.repair_techfn()
+    self.assertEqual(cm.output,
+      ['WARNING:ami_md.ami_json:Extracted technical filename does not match referenceFilename value.'])
+    self.assertTrue(pm_json.check_techfn())
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.compare_techfn_reffn)
+
+  def test_bad_techfn_with_media_filepath(self):
+    pm_json = aj.ami_json(filepath = pm_json_path,
+      media_filepath = pm_mov_path)
+    pm_json.dict['technical']['filename'] = pm_mov_filename.replace('2', '3')[:-3]
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
+    with self.assertLogs('ami_md.ami_json', 'ERROR') as cm:
+      pm_json.repair_techfn()
+    self.assertEqual(cm.output,
+      ['ERROR:ami_md.ami_json:Extracted technical filename does not match provide media filename.'])
+    self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.compare_techfn_reffn)
 
   def test_repair_reffn(self):
     pm_json = aj.ami_json(filepath = pm_json_path)
@@ -113,9 +143,10 @@ class TestAMIJSON(unittest.TestCase):
     pm_json.dict['technical']['filename'] = pm_mov_filename[:-6]
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.check_reffn)
-    with self.assertLogs('ami_md.ami_json', 'WARN') as cm:
+    with self.assertLogs('ami_md.ami_json', 'ERROR') as cm:
       pm_json.repair_reffn()
-    self.assertEqual(cm.output, ['WARNING:ami_md.ami_json:Valid asset.referenceFilename cannot be created from technical fields: myd_263524_v01_, mov'])
+    self.assertEqual(cm.output,
+      ['ERROR:ami_md.ami_json:Valid asset.referenceFilename cannot be created from technical fields: myd_263524_v01_, mov'])
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.check_reffn)
 
