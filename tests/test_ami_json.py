@@ -41,6 +41,12 @@ class TestAMIJSON(unittest.TestCase):
       media_filepath = pm_mov_path)
     self.assertTrue(hasattr(pm_json, 'media_filepath'))
 
+  def test_load_invalid_media_filepath(self):
+    self.assertRaises(aj.AMIJSONError, aj.ami_json,
+      filepath = pm_mov_path,
+      media_filepath = pm_mov_path.replace('.mov', '.smooth'))
+
+
 
 if __name__ == '__main__':
   unittest.main()
