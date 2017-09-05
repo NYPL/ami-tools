@@ -36,5 +36,11 @@ class TestAMIJSON(unittest.TestCase):
     self.assertRaises(aj.AMIJSONError, aj.ami_json,
       filepath = bad_json_path)
 
+  def test_load_media_filepath(self):
+    pm_json = aj.ami_json(filepath = pm_json_path,
+      media_filepath = pm_mov_path)
+    self.assertTrue(hasattr(pm_json, 'media_filepath'))
+
+
 if __name__ == '__main__':
   unittest.main()
