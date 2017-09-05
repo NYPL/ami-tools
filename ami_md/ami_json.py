@@ -192,11 +192,13 @@ class ami_json:
       LOGGER.error("Error in JSON metadata: {0}".format(e.message))
       valid = False
 
+    '''
     try:
       self.check_techmd_values()
     except AMIJSONError as e:
       LOGGER.error("Error in JSON metadata: {0}".format(e.message))
       valid = False
+    '''
 
     return valid
 
