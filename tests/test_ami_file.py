@@ -20,14 +20,14 @@ class TestAMIFile(unittest.TestCase):
     with self.assertRaises(Exception) as context:
       pm_file = af.ami_file(filepath = bad_filepath)
     expected_msg = '{} is not a valid filepath'.format(bad_filepath)
-    self.assertTrue(expected_msg == context.exception)
+    self.assertTrue(expected_msg in str(context.exception))
 
   def test_load_non_media_file(self):
     non_media_path = pm_mov_path.replace('mov', 'json')
     with self.assertRaises(Exception) as context:
       pm_file = af.ami_file(filepath = non_media_path)
-    expected_msg = '{} does not appear to be an accepted audio or video format.'.format(non_media_path)
-    self.assertTrue(expected_msg == context.exception)
+    expected_msg = '{} does not appear to be an accepted audio or video format.'.format(os.path.basename(non_media_path))
+    self.assertTrue(expected_msg in str(context.exception))
 
 
 
