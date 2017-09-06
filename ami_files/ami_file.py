@@ -21,10 +21,12 @@ class ami_file:
       self.raise_AMIFileError("Not an valid filepath")
 
     self.set_techmd_values()
-    if hasattr(self, "video_codec"):
+    if self.extension in ['mkv', 'mp4', 'mov']:
       self.type = "video"
-    else:
+    elif self.extension in ['wav', 'WAV']:
       self.type = "audio"
+    else:
+      self.raise_AMIFileError('File does not appear to be an accepted audio or video format.')
 
 
   def set_techmd_values(self):
