@@ -14,6 +14,10 @@ class TestAMIFile(unittest.TestCase):
     self.assertEqual(pm_file.filename, pm_mov_filename)
     self.assertTrue(hasattr(pm_file, 'base_filename'))
     self.assertTrue(pm_file.type == 'video')
+    techmd = ['base_filename', 'extension', 'format', 'size',
+      'date_created', 'audio_codec', 'video_codec']
+    for field in techmd:
+      self.assertTrue(hasattr(pm_file, field))
 
   def test_load_nonexistant_media_file(self):
     bad_filepath = pm_mov_path.replace('2', '3')
