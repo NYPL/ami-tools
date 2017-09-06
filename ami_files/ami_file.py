@@ -27,38 +27,47 @@ class ami_file:
   def set_techmd_values(self):
     techmd = MediaInfo.parse(self.filepath)
 
+    md_track = None
     for track in techmd.tracks:
       if track.track_type == "General":
-        self.base_filename = track.file_name
-        self.extension = track.file_extension
-        self.format = track.format
-        self.size = track.file_size
+        md_track = track
 
-        if track.encoded_date:
-          self.date_created = track.encoded_date.split()[0].replace(":", "-")
-        elif track.recorded_date:
-          self.date_created = track.recorded_date.split()[0].replace(":", "-")
+    if not md_track:
+      self.raise_AMIFileError('Could not find General track')
 
-        for duration in track.other_duration:
-          try:
-            datetime.strptime(duration, '%H:%M:%S.%f')
-          except:
-            continue
-          else:
-            self.duration_human = duration
-            break
+    self.base_filename = md_track.file_name
+    self.extension = md_track.file_extension
+    self.format = md_track.format
+    self.size = md_track.file_size
 
-        self.duration_milli = track.duration
+    if md_track.encoded_date:
+      self.date_created = parse_date(md_track.encoded_date)
+    elif md_track.recorded_date:
+      self.date_created = parse_date(md_track.recorded_date)
+    elif md_track.last_modified_date:
+      self.date_created = parse_date(md_track.last_modified_date)
 
-      elif track.track_type == "Audio":
-        self.audio_codec = track.codec
-      elif track.track_type == "Video":
-        self.video_codec = track.codec
+    self.duration_milli = md_track.duration
+    self.duration_human = parse_duration(self.duration_milli)
+
+    self.audio_codec = md_track.audio_codecs
+    if md_track.codecs_video:
+      self.video_codec = md_track.codecs_video
 
 
-  def raise_jsonerror(self, msg):
+  def raise_AMIFileError(self, msg):
     """
     lazy error reporting
     """
     logging.error(msg + '\n')
     raise AMIFileError(msg)
+
+def parse_date(date_string):
+  return datetime.strptime(date_string, '%Z %Y-%m-%d %H:%M:%S').date().strftime('%Y-%m-%d')
+
+def parse_duration(ms_int):
+  hours = ms_int // 3600000
+  minutes = (ms_int % 3600000) // 60000
+  seconds = (ms_int % 60000) // 1000
+  ms = ms_int % 1000
+  return "{}:{:0>2}:{:0>2}.{:0>3}".format(hours, minutes, seconds, ms)
