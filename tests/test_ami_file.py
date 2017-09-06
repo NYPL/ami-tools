@@ -15,9 +15,14 @@ class TestAMIFile(unittest.TestCase):
     self.assertTrue(hasattr(pm_file, 'base_filename'))
     self.assertTrue(pm_file.type == 'video')
 
-  def test_dont_load_json_file(self):
+  def test_load_nonexistant_media_file(self):
     self.assertRaises(af.AMIFileError, af.ami_file,
       filepath = pm_mov_path.replace('2', '3'))
+
+  def test_load_non_media_file(self):
+    self.assertRaises(af.AMIFileError, af.ami_file,
+      filepath = pm_mov_path.replace('.mov', '.json'))
+
 
 
 if __name__ == '__main__':
