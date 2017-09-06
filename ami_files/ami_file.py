@@ -18,7 +18,7 @@ class ami_file:
       self.filepath = os.path.abspath(filepath)
       self.filename = os.path.basename(self.filepath)
     else:
-      self.raise_AMIFileError("Not an valid filepath")
+      self.raise_AMIFileError("Not a valid filepath")
 
     self.set_techmd_values()
     if self.extension in ['mkv', 'mp4', 'mov']:
@@ -71,6 +71,9 @@ def parse_date(date_string):
   return datetime.strptime(date_string, '%Z %Y-%m-%d %H:%M:%S').date().strftime('%Y-%m-%d')
 
 def parse_duration(ms_int):
+  if not ms_int:
+    return None
+
   hours = ms_int // 3600000
   minutes = (ms_int % 3600000) // 60000
   seconds = (ms_int % 60000) // 1000
