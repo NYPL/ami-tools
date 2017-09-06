@@ -1,6 +1,9 @@
 import os
+import logging
 from pymediainfo import MediaInfo
 from datetime import datetime
+
+LOGGER = logging.getLogger(__name__)
 
 class AMIFileError(Exception):
   def __init__(self, message):
