@@ -188,6 +188,16 @@ class TestAMIJSON(unittest.TestCase):
     self.assertRaises(aj.AMIJSONError, pm_json.check_md_value,
       field = 'durationHuman', mapped_field = 'duration_human')
 
+  def test_validate_techmd_mediainfo_disagreement(self):
+    pm_json = aj.ami_json(filepath = pm_json_path,
+      media_filepath = pm_mov_path)
+    pm_json.set_media_file()
+    # duration_human is a formatted object that might fail to be created
+    pm_json.media_file.duration_milli = 200
+    self.assertFalse(pm_json.validate_json())
+    self.assertRaises(aj.AMIJSONError, pm_json.check_md_value,
+      field = 'durationMilli.measure', mapped_field = 'duration_milli')
+
 
 
 
