@@ -248,11 +248,15 @@ class ami_json:
     elif self.media_format_type == "video":
       field_mapping = ami_md_constants.JSON_TO_VIDEO_FILE_MAPPING
 
+    errors = []
     for key, value in field_mapping.items():
       try:
         self.check_md_value(key, value)
       except AMIJSONError as e:
-        self.raise_jsonerror(e)
+        errors.append(e.message)
+
+    if errors:
+      self.raise_jsonerror(' '.join(errors))
 
     return True
 
@@ -274,7 +278,7 @@ class ami_json:
       md_value = md_value[field]
 
     if md_value != file_value:
-      self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}".format(
+      self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}.".format(
         field, md_value, file_value
       ))
 
