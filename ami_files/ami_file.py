@@ -2,6 +2,7 @@ import os
 import logging
 from pymediainfo import MediaInfo
 from datetime import datetime
+from dateutil import parser
 
 LOGGER = logging.getLogger(__name__)
 
@@ -49,8 +50,8 @@ class ami_file:
       self.date_created = parse_date(md_track.encoded_date)
     elif md_track.recorded_date:
       self.date_created = parse_date(md_track.recorded_date)
-    elif md_track.last_modified_date:
-      self.date_created = parse_date(md_track.last_modified_date)
+    elif md_track.file_last_modification_date:
+      self.date_created = parse_date(md_track.file_last_modification_date)
 
     self.duration_milli = md_track.duration
     self.duration_human = parse_duration(self.duration_milli)
@@ -67,8 +68,17 @@ class ami_file:
     logging.error(msg + '\n')
     raise AMIFileError(msg)
 
+
 def parse_date(date_string):
-  return datetime.strptime(date_string, '%Z %Y-%m-%d %H:%M:%S').date().strftime('%Y-%m-%d')
+  try:
+    parsed = parser.parse(date_string)
+  except:
+    try:
+      parsed = datetime.strptime(date_string, '%Z %Y-%m-%d %H:%M:%S')
+    except:
+      raise ValueError
+
+  return parsed.date().strftime('%Y-%m-%d')
 
 def parse_duration(ms_int):
   if not ms_int:
@@ -78,4 +88,4 @@ def parse_duration(ms_int):
   minutes = (ms_int % 3600000) // 60000
   seconds = (ms_int % 60000) // 1000
   ms = ms_int % 1000
-  return "{}:{:0>2}:{:0>2}.{:0>3}".format(hours, minutes, seconds, ms)
+  return "{:0>2}:{:0>2}:{:0>2}.{:0>3}".format(hours, minutes, seconds, ms)
