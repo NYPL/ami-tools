@@ -218,8 +218,8 @@ class TestAMIJSON(unittest.TestCase):
     with self.assertLogs('ami_md.ami_json', 'WARN') as cm:
       valid_md = pm_json.validate_json()
     self.assertTrue(valid_md)
-    expected_msg = 'WARNING:ami_md.ami_json: dateCreated in JSON and from file disagree. '
-    expected_msg += 'JSON: 2016-09-14, From file: 1904-01-01'
+    expected_msg = 'WARNING:ami_md.ami_json:dateCreated in JSON and from file disagree. '
+    expected_msg += 'JSON: 2016-09-14, From file: 1904-01-01.'
     self.assertTrue(expected_msg in cm.output)
 
 
