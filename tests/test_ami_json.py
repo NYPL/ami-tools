@@ -208,12 +208,10 @@ class TestAMIJSON(unittest.TestCase):
     with self.assertLogs('ami_md.ami_json', 'ERROR') as cm:
       valid_md = pm_json.validate_json()
     self.assertFalse(valid_md)
-    expected_msgs = [
-      'Incorrect value for durationMilli.measure. Expected: 201, Found: 200'
-      'Incorrect value for video_codec. Expected: 201, Found: avc1'
-    ]
-    self.assertTrue(expected_msgs in cm.output)
-
+    expected_msg = 'ERROR:ami_md.ami_json:Error in JSON metadata: '
+    expected_msg += 'Incorrect value for durationMilli.measure. Expected: 201, Found: 200. '
+    expected_msg += 'Incorrect value for videoCodec. Expected: v210, Found: 200.'
+    self.assertTrue(expected_msg in cm.output)
 
 
 
