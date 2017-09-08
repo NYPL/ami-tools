@@ -132,7 +132,7 @@ class TestAMIJSON(unittest.TestCase):
       ['WARNING:ami_md.ami_json:Extracted technical filename does not match referenceFilename value.'])
     self.assertTrue(pm_json.check_techfn())
     self.assertFalse(pm_json.validate_json())
-    self.assertRaises(aj.AMIJSONError, pm_json.compare_techfn_reffn)
+    self.assertRaises(aj.AMIJSONError, pm_json.compare_techfn_media_filename)
 
   def test_bad_techfn_with_media_filepath(self):
     pm_json = aj.ami_json(filepath = pm_json_path,
