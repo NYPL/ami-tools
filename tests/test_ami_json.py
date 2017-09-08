@@ -2,6 +2,7 @@ import unittest
 import os
 import tempfile
 import shutil
+import ami_files.ami_file as af
 
 import ami_md.ami_json as aj
 
@@ -58,6 +59,7 @@ class TestAMIJSON(unittest.TestCase):
     pm_json = aj.ami_json(filepath = pm_json_path,
       media_filepath = pm_mov_path)
     self.assertTrue(pm_json.validate_json())
+    self.assertTrue(isinstance(pm_json.media_file, af.ami_file))
 
   def test_validate_missing_tech_filename(self):
     pm_json = aj.ami_json(filepath = pm_json_path)
