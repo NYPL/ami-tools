@@ -167,6 +167,7 @@ class TestAMIJSON(unittest.TestCase):
     pm_json.dict['technical'].pop('durationHuman', None)
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.check_techmd_fields)
+    self.assertTrue(aj.valid_techmd_fields)
 
 
 
