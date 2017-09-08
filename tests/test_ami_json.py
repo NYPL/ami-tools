@@ -176,7 +176,7 @@ class TestAMIJSON(unittest.TestCase):
       ['ERROR:ami_md.ami_json:Extracted technical filename does not match provide media filename.'])
     self.assertRaises(aj.AMIJSONError, pm_json.check_techfn)
     self.assertFalse(pm_json.validate_json())
-    self.assertRaises(aj.AMIJSONError, pm_json.compare_techfn_reffn)
+    self.assertRaises(aj.AMIJSONError, pm_json.compare_techfn_media_filename)
 
 
 
