@@ -266,8 +266,8 @@ class ami_json:
       ))
 
     md_value = self.dict["technical"]
-    if '.' in field:
-      field_parts = field.split('.')
+    if separator in field:
+      field_parts = field.split(separator)
       for part in field_parts:
         md_value = md_value[part]
     else:
