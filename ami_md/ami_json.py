@@ -278,9 +278,14 @@ class ami_json:
       md_value = md_value[field]
 
     if md_value != file_value:
-      self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}.".format(
-        field, md_value, file_value
-      ))
+      if field == 'dateCreated':
+        LOGGER.warning('{0} in JSON and from file disagree. JSON: {1}, From file: {2}.'.format(
+          field, md_value, file_value
+        ))
+      else:
+        self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}.".format(
+          field, md_value, file_value
+        ))
 
     return True
 
