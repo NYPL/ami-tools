@@ -192,7 +192,6 @@ class TestAMIJSON(unittest.TestCase):
     pm_json = aj.ami_json(filepath = pm_json_path,
       media_filepath = pm_mov_path)
     pm_json.set_media_file()
-    # duration_human is a formatted object that might fail to be created
     pm_json.media_file.duration_milli = 200
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.check_md_value,
@@ -202,7 +201,6 @@ class TestAMIJSON(unittest.TestCase):
     pm_json = aj.ami_json(filepath = pm_json_path,
       media_filepath = pm_mov_path)
     pm_json.set_media_file()
-    # duration_human is a formatted object that might fail to be created
     pm_json.media_file.duration_milli = 200
     pm_json.media_file.video_codec = 200
     with self.assertLogs('ami_md.ami_json', 'ERROR') as cm:
@@ -213,6 +211,16 @@ class TestAMIJSON(unittest.TestCase):
     expected_msg += 'Incorrect value for videoCodec. Expected: v210, Found: 200.'
     self.assertTrue(expected_msg in cm.output)
 
+  def test_validate_warn_date_disagreement(self):
+    # Dates are relatively unreliable, but at least useful to look out for
+    pm_json = aj.ami_json(filepath = pm_json_path,
+      media_filepath = pm_mov_path)
+    with self.assertLogs('ami_md.ami_json', 'WARN') as cm:
+      valid_md = pm_json.validate_json()
+    self.assertTrue(valid_md)
+    expected_msg = 'WARNING:ami_md.ami_json: dateCreated in JSON and from file disagree. '
+    expected_msg += 'JSON: 2016-09-14, From file: 1904-09-01'
+    self.assertTrue(expected_msg in cm.output)
 
 
 
