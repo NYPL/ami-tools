@@ -47,6 +47,14 @@ class TestAMIJSON(unittest.TestCase):
       media_filepath = pm_mov_path.replace('.mov', '.smooth'))
 
   def test_validate_valid_json(self):
+    pm_json = aj.ami_json(filepath = pm_json_path)
+    with self.assertLogs('ami_md.ami_json', 'WARN') as cm:
+      valid = pm_json.validate_json()
+    self.assertTrue(valid)
+    self.assertEqual(cm.output,
+      ['WARNING:ami_md.ami_json:Cannot check technical metadata values without location of the described media file.'])
+
+  def test_validate_valid_json_with_media_file(self):
     pm_json = aj.ami_json(filepath = pm_json_path,
       media_filepath = pm_mov_path)
     self.assertTrue(pm_json.validate_json())
@@ -161,13 +169,14 @@ class TestAMIJSON(unittest.TestCase):
     self.assertFalse(pm_json.validate_json())
     self.assertRaises(aj.AMIJSONError, pm_json.check_reffn)
 
-
   def test_validate_missing_techmd_field(self):
     pm_json = aj.ami_json(filepath = pm_json_path)
     pm_json.dict['technical'].pop('durationHuman', None)
     self.assertFalse(pm_json.validate_json())
     self.assertFalse(pm_json.valid_techmd_fields)
     self.assertRaises(aj.AMIJSONError, pm_json.check_techmd_fields)
+
+
 
 
 
