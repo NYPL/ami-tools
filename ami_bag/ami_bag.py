@@ -381,7 +381,10 @@ class ami_bag(update_bag.Repairable_Bag):
         bad_json = []
 
         for filename in self.metadata_files:
-            json = ami_json(filepath = os.path.join(self.path, filename))
+            json_filepath = os.path.join(self.path, filename)
+            json = ami_json(filepath = json_filepath)
+            ext = json.dict['technical']['extension']
+            json.set_mediafilepath(json_filepath.replace('json', ext))
             if not json.validate_json():
                 bad_json.append(filename)
 
