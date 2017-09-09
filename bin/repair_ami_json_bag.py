@@ -104,7 +104,7 @@ def repair_bag_techmd(bag, repairer, dryrun):
         json.set_mediafilepath(media_filepath)
 
         try:
-            json.check_techmd()
+            json.check_techmd_values()
         except:
             json.repair_techmd()
             updated_json.append(json.filename)
