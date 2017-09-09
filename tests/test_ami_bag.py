@@ -134,7 +134,7 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
     pm_path = os.path.join(self.tmpdir,
       'PreservationMasters/myd_263524_v01_pm.mov')
     new_pm_path = pm_path.replace('_263524_', '_263523_')
-    shutil.move(pm_path, new_pm_path)
+    shutil.copy(pm_path, new_pm_path)
     bagit.make_bag(self.tmpdir)
     bag = ami_bag.ami_bag(path = self.tmpdir)
     self.assertRaises(ami_bag.ami_BagError,

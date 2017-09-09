@@ -6,7 +6,7 @@ import bagit
 # ami modules
 import ami_bag.ami_bag_constants as ami_bag_constants
 from ami_md.ami_excel import ami_excel
-from ami_md.ami_json import ami_json
+import ami_md.ami_json as aj
 
 
 LOGGER = logging.getLogger(__name__)
@@ -364,7 +364,7 @@ class ami_bag(update_bag.Repairable_Bag):
         self.media_files_md = []
 
         for filename in self.metadata_files:
-            json = ami_json(filepath = os.path.join(self.path, filename))
+            json = aj.ami_json(filepath = os.path.join(self.path, filename))
             filename = json.dict["technical"]["filename"]
             ext = json.dict["technical"]["extension"]
             self.media_files_md.append(filename + '.' + ext)
@@ -381,8 +381,13 @@ class ami_bag(update_bag.Repairable_Bag):
         bad_json = []
 
         for filename in self.metadata_files:
-            json = ami_json(filepath = os.path.join(self.path, filename))
-            if not json.validate_json():
+            json_filepath = os.path.join(self.path, filename)
+            json = aj.ami_json(filepath = json_filepath)
+            ext = json.dict['technical']['extension']
+            json.set_mediafilepath(json_filepath.replace('json', ext))
+            try:
+                json.validate_json()
+            except:
                 bad_json.append(filename)
 
         if bad_json:

@@ -84,6 +84,7 @@ class ami_json:
 
   def set_mediafilepath(self, media_filepath = None):
     if not media_filepath:
+      LOGGER.info('Attempting to locate media file based on JSON file location.')
       if hasattr(self, "path"):
         try:
           self.check_reffn()
@@ -186,6 +187,12 @@ class ami_json:
       LOGGER.error("Error in JSON metadata: {0}".format(e.message))
       valid = False
 
+    try:
+      self.check_techmd_fields()
+    except AMIJSONError as e:
+      LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+      valid = False
+
     if hasattr(self, 'media_filepath'):
       try:
         self.compare_techfn_media_filename()
@@ -193,19 +200,13 @@ class ami_json:
         LOGGER.error("Error in JSON metadata: {0}".format(e.message))
         valid = False
 
-    try:
-      self.check_techmd_fields()
-    except AMIJSONError as e:
-      LOGGER.error("Error in JSON metadata: {0}".format(e.message))
-      valid = False
-
-    '''
-    try:
-      self.check_techmd_values()
-    except AMIJSONError as e:
-      LOGGER.error("Error in JSON metadata: {0}".format(e.message))
-      valid = False
-    '''
+      try:
+        self.check_techmd_values()
+      except AMIJSONError as e:
+        LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+        valid = False
+    else:
+      LOGGER.warning('Cannot check technical metadata values against media file without location of the described media file.')
 
     return valid
 
@@ -247,11 +248,15 @@ class ami_json:
     elif self.media_format_type == "video":
       field_mapping = ami_md_constants.JSON_TO_VIDEO_FILE_MAPPING
 
+    errors = []
     for key, value in field_mapping.items():
       try:
         self.check_md_value(key, value)
       except AMIJSONError as e:
-        self.raise_jsonerror(e)
+        errors.append(e.message)
+
+    if errors:
+      self.raise_jsonerror(' '.join(errors))
 
     return True
 
@@ -260,25 +265,27 @@ class ami_json:
     try:
       file_value = getattr(self.media_file, mapped_field)
     except AttributeError:
-      if 'date' not in mapped_field:
-        self.raise_jsonerror("File does not have expected attribute {}".format(
-          mapped_field
-        ))
-      else:
-        return True
+      self.raise_jsonerror("File does not have expected attribute: {}".format(
+        mapped_field
+      ))
 
     md_value = self.dict["technical"]
-    if '.' in field:
-      field_parts = field.split('.')
+    if separator in field:
+      field_parts = field.split(separator)
       for part in field_parts:
         md_value = md_value[part]
     else:
       md_value = md_value[field]
 
     if md_value != file_value:
-      self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}".format(
-        field, md_value, file_value
-      ))
+      if field == 'dateCreated':
+        LOGGER.warning('{0} in JSON and from file disagree. JSON: {1}, From file: {2}.'.format(
+          field, md_value, file_value
+        ))
+      else:
+        self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}.".format(
+          field, md_value, file_value
+        ))
 
     return True
 

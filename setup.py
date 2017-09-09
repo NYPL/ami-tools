@@ -11,7 +11,6 @@ description = \
 This package can be used to work with NYPL AMI packages.
 """
 
-# for older pythons ...
 requirements = [
     "argparse",
     "bagit>=1.6.0b8",
@@ -19,7 +18,8 @@ requirements = [
     "tqdm",
     "xlrd",
     "openpyxl",
-    "pymediainfo"
+    "pymediainfo",
+    "python-dateutil"
 ]
 
 

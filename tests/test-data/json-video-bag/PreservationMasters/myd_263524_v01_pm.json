@@ -29,10 +29,10 @@
 			"unit": "B"
 		},
 		"durationMilli": {
-			"measure": 200,
+			"measure": 201,
 			"unit": "ms"
 		},
-		"durationHuman": "00:00:00.200",
+		"durationHuman": "00:00:00.201",
 		"signalNotes": "9/13/2016 JVo: 'Play' on screen at beginning "
 	},
 	"source": {
