@@ -11,37 +11,16 @@ description = \
 This package can be used to work with NYPL AMI packages.
 """
 
-# for older pythons ...
-requirements = []
-try:
-    import argparse
-except:
-    requirements.append("argparse")
-try:
-    import bagit
-except:
-    requirements.append("bagit")
-try:
-    import pandas
-except:
-    requirements.append("pandas")
-try:
-    import tqdm
-except:
-    requirements.append("tqdm")
-try:
-    import xlrd
-except:
-    requirements.append("xlrd")
-try:
-    import openpyxl
-except:
-    requirements.append("openpyxl")
-try:
-    import pymediainfo
-except:
-    requirements.append("pymediainfo")
-
+requirements = [
+    "argparse",
+    "bagit>=1.6.0b8",
+    "pandas",
+    "tqdm",
+    "xlrd",
+    "openpyxl",
+    "pymediainfo",
+    "python-dateutil"
+]
 
 
 setup(
@@ -58,12 +37,12 @@ setup(
                'bin/validate_ami_bags.py',
                'bin/validate_ami_excel.py',
                'bin/validate_bags.py',
-               'ami_bag/bagit.py',
                'bin/survey_drive.py',
                'bin/repair_ami_json_bag.py',
                'bin/convert_excelbag_to_jsonbag.py'],
     platforms = ['POSIX'],
     install_requires = requirements,
+    dependency_links = ['https://github.com/LibraryOfCongress/bagit-python/tarball/master#egg=bagit-1.6.0b8'],
     classifiers = [
         'Programming Language :: Python :: 3.1',
         'Programming Language :: Python :: 3.2',
