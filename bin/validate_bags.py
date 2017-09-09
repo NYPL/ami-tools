@@ -2,7 +2,7 @@ import os
 import argparse
 from tqdm import tqdm
 import logging
-from ami_bag.bagit import Bag
+from bagit import Bag
 
 
 LOGGER = logging.getLogger(__name__)
