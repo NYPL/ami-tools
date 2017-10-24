@@ -3,6 +3,7 @@ import os, json, re, logging
 # data manipulation
 from pandas.tslib import Timestamp
 import numpy as np
+import pandas as pd
 
 # ami modules
 import ami_files.ami_file as ami_file
@@ -56,6 +57,8 @@ class ami_json:
           flat_dict["asset.schemaVersion"] = schema_version
       for key, value in flat_dict.items():
         if value:
+          if pd.isnull(value):
+            continue
           if type(value) == Timestamp:
             value = value.strftime('%Y-%m-%d')
           if isinstance(value, np.generic):
