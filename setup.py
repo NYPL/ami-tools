@@ -38,6 +38,7 @@ setup(
                'bin/validate_ami_excel.py',
                'bin/validate_bags.py',
                'bin/survey_drive.py',
+               'bin/pamidb_to_json.py',
                'bin/repair_ami_json_bag.py',
                'bin/convert_excelbag_to_jsonbag.py'],
     platforms = ['POSIX'],
