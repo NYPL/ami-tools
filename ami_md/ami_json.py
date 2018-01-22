@@ -416,9 +416,18 @@ class ami_json:
     else:
       json_directory = output_directory
 
+    if ('technical' in self.dict.keys() and
+      'filename' in self.dict['technical'].keys()):
+      filename = self.dict['technical']['filename']
+    elif ('asset' in self.dict.keys() and
+      'referenceFilename' in self.dict['asset'].keys()):
+      filename = self.dict['asset']['referenceFilename'].split('.')[0]
+    else:
+      self.raise_jsonerror('Metadata requires asset.referenceFilename or technical.filename to be saved.')
+
     json_filename = "{0}/{1}.json".format(
       json_directory,
-      self.dict['technical']['filename'])
+      filename)
 
     with open(json_filename, 'w') as f:
       json.dump(self.dict, f)
