@@ -2,6 +2,13 @@ import os, argparse
 import pandas as pd
 import ami_md.ami_json as aj
 
+dtypes = {
+	'digitizationProcess.analogDigitalConverter.serialNumber': object,
+	'digitizationProcess.captureSoftware.version': object,
+	'digitizationProcess.playbackDevice.serialNumber': object,
+	'digitizationProcess.timeBaseCorrector.serialNumber': object
+}
+
 
 def _make_parser():
 	parser = argparse.ArgumentParser()
@@ -22,8 +29,8 @@ def main():
 	parser = _make_parser()
 	args = parser.parse_args()
 
-	md = pd.read_csv(args.input)
-	md = md.dropna(axis = 1, how = "all").astype(object)
+	md = pd.read_csv(args.input, dtype = dtypes)
+	md = md.dropna(axis = 1, how = "all")
 	md = md.drop(['asset.fileExt'], axis = 1)
 
 	json_directory = os.path.abspath(args.output)
