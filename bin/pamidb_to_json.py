@@ -1,4 +1,4 @@
-import os, argparser
+import os, argparse
 import pandas as pd
 import ami_md.ami_json as aj
 
@@ -6,7 +6,7 @@ import ami_md.ami_json as aj
 def _make_parser():
 	parser = argparse.ArgumentParser()
 	parser.description = "convert a PAMIdb merge export to JSON records"
-	parser.add_argument("-i", "--mer", "--input",
+	parser.add_argument("-i", "--input",
 		help = "path to a PAMIdb merge export",
 		required = True)
 	parser.add_argument("-o", "--output",
@@ -20,7 +20,7 @@ def _make_parser():
 
 def main():
 	parser = _make_parser()
-		args = parser.parse_args()
+	args = parser.parse_args()
 
 	md = pd.read_csv(args.input)
 	md = md.dropna(axis = 1, how = "all").astype(object)
