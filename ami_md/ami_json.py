@@ -410,7 +410,7 @@ class ami_json:
     return True
 
 
-  def write_json(self, output_directory):
+  def write_json(self, output_directory, indent = None):
     if not os.path.exists(output_directory):
       self.raise_jsonerror('output directory does not exist')
     else:
@@ -430,7 +430,7 @@ class ami_json:
       filename)
 
     with open(json_filename, 'w') as f:
-      json.dump(self.dict, f)
+      json.dump(self.dict, f, indent = indent)
       LOGGER.info("{} written".format(json_filename))
 
 

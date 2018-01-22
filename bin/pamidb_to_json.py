@@ -31,7 +31,7 @@ def main():
 	for (index, row) in md.iterrows():
 		json_tree = aj.ami_json(flat_dict = row.to_dict(),
 			schema_version = args.schema)
-		json_tree.write_json(json_directory)
+		json_tree.write_json(json_directory, indent = 4)
 
 
 if __name__ == "__main__":
