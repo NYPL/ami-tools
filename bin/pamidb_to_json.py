@@ -6,7 +6,8 @@ dtypes = {
 	'digitizationProcess.analogDigitalConverter.serialNumber': object,
 	'digitizationProcess.captureSoftware.version': object,
 	'digitizationProcess.playbackDevice.serialNumber': object,
-	'digitizationProcess.timeBaseCorrector.serialNumber': object
+	'digitizationProcess.timeBaseCorrector.serialNumber': object,
+	'digitizationProcess.phonoPreamp.serialNumber': object
 }
 
 
