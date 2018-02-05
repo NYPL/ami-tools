@@ -12,9 +12,6 @@ import ami_md.ami_json as aj
 LOGGER = logging.getLogger(__name__)
 
 class ami_bagError(Exception):
-    pass
-
-class ami_bagError(ami_bagError):
     def __init__(self, message):
         self.message = message
     def __str__(self):
