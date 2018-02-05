@@ -11,10 +11,10 @@ import ami_md.ami_json as aj
 
 LOGGER = logging.getLogger(__name__)
 
-class ami_BagError(Exception):
+class ami_bagError(Exception):
     pass
 
-class ami_bagValidationError(ami_BagError):
+class ami_bagError(ami_bagError):
     def __init__(self, message):
         self.message = message
     def __str__(self):
@@ -28,19 +28,19 @@ class ami_bag(update_bag.Repairable_Bag):
         try:
             self.validate(completeness_only = True)
         except bagit.BagValidationError as e:
-            raise ami_BagError("Unable to load bag, oxum or manifest is invalid")
+            raise ami_bagError("Unable to load bag, oxum or manifest is invalid")
 
         self.data_files = set(self.payload_entries().keys())
         self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
 
         self.data_dirs = set([os.path.split(path)[0][5:] for path in self.data_files])
         if "PreservationMasters" not in self.data_dirs:
-            raise ami_BagError("Payload does not contain a PreservationMasters directory")
+            raise ami_bagError("Payload does not contain a PreservationMasters directory")
 
         self.media_filepaths = set([os.path.join(self.path, path) for
             path in self.data_files if any(path.lower().endswith(ext) for ext in ami_bag_constants.MEDIA_EXTS)])
         if not self.media_filepaths:
-            raise ami_BagError("Payload does not contain files with accepted extensions: {}".format(
+            raise ami_bagError("Payload does not contain files with accepted extensions: {}".format(
                 ami_bag_constants.MEDIA_EXTS
             ))
 
@@ -69,79 +69,79 @@ class ami_bag(update_bag.Repairable_Bag):
         try:
             self.validate(fast = fast, completeness_only = fast)
         except bagit.BagValidationError as e:
-            LOGGER.warning("Error in bag: {0}".format(e.message))
+            LOGGER.error("Error in bag: {0}".format(e.message))
             valid = False
 
         try:
             self.check_filenames()
-        except ami_bagValidationError as e:
+        except ami_bagError as e:
             LOGGER.warning("Error in filenames: {0}".format(e.message))
             valid = False
 
         try:
             self.check_simple_filenames()
-        except ami_bagValidationError as e:
+        except ami_bagError as e:
             LOGGER.warning("Error in filenames: {0}".format(e.message))
             valid = False
 
         try:
             self.check_directory_depth()
-        except ami_bagValidationError as e:
-            LOGGER.error("Error in path names: {0}".format(e.message))
+        except ami_bagError as e:
+            LOGGER.warning("Error in path names: {0}".format(e.message))
             valid = False
 
         try:
             self.check_type()
-        except ami_bagValidationError as e:
-            LOGGER.error("Error in AMI bag type: {0}".format(e.message))
+        except ami_bagError as e:
+            LOGGER.warning("Error in AMI bag type: {0}".format(e.message))
             valid = False
 
         if self.type == "excel":
             try:
                 self.check_bagstructure_excel()
-            except ami_bagValidationError as e:
-                LOGGER.error("Error in bag structure: {0}".format(e.message))
+            except ami_bagError as e:
+                LOGGER.warning("Error in bag structure: {0}".format(e.message))
                 valid = False
 
             if metadata:
                 try:
                     self.check_metadata_excel()
-                except ami_bagValidationError as e:
-                    LOGGER.error("Error in bag metadata: {0}".format(e.message))
+                except ami_bagError as e:
+                    LOGGER.warning("Error in bag metadata: {0}".format(e.message))
                     valid = False
 
                 try:
                     self.check_filenames_manifest_and_metadata_excel()
-                except ami_bagValidationError as e:
-                    LOGGER.error("Error in bag metadata: {0}".format(e.message))
+                except ami_bagError as e:
+                    LOGGER.warning("Error in bag metadata: {0}".format(e.message))
                     valid = False
 
         else:
             if self.type == "json":
                 try:
                     self.check_bagstructure_json()
-                except ami_bagValidationError as e:
-                    LOGGER.error("Error in AMI bag type: {0}".format(e.message))
+                except ami_bagError as e:
+                    LOGGER.warning("Error in bag structure: {0}".format(e.message))
                     valid = False
 
             elif self.type == "excel-json":
                 try:
                     self.check_bagstructure_exceljson()
-                except ami_bagValidationError as e:
-                    LOGGER.error("Error in AMI bag type: {0}".format(e.message))
+                except ami_bagError as e:
+                    LOGGER.warning("Error in bag structure: {0}".format(e.message))
                     valid = False
 
             if metadata:
                 try:
                     self.check_metadata_json()
-                except ami_bagValidationError as e:
-                    LOGGER.error("Error in bag metadata: {0}".format(e.message))
+                except ami_bagError as e:
+                    LOGGER.warning("Error in bag metadata: {0}".format(e.message))
                     valid = False
 
                 try:
                     self.check_filenames_manifest_and_metadata_json()
-                except ami_bagValidationError as e:
-                    LOGGER.error("Error in bag metadata: {0}".format(e.message))
+                except ami_bagError as e:
+                    LOGGER.warning("Error in bag metadata: {0}".format(e.message))
                     valid = False
 
         return valid
@@ -156,7 +156,7 @@ class ami_bag(update_bag.Repairable_Bag):
                 bad_filenames.append(filename)
 
         if bad_filenames:
-            self.raise_bagerror("Non-standard filenames for the following: {}".format(bad_filenames))
+            raise ami_bagError("Non-standard filenames for the following: {}".format(bad_filenames))
 
         return True
 
@@ -170,7 +170,7 @@ class ami_bag(update_bag.Repairable_Bag):
                 complex_filenames.append(filename)
 
         if complex_filenames:
-            self.raise_bagerror("Complex digitized objects represented by: {}".format(complex_filenames))
+            raise ami_bagError("Complex digitized objects represented by: {}".format(complex_filenames))
 
         return True
 
@@ -183,7 +183,7 @@ class ami_bag(update_bag.Repairable_Bag):
                 bad_dirs.append(dir_path)
 
         if bad_dirs:
-            self.raise_bagerror("Too many levels of directories in data/: {}".format(bad_dirs))
+            raise ami_bagError("Too many levels of directories in data/: {}".format(bad_dirs))
 
         return True
 
@@ -200,14 +200,14 @@ class ami_bag(update_bag.Repairable_Bag):
                 self.type = "json"
 
         if not self.type:
-            raise ami_BagError("AMI bag must contain either Excel or JSON metadata")
+            raise ami_bagError("AMI bag must contain either Excel or JSON metadata")
 
         return True
 
 
     def check_type(self):
         if not self.type:
-            raise ami_BagError("Bag is not an Excel bag or JSON bag")
+            raise ami_bagError("Bag is not an Excel bag or JSON bag")
 
         return True
 
@@ -252,10 +252,10 @@ class ami_bag(update_bag.Repairable_Bag):
     def check_bagstructure_excel(self):
         expected_dirs = set(["Metadata", "PreservationMasters", "EditMasters", "ArchiveOriginals", "ProjectFiles"])
         if not self.compare_structure(expected_dirs):
-            self.raise_bagerror("AMI Excel bags may only have the following directories\nFound: {0}\nExpected: {1}".format(self.data_dirs, expected_dirs))
+            raise ami_bagError("AMI Excel bags may only have the following directories\nFound: {0}\nExpected: {1}".format(self.data_dirs, expected_dirs))
 
         if not self.subtype:
-            self.raise_bagerror("Bag does not match an existing profile for AMI Excel bags\nExtensions Found: {0}\nDirectories Found: {1}".format(self.data_exts, self.data_dirs))
+            raise ami_bagError("Bag does not match an existing profile for AMI Excel bags\nExtensions Found: {0}\nDirectories Found: {1}".format(self.data_exts, self.data_dirs))
 
         return True
 
@@ -277,10 +277,10 @@ class ami_bag(update_bag.Repairable_Bag):
         expected_dirs = set(["PreservationMasters", "ServiceCopies", "EditMasters", "Images"])
 
         if not self.compare_structure(expected_dirs):
-            self.raise_bagerror("JSON bags may only have the following directories - {}".format(expected_dirs))
+            raise ami_bagError("JSON bags may only have the following directories - {}".format(expected_dirs))
 
         if not self.subtype:
-            self.raise_bagerror("Bag does not match an existing profile for JSON bags\nExtensions Found: {0}\nDirectories Found: {1}".format(self.data_exts, self.data_dirs))
+            raise ami_bagError("Bag does not match an existing profile for JSON bags\nExtensions Found: {0}\nDirectories Found: {1}".format(self.data_exts, self.data_dirs))
 
         return True
 
@@ -302,10 +302,10 @@ class ami_bag(update_bag.Repairable_Bag):
         expected_dirs = set(["Metadata", "PreservationMasters", "ServiceCopies", "EditMasters", "ArchiveOriginals"])
 
         if not self.compare_structure(expected_dirs):
-            self.raise_bagerror("Excel JSON bags may only have the following directories - {}".format(expected_dirs))
+            raise ami_bagError("Excel JSON bags may only have the following directories - {}".format(expected_dirs))
 
         if not self.subtype:
-            self.raise_bagerror("Bag does not match an existing profile for Excel JSON bags\nExtensions Found: {0}\nDirectories Found: {1}".format(self.data_exts, self.data_dirs))
+            raise ami_bagError("Bag does not match an existing profile for Excel JSON bags\nExtensions Found: {0}\nDirectories Found: {1}".format(self.data_exts, self.data_dirs))
 
         return True
 
@@ -334,7 +334,7 @@ class ami_bag(update_bag.Repairable_Bag):
 
     def check_metadata_excel(self):
         if not self.metadata_files:
-            self.raise_bagerror("Excel bag does not contain any files with xlsx extension")
+            raise ami_bagError("Excel bag does not contain any files with xlsx extension")
 
         bad_excel = []
 
@@ -344,7 +344,7 @@ class ami_bag(update_bag.Repairable_Bag):
                 bad_excel.append(filename)
 
         if bad_excel:
-            self.raise_bagerror("Excel files contain formatting errors")
+            raise ami_bagError("Excel files contain formatting errors")
 
         return True
 
@@ -352,7 +352,7 @@ class ami_bag(update_bag.Repairable_Bag):
     def check_filenames_manifest_and_metadata_excel(self):
         media_files_basenames = set([os.path.splitext(os.path.basename(path))[0] for path in self.media_filepaths])
         if not self.media_files_md >= media_files_basenames:
-            self.raise_bagerror("Filenames in Excel do not match filenames in manifest. Missing: {}".format(
+            raise ami_bagError("Filenames in Excel do not match filenames in manifest. Missing: {}".format(
                 media_files_basenames - self.media_files_md
             ))
         return True
@@ -376,7 +376,7 @@ class ami_bag(update_bag.Repairable_Bag):
 
     def check_metadata_json(self):
         if not self.metadata_files:
-            self.raise_bagerror("JSON bag does not contain any files with json extension")
+            raise ami_bagError("JSON bag does not contain any files with json extension")
 
         bad_json = []
 
@@ -391,7 +391,7 @@ class ami_bag(update_bag.Repairable_Bag):
                 bad_json.append(filename)
 
         if bad_json:
-            self.raise_bagerror("JSON files contain formatting errors")
+            raise ami_bagError("JSON files contain formatting errors")
 
         return True
 
@@ -399,7 +399,7 @@ class ami_bag(update_bag.Repairable_Bag):
     def check_filenames_manifest_and_metadata_json(self):
         media_files_basenames = set([os.path.basename(path) for path in self.media_filepaths])
         if not self.media_files_md == media_files_basenames:
-            self.raise_bagerror("Filenames in JSON do not match filenames in manifest.\nMissing from JSON: {}".format(
+            raise ami_bagError("Filenames in JSON do not match filenames in manifest.\nMissing from JSON: {}".format(
                 media_files_basenames - self.media_files_md
             ))
         return True
@@ -426,15 +426,6 @@ class ami_bag(update_bag.Repairable_Bag):
             pm_filepaths = [x + ".json" for x in self.media_filepaths if pm_path in x]
             excel.pres_sheet.convert_amiExcelToJSON(pm_path, filepaths = pm_filepaths)
 
-
-    def raise_bagerror(self, msg):
-        '''
-        lazy error reporting
-        '''
-        LOGGER.error(msg)
-        raise ami_bagValidationError(msg)
-
-        return False
 
 
 

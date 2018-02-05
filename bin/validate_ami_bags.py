@@ -32,7 +32,7 @@ def _make_parser():
     parser.add_argument("--metadata", action='store_true',
                         help = "Validate Excel metadata files")
     parser.add_argument('--log', help='The name of the log file')
-    parser.add_argument('--quiet', action='store_true')
+    parser.add_argument('-q', '--quiet', action='store_true')
     return parser
 
 
@@ -74,17 +74,20 @@ def main():
             bag = ami_bag(path = bagpath)
         except Exception as e:
             LOGGER.error("Following error encountered while loading {}: {}".format(bagpath, e))
+            invalid_bags.append(os.path.basename(bagpath))
         else:
             if bag.validate_amibag(fast = args.slow, metadata = args.metadata):
                 LOGGER.info("Valid {} {} bag: {}".format(bag.type, bag.subtype, bagpath))
                 valid_bags.append(os.path.basename(bagpath))
             else:
-                LOGGER.error("Invalid bag: {}".format(bagpath))
+                LOGGER.warn("Invalid bag: {}".format(bagpath))
                 invalid_bags.append(os.path.basename(bagpath))
 
     if invalid_bags:
+        LOGGER.warn("{} of {} bags are not ready for ingest".format(len(invalid_bags), len(bags)))
         LOGGER.info("The following bags are not ready for media ingest: {}".format(", ".join(invalid_bags)))
     if valid_bags:
+        LOGGER.warn("{} of {} bags are ready for ingest".format(len(valid_bags), len(bags)))
         LOGGER.info("The following bags are ready for media ingest: {}".format(", ".join(valid_bags)))
 
 
