@@ -7,7 +7,8 @@ dtypes = {
 	'digitizationProcess.captureSoftware.version': object,
 	'digitizationProcess.playbackDevice.serialNumber': object,
 	'digitizationProcess.timeBaseCorrector.serialNumber': object,
-	'digitizationProcess.phonoPreamp.serialNumber': object
+	'digitizationProcess.phonoPreamp.serialNumber': object,
+	'physicalDescription.properties.stockProductID': object
 }
 
 
