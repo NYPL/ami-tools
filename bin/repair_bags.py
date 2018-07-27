@@ -27,6 +27,9 @@ def _make_parser():
     parser.add_argument("-b", "--bagpath",
                         default = None,
                         help = "Path to the base directory of the bag")
+    parser.add_argument("-a", "--agent",
+    				    default = None,
+    				    help = "Name of person repairing the bag")
     parser.add_argument('--addfiles', help='Add files not in manifest to the manifest',
                         action='store_true')
     parser.add_argument('--deletefiles', help='Delete files not in manifest from the manifest',
@@ -63,7 +66,7 @@ def main():
     for bagpath in tqdm(bags):
         LOGGER.info("Checking: {}".format(bagpath))
         try:
-            bag = Repairable_Bag(bagpath)
+            bag = Repairable_Bag(path = bagpath, repairer = args.agent)
         except:
             LOGGER.error("{}: Not a bag".format(bagpath))
         else:
