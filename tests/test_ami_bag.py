@@ -48,14 +48,14 @@ class TestNotAnAMIBag(SelfCleaningTestCase):
     bagit.make_bag(self.tmpdir)
     pres_dir = os.path.join(self.tmpdir, 'data/PreservationMasters')
     shutil.rmtree(pres_dir)
-    self.assertRaises(ami_bag.ami_BagError, ami_bag.ami_bag,
+    self.assertRaises(ami_bag.ami_bagError, ami_bag.ami_bag,
       path = self.tmpdir)
 
   def test_no_presmasters(self):
     pres_dir = os.path.join(self.tmpdir, 'PreservationMasters')
     shutil.rmtree(pres_dir)
     bagit.make_bag(self.tmpdir)
-    self.assertRaises(ami_bag.ami_BagError, ami_bag.ami_bag,
+    self.assertRaises(ami_bag.ami_bagError, ami_bag.ami_bag,
       path = self.tmpdir)
 
   def test_no_mediafiles(self):
@@ -63,7 +63,7 @@ class TestNotAnAMIBag(SelfCleaningTestCase):
       for filename in glob.glob(self.tmpdir + "/**/*" + ext):
         os.remove(filename)
     bagit.make_bag(self.tmpdir)
-    self.assertRaises(ami_bag.ami_BagError, ami_bag.ami_bag,
+    self.assertRaises(ami_bag.ami_bagError, ami_bag.ami_bag,
       path = self.tmpdir)
 
   def test_no_metadata(self):
@@ -71,7 +71,7 @@ class TestNotAnAMIBag(SelfCleaningTestCase):
       for filename in glob.glob(self.tmpdir + "/**/*" + ext):
         os.remove(filename)
     bagit.make_bag(self.tmpdir)
-    self.assertRaises(ami_bag.ami_BagError, ami_bag.ami_bag,
+    self.assertRaises(ami_bag.ami_bagError, ami_bag.ami_bag,
       path = self.tmpdir)
 
 
@@ -106,7 +106,7 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
     os.rename(pm, new_pm)
     bagit.make_bag(self.tmpdir)
     bag = ami_bag.ami_bag(path = self.tmpdir)
-    self.assertRaises(ami_bag.ami_BagError, bag.check_filenames)
+    self.assertRaises(ami_bag.ami_bagError, bag.check_filenames)
     self.assertFalse(bag.validate_amibag())
 
   def test_complex_subobject(self):
@@ -116,7 +116,7 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
     os.rename(pm, new_pm)
     bagit.make_bag(self.tmpdir)
     bag = ami_bag.ami_bag(path = self.tmpdir)
-    self.assertRaises(ami_bag.ami_BagError, bag.check_simple_filenames)
+    self.assertRaises(ami_bag.ami_bagError, bag.check_simple_filenames)
     self.assertFalse(bag.validate_amibag())
 
   def test_deepdirectories(self):
@@ -127,7 +127,7 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
     shutil.move(pm_json, pm_json.replace('/myd', '/new_dir/myd'))
     bagit.make_bag(self.tmpdir)
     bag = ami_bag.ami_bag(path = self.tmpdir)
-    self.assertRaises(ami_bag.ami_BagError, bag.check_directory_depth)
+    self.assertRaises(ami_bag.ami_bagError, bag.check_directory_depth)
     self.assertFalse(bag.validate_amibag())
 
   def test_metadata_filename_mismatch(self):
@@ -137,7 +137,7 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
     shutil.copy(pm_path, new_pm_path)
     bagit.make_bag(self.tmpdir)
     bag = ami_bag.ami_bag(path = self.tmpdir)
-    self.assertRaises(ami_bag.ami_BagError,
+    self.assertRaises(ami_bag.ami_bagError,
         bag.check_filenames_manifest_and_metadata_json)
     self.assertFalse(bag.validate_amibag(metadata = True))
 
@@ -151,7 +151,7 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
       json.dump(json_data, f, ensure_ascii=False)
     bagit.make_bag(self.tmpdir)
     bag = ami_bag.ami_bag(path = self.tmpdir)
-    self.assertRaises(ami_bag.ami_BagError,
+    self.assertRaises(ami_bag.ami_bagError,
       bag.check_metadata_json)
     self.assertFalse(bag.validate_amibag(metadata = True))
 
