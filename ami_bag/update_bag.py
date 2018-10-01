@@ -121,7 +121,7 @@ class Repairable_Bag(bagit.Bag):
 
     today = datetime.datetime.strftime(
       datetime.datetime.now(), "%Y%m%d%H%M%S")
-    for alg in set(self.algs):
+    for alg in set(self.algorithms):
       manifest_path = os.path.join(self.path, 'manifest-{}.txt'.format(alg))
       copy_manifest_path = os.path.join(self.path, 'manifest-{}-{}.old'.format(alg, today))
       try:
@@ -153,7 +153,7 @@ class Repairable_Bag(bagit.Bag):
 
 
   def write_tag_manifests(self):
-    for alg in set(self.algs):
+    for alg in set(self.algorithms):
       try:
         bagit._make_tagmanifest_file(alg, self.path)
       except:
@@ -189,7 +189,7 @@ class Repairable_Bag(bagit.Bag):
     add new hashes for each new files
     """
     new_hashes = {}
-    results = bagit.generate_manifest_lines(payload_file, self.algs)
+    results = bagit.generate_manifest_lines(payload_file, self.algorithms)
 
     for line in results:
         new_hashes[line[0]] = line[1]

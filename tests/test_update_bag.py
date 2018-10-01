@@ -35,7 +35,7 @@ class TestSingleProcessValidation(unittest.TestCase):
     return bag.validate(*args, **kwargs)
 
   def test_load_bagmake_bag_sha1_sha256_manifest(self):
-    bagit.make_bag(self.tmpdir, checksum=['sha1', 'sha256'])
+    bagit.make_bag(self.tmpdir, checksums=['sha1', 'sha256'])
     bag = update_bag.Repairable_Bag(path = self.tmpdir)
     # check that relevant manifests are created
     self.assertTrue(os.path.isfile(j(self.tmpdir, 'manifest-sha1.txt')))
@@ -72,7 +72,7 @@ class TestSingleProcessValidation(unittest.TestCase):
     self.assertTrue(self.validate(updated_bag))
 
   def test_add_payload_file_not_in_multiple_manifests(self):
-    bagit.make_bag(self.tmpdir, checksum=['sha1', 'sha256'])
+    bagit.make_bag(self.tmpdir, checksums=['sha1', 'sha256'])
     bag = update_bag.Repairable_Bag(path = self.tmpdir)
     f = j(self.tmpdir, "data/._.SYSTEMFILE.db\r")
     with open(f, 'w') as r:
@@ -82,7 +82,7 @@ class TestSingleProcessValidation(unittest.TestCase):
     self.assertTrue(self.validate(updated_bag))
 
   def test_update_hashes(self):
-    bagit.make_bag(self.tmpdir, checksum=['sha1', 'sha256'])
+    bagit.make_bag(self.tmpdir, checksums=['sha1', 'sha256'])
     bag = update_bag.Repairable_Bag(path = self.tmpdir)
     f = j(self.tmpdir, "data/hello.txt")
     with open(f, 'w') as r:
@@ -92,7 +92,7 @@ class TestSingleProcessValidation(unittest.TestCase):
     self.assertTrue(self.validate(updated_bag))
 
   def test_update_hashes_with_no_filter_match(self):
-    bagit.make_bag(self.tmpdir, checksum=['sha1'])
+    bagit.make_bag(self.tmpdir, checksums=['sha1'])
     bag = update_bag.Repairable_Bag(path = self.tmpdir)
     f = j(self.tmpdir, "data/hello.txt")
     with open(f, 'w') as r:
@@ -103,7 +103,7 @@ class TestSingleProcessValidation(unittest.TestCase):
     self.assertRaises(bagit.BagValidationError, updated_bag.validate, fast=False)
 
   def test_update_hashes_with_filter_match(self):
-    bagit.make_bag(self.tmpdir, checksum=['sha1'])
+    bagit.make_bag(self.tmpdir, checksums=['sha1'])
     bag = update_bag.Repairable_Bag(path = self.tmpdir)
     f = j(self.tmpdir, "data/hello.txt")
     with open(f, 'w') as r:
