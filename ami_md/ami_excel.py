@@ -100,7 +100,7 @@ class ami_excelsheet:
     self.normalized_header_entries = self.get_normalizedHeaderEntries()
 
     self.sheet_values = pd.read_excel(self.path,
-      sheetname = self.name, skiprows = 2,
+      sheet_name = self.name, skiprows = 2,
       na_values = ami_md_constants.NAS)
     self.sheet_values.columns = self.normalized_header_entries
 
@@ -512,7 +512,7 @@ class ami_pressheet(ami_excelsheet):
     sheet -- sheet object from workbook
     """
     wb_open = load_workbook(self.path, read_only = True)
-    sheet = wb_open.get_sheet_by_name(self.name)
+    sheet = wb_open[self.name]
 
     for i in range(1, len(self.header_entries)):
       for j in range(1,5):
