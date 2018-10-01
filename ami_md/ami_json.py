@@ -1,7 +1,6 @@
 import os, json, re, logging
 
 # data manipulation
-from pandas.tslib import Timestamp
 import numpy as np
 import pandas as pd
 
@@ -59,7 +58,7 @@ class ami_json:
         if value:
           if pd.isnull(value):
             continue
-          if type(value) == Timestamp:
+          if type(value) == pd.Timestamp:
             value = value.strftime('%Y-%m-%d')
           if isinstance(value, np.generic):
             value = np.asscalar(value)
