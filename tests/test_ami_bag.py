@@ -256,7 +256,6 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
 
 		for path in set(changed_files):
 			stub = os.path.basename(path).rsplit('_', 1)[0]
-			print(stub)
 			self.assertTrue(stub in cm.output[0])
 
 		self.assertFalse(valid_bag)
