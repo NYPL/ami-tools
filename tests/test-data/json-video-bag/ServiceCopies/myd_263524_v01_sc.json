@@ -20,19 +20,19 @@
 	"technical": {
 		"filename": "myd_263524_v01_sc",
 		"extension": "mp4",
-		"dateCreated": "2016-09-14",
+		"dateCreated": "2018-04-29",
 		"fileFormat": "MPEG-4",
-		"audioCodec": "AAC",
-		"videoCodec": "avc1",
+		"audioCodec": "AAC LC",
+		"videoCodec": "AVC",
 		"fileSize": {
 			"measure": 837434,
 			"unit": "B"
 		},
 		"durationMilli": {
-			"measure": 5000,
+			"measure": 4992,
 			"unit": "ms"
 		},
-		"durationHuman": "00:00:05.000",
+		"durationHuman": "00:00:04.992",
 		"signalNotes": "9/13/2016 JVo: 'Play' on screen at beginning "
 	},
 	"source": {

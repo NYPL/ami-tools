@@ -22,10 +22,7 @@ class ami_bag(update_bag.Repairable_Bag):
     def __init__(self, *args, **kwargs):
         super(ami_bag, self).__init__(*args, **kwargs)
 
-        try:
-            self.validate(completeness_only = True)
-        except bagit.BagValidationError as e:
-            raise ami_bagError("Unable to load bag, oxum or manifest is invalid")
+        self.validate(completeness_only = True)
 
         self.data_files = set(self.payload_entries().keys())
         self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
@@ -40,6 +37,13 @@ class ami_bag(update_bag.Repairable_Bag):
             raise ami_bagError("Payload does not contain files with accepted extensions: {}".format(
                 ami_bag_constants.MEDIA_EXTS
             ))
+
+        self.pm_filepaths = set([path for path in self.media_filepaths if '_pm.' in path])
+        if not self.pm_filepaths:
+            raise ami_bagError("Payload does not contain preservation master files")
+        self.em_filepaths = set([path for path in self.media_filepaths if '_em.' in path])
+        self.sc_filepaths = set([path for path in self.media_filepaths if '_sc.' in path])
+
 
         self.set_type()
         if self.type == "excel":
@@ -87,6 +91,20 @@ class ami_bag(update_bag.Repairable_Bag):
             LOGGER.warning("Error in path names: {0}".format(e.message))
             valid = False
 
+        if self.em_filepaths:
+            try:
+                self.check_pmem_match()
+            except ami_bagError as e:
+                LOGGER.warning("Error in asset balance: {0}".format(e.message))
+                valid = False
+
+        if self.sc_filepaths:
+            try:
+                self.check_pmsc_match()
+            except ami_bagError as e:
+                LOGGER.warning("Error in asset balance: {0}".format(e.message))
+                valid = False
+
         try:
             self.check_type()
         except ami_bagError as e:
@@ -128,6 +146,12 @@ class ami_bag(update_bag.Repairable_Bag):
                     LOGGER.warning("Error in bag structure: {0}".format(e.message))
                     valid = False
 
+            try:
+                self.check_filenames_md_concordance_json()
+            except ami_bagError as e:
+                LOGGER.warning("Error in bag structure: {0}".format(e.message))
+                valid = False
+
             if metadata:
                 try:
                     self.check_metadata_json()
@@ -136,7 +160,7 @@ class ami_bag(update_bag.Repairable_Bag):
                     valid = False
 
                 try:
-                    self.check_filenames_manifest_and_metadata_json()
+                    self.check_filenames_md_manifest_concordance_json()
                 except ami_bagError as e:
                     LOGGER.warning("Error in bag metadata: {0}".format(e.message))
                     valid = False
@@ -180,7 +204,27 @@ class ami_bag(update_bag.Repairable_Bag):
                 bad_dirs.append(dir_path)
 
         if bad_dirs:
-            raise ami_bagError("Too many levels of directories in data/: {}".format(bad_dirs))
+            raise ami_bagError("Too many levels of directories in data: {}".format(bad_dirs))
+
+        return True
+
+
+    def check_pmem_match(self):
+        base_pms = set([os.path.basename(path).rsplit('_', 1)[0] for path in self.pm_filepaths])
+        base_ems = set([os.path.basename(path).rsplit('_', 1)[0] for path in self.em_filepaths])
+
+        if not base_ems == base_pms:
+            raise ami_bagError("Mismatch of PM's and EM's: {}".format(base_pms.symmetric_difference(base_ems)))
+
+        return True
+
+
+    def check_pmsc_match(self):
+        base_pms = set([os.path.basename(path).rsplit('_', 1)[0] for path in self.pm_filepaths])
+        base_scs = set([os.path.basename(path).rsplit('_', 1)[0] for path in self.sc_filepaths])
+
+        if not base_scs == base_pms:
+            raise ami_bagError("Mismatch of PM's and SC's: {}".format(base_pms.symmetric_difference(base_scs)))
 
         return True
 
@@ -242,6 +286,9 @@ class ami_bag(update_bag.Repairable_Bag):
         elif (self.compare_structure(set(["Metadata", "ArchiveOriginals", "EditMasters"])) and
               self.compare_content(set([".wav", ".xlsx", ".old"]))):
             self.subtype = "born-digital audio"
+        else:
+            LOGGER.warning("Bag does not fit a recognized subtype")
+            self.subtype = "unknown"
 
         return True
 
@@ -266,6 +313,9 @@ class ami_bag(update_bag.Repairable_Bag):
         elif (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters", "Images"])) and
             self.compare_content(set([".wav", ".json", ".jpeg", ".jpg"]))):
             self.subtype = "audio"
+        else:
+            LOGGER.warning("Bag does not fit a recognized subtype")
+            self.subtype = "unknown"
 
         return True
 
@@ -291,6 +341,9 @@ class ami_bag(update_bag.Repairable_Bag):
         elif (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters", "Images"])) and
             self.compare_content(set([".wav", ".xlsx", ".json", ".jpeg"]))):
             self.subtype = "audio"
+        else:
+            LOGGER.warning("Bag does not fit a recognized subtype")
+            self.subtype = "unknown"
 
         return True
 
@@ -355,6 +408,16 @@ class ami_bag(update_bag.Repairable_Bag):
         return True
 
 
+    def check_filenames_md_concordance_json(self):
+        md_files = set([os.path.splitext(os.path.basename(path))[0] for path in self.metadata_files])
+        media_files = set([os.path.splitext(os.path.basename(path))[0] for path in self.media_filepaths])
+        if not md_files == media_files:
+            raise ami_bagError('Filenames for media files do not match filenames for metadata.\nMissing metadata files: {}'.format(
+                media_files - md_files
+            ))
+        return True
+
+
     def set_metadata_json(self):
         self.metadata_files = [filename for filename in self.data_files if os.path.splitext(filename)[1] == ".json"]
 
@@ -393,7 +456,7 @@ class ami_bag(update_bag.Repairable_Bag):
         return True
 
 
-    def check_filenames_manifest_and_metadata_json(self):
+    def check_filenames_md_manifest_concordance_json(self):
         media_files_basenames = set([os.path.basename(path) for path in self.media_filepaths])
         if not self.media_files_md == media_files_basenames:
             raise ami_bagError("Filenames in JSON do not match filenames in manifest.\nMissing from JSON: {}".format(
