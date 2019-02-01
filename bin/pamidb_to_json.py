@@ -31,7 +31,7 @@ def main():
 	parser = _make_parser()
 	args = parser.parse_args()
 
-	md = pd.read_csv(args.input, dtype = dtypes)
+	md = pd.read_csv(args.input, dtype = dtypes, encoding="mac_roman")
 	md = md.dropna(axis = 1, how = "all")
 	md = md.drop(['asset.fileExt'], axis = 1)
 
