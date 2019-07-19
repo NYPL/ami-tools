@@ -62,7 +62,7 @@ class ami_json:
             value = value.strftime('%Y-%m-%d')
           if isinstance(value, np.generic):
             value = np.asscalar(value)
-          nested_dict = self.convert_dotKeyToNestedDict(
+          nested_dict = convert_dotKeyToNestedDict(
             nested_dict, key, value)
 
       self.dict = nested_dict
@@ -108,51 +108,6 @@ class ami_json:
       self.media_filepath = media_filepath
     else:
       self.raise_jsonerror("There is no media file found at {}".format(media_filepath))
-
-
-
-  def convert_dotKeyToNestedDict(self, tree, key, value):
-    """
-    Recursive method that takes a dot-delimited header and returns a
-    nested dictionary.
-
-    Keyword arguments:
-    key -- dot-delimited header string
-    value -- value associated with header
-    """
-
-    t = tree
-    if "." in key:
-      key, rest = key.split(".", 1)
-      if key not in tree:
-        t[key] = {}
-      self.convert_dotKeyToNestedDict(t[key], rest, value)
-    else:
-      t[key] = value
-
-    return t
-
-
-  def convert_nestedDictToDotKey(self, tree, separator = ".", prefix = ""):
-    """
-    Recursive method that takes a dot-delimited header and returns a
-    nested dictionary.
-
-    Keyword arguments:
-    key -- dot-delimited header string
-    value -- value associated with header
-    """
-
-    new_tree = {}
-
-    for key, value in tree.items():
-      key = prefix + key
-      if isinstance(value, dict):
-        new_tree.update(self.convert_nestedDictToDotKey(value, separator, key + separator))
-      else:
-        new_tree[key] = value
-
-    return new_tree
 
 
   def coerce_strings(self):
@@ -444,3 +399,47 @@ class ami_json:
     raise AMIJSONError(msg)
     logging.error(msg + '\n')
     return False
+
+
+def convert_dotKeyToNestedDict(tree, key, value):
+  """
+  Recursive method that takes a dot-delimited header and returns a
+  nested dictionary.
+
+  Keyword arguments:
+  key -- dot-delimited header string
+  value -- value associated with header
+  """
+
+  t = tree
+  if "." in key:
+    key, rest = key.split(".", 1)
+    if key not in tree:
+      t[key] = {}
+    convert_dotKeyToNestedDict(t[key], rest, value)
+  else:
+    t[key] = value
+
+  return t
+
+
+def convert_nestedDictToDotKey(tree, separator = ".", prefix = ""):
+  """
+  Recursive method that takes a dot-delimited header and returns a
+  nested dictionary.
+
+  Keyword arguments:
+  key -- dot-delimited header string
+  value -- value associated with header
+  """
+
+  new_tree = {}
+
+  for key, value in tree.items():
+    key = prefix + key
+    if isinstance(value, dict):
+      new_tree.update(convert_nestedDictToDotKey(value, separator, key + separator))
+    else:
+      new_tree[key] = value
+
+  return new_tree

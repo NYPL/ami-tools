@@ -424,25 +424,7 @@ class ami_pressheet(ami_excelsheet):
     return valid
 
 
-  def remove_annoying(self, val1, val2, expected, found):
-    """
-    Convenience function to remove items with XOR requirements
-
-    Keyword arguments:
-    val1 -- first XOR item
-    val2 -- seocnd XOR item
-    expected -- set of all required items
-    found -- set of items that were extracted from sheet
-    """
-    if ((val1 in expected and val1 in found) and
-      (val2 not in found)):
-      expected.remove(val2)
-
-    if ((val2 in expected and val2 in found) and
-      (val1 not in found)):
-      expected.remove(val1)
-
-    return expected
+  
 
 
   def check_headerRow(self, expected, found):
@@ -458,7 +440,7 @@ class ami_pressheet(ami_excelsheet):
     header1 = 'Barcode'
     header2 = ('Object identifier\n(edit heading to specify type' +
       ' - e.g. barcode)')
-    expected = self.remove_annoying(header1, header2, expected, found)
+    expected = remove_annoying(header1, header2, expected, found)
 
     missing = []
 
@@ -487,7 +469,7 @@ class ami_pressheet(ami_excelsheet):
     header2 = ('Original master', 'Object',
       'Object identifier\n(edit heading to specify type ' +
       '- e.g. barcode)')
-    expected = self.remove_annoying(header1, header2, expected, found)
+    expected = remove_annoying(header1, header2, expected, found)
 
     bad_entries = []
 
@@ -552,3 +534,23 @@ class ami_editsheet(ami_excelsheet):
     em_df["asset.referenceFilename"] = em_df["technical.filename"] + "." + em_df["technical.extension"]
 
     self.sheet_values = em_df
+
+def remove_annoying(self, val1, val2, expected, found):
+  """
+  Convenience function to remove items with XOR requirements
+
+  Keyword arguments:
+  val1 -- first XOR item
+  val2 -- seocnd XOR item
+  expected -- set of all required items
+  found -- set of items that were extracted from sheet
+  """
+  if ((val1 in expected and val1 in found) and
+    (val2 not in found)):
+    expected.remove(val2)
+
+  if ((val2 in expected and val2 in found) and
+    (val1 not in found)):
+    expected.remove(val1)
+
+  return expected

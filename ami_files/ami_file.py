@@ -81,6 +81,7 @@ def parse_date(date_string):
 
   return parsed.date().strftime('%Y-%m-%d')
 
+
 def parse_duration(ms_int):
   if not ms_int:
     return None
