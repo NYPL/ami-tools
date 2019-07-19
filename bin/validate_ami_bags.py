@@ -80,14 +80,14 @@ def main():
                 LOGGER.info("Valid {} {} bag: {}".format(bag.type, bag.subtype, bagpath))
                 valid_bags.append(os.path.basename(bagpath))
             else:
-                LOGGER.warn("Invalid bag: {}".format(bagpath))
+                LOGGER.warning("Invalid bag: {}".format(bagpath))
                 invalid_bags.append(os.path.basename(bagpath))
 
     if invalid_bags:
-        LOGGER.warn("{} of {} bags are not ready for ingest".format(len(invalid_bags), len(bags)))
-        LOGGER.info("The following bags are not ready for media ingest: {}".format(", ".join(invalid_bags)))
+        LOGGER.warning("{} of {} bags are not ready for ingest".format(len(invalid_bags), len(bags)))
+        LOGGER.warning("The following bags are not ready for media ingest: {}".format(", ".join(invalid_bags)))
     if valid_bags:
-        LOGGER.warn("{} of {} bags are ready for ingest".format(len(valid_bags), len(bags)))
+        LOGGER.warning("{} of {} bags are ready for ingest".format(len(valid_bags), len(bags)))
         LOGGER.info("The following bags are ready for media ingest: {}".format(", ".join(valid_bags)))
 
 

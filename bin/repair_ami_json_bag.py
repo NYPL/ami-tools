@@ -151,7 +151,7 @@ def main():
     for bagpath in bags:
         LOGGER.info("Checking: {}".format(bagpath))
         try:
-            bag = ami_bag(bagpath)
+            bag = ami_bag(path = bagpath)
         except:
             LOGGER.error("{}: Not an AMI bag".format(bagpath))
         if args.filenames:

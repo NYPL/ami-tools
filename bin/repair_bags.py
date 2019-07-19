@@ -4,6 +4,12 @@ from tqdm import tqdm
 import logging
 from ami_bag.update_bag import Repairable_Bag
 
+file_deletion_rules = rules = {
+    "Thumbs.db": {
+        "regex": r"3695",
+        "match": False
+    }
+}
 
 LOGGER = logging.getLogger(__name__)
 

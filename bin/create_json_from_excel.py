@@ -58,9 +58,10 @@ def main():
     excel = ami_excel(excel_path)
 
     print(excel_path)
-    excel.edit_sheet.add_PMDataToEM(excel.pres_sheet.sheet_values)
-    excel.edit_sheet.convert_amiExcelToJSON(output_path)
-    excel.pres_sheet.convert_amiExcelToJSON(output_path)
+    if excel.edit_sheet:
+      excel.edit_sheet.add_PMDataToEM(excel.pres_sheet.sheet_values)
+      excel.edit_sheet.convert_amiExcelToJSON(output_path, schema_version = "x.0.1")
+    excel.pres_sheet.convert_amiExcelToJSON(output_path, schema_version = "x.0.1")
 
 
 if __name__ == "__main__":
