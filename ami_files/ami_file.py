@@ -24,7 +24,7 @@ class ami_file:
     self.set_techmd_values()
     if self.extension in ['mkv', 'mp4', 'mov']:
       self.type = "video"
-    elif self.extension in ['wav', 'WAV']:
+    elif self.extension in ['wav', 'WAV', 'mka', 'flac']:
       self.type = "audio"
     else:
       self.raise_AMIFileError('{} does not appear to be an accepted audio or video format.'.format(self.filename))
@@ -41,17 +41,18 @@ class ami_file:
     if not md_track:
       self.raise_AMIFileError('Could not find General track')
 
-    self.base_filename = md_track.file_name
+    self.base_filename = md_track.file_name.rsplit('.')[0]
     self.extension = md_track.file_extension
     self.format = md_track.format
     self.size = md_track.file_size
 
+    self.date_filesys_created = datetime.fromtimestamp(os.path.getctime(self.filepath)).strftime('%Y-%m-%d')
     if md_track.encoded_date:
       self.date_created = parse_date(md_track.encoded_date)
     elif md_track.recorded_date:
       self.date_created = parse_date(md_track.recorded_date)
     elif md_track.file_last_modification_date:
-      self.date_created = parse_date(md_track.file_last_modification_date)
+      self.date_created = self.date_filesys_created
 
     self.duration_milli = md_track.duration
     self.duration_human = parse_duration(self.duration_milli)
