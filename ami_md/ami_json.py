@@ -11,7 +11,7 @@ import ami_md.ami_md_constants as ami_md_constants
 
 FULL_TECHFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)$"
 STUB_TECHFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)"
-FULL_REFFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)\.(mov|wav|mkv|dv|mp4)$"
+FULL_REFFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)\.(mov|wav|mkv|dv|mp4|mka|flac)$"
 
 AUDIOFIELDS = ["filename", "extension", "fileFormat",
   "fileSize", "dateCreated", "durationHuman", "durationMilli",
@@ -317,7 +317,7 @@ class ami_json:
     self.dict["technical"]["durationMilli"]["unit"] = "ms"
 
     self.dict["technical"]["audioCodec"] = self.media_file.audio_codec
-    if self.media_file.type == "Video":
+    if self.media_file.type == "video":
       self.dict["technical"]["videoCodec"] = self.media_file.video_codec
 
 
@@ -346,7 +346,10 @@ class ami_json:
         self.compare_techfn_reffn()
       except:
         LOGGER.warning('Extracted technical filename does not match referenceFilename value.')
+      
       self.dict["technical"]["filename"] = correct_techfn[0]
+      # always prefer lowercase exts
+      self.dict["technical"]["extension"] = self.dict["technical"]["extension"].lower()
       LOGGER.info("{} technical.filename updated to: {}".format(
         self.filename, self.dict["technical"]["filename"]))
       return True

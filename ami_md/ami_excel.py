@@ -282,6 +282,8 @@ class ami_excelsheet:
     if from_column not in df.columns:
       return df
 
+    df[from_column] = pd.to_numeric(df[from_column], errors='coerce')
+
     if value:
       df[to_column] = np.where(df[from_column].notnull(), value, None)
     elif values_map_column and values_map:
@@ -294,13 +296,14 @@ class ami_excelsheet:
 
 
   def map_primaryid(self, df):
-    primary_id_columns = ["bibliographic.barcode",
+    primary_id_columns = ["bibliographic.cmsItemID",
                           "bibliographic.classmark",
-                          "bibliographic.cmsID"]
+                          "bibliographic.barcode"]
     for column in primary_id_columns:
       if column in df.columns.tolist():
         has_id = df[column].notnull()
         df.loc[has_id, 'bibliographic.primaryID'] = df[column]
+        break
 
     return df
 
@@ -350,13 +353,15 @@ class ami_excelsheet:
         row_dict["asset.referenceFilename"] = media_filename
 
         json_tree = ami_json.ami_json(flat_dict = row_dict,
-          filepath = filepath, load = False, media_filepath = os.path.splitext(filepath)[0])
+          filepath = filepath, load = False,
+          schema_version = schema_version, media_filepath = os.path.splitext(filepath)[0])
         json_tree.repair_techmd()
         json_tree.write_json(json_directory)
 
     else:
       for (index, row) in self.sheet_values.iterrows():
-        json_tree = ami_json.ami_json(flat_dict = row.to_dict())
+        json_tree = ami_json.ami_json(flat_dict = row.to_dict(),
+          schema_version = schema_version)
         json_tree.write_json(json_directory)
 
 
