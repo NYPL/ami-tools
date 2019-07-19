@@ -49,11 +49,12 @@ class Repairable_Bag(bagit.Bag):
       self.premis_events = []
 
 
-  def add_premisevent(self, process, msg, outcome, sw_agent,
+  def add_premisevent(self, process, msg, outcome, sw_agent, date = None,
     human_agent = None):
+    if not date:
+      date = datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%d%H%M%S.%f%Z")
     premis_event = {
-      'Event-Date-Time': datetime.datetime.strftime(
-        datetime.datetime.now(), "%Y%m%d%H%M%S.%f%Z"),
+      'Event-Date-Time': date,
       'Event-Type': process,
       'Event-Detail-Information': msg,
       'Event-Outcome': outcome,

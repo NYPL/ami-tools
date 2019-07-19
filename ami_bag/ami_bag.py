@@ -22,7 +22,10 @@ class ami_bag(update_bag.Repairable_Bag):
     def __init__(self, *args, **kwargs):
         super(ami_bag, self).__init__(*args, **kwargs)
 
-        self.validate(completeness_only = True)
+        try:
+            self.validate(completeness_only = True)
+        except:
+            LOGGER.error("Bag incomplete or invalid oxum: {0}")
 
         self.data_files = set(self.payload_entries().keys())
         self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
@@ -308,10 +311,10 @@ class ami_bag(update_bag.Repairable_Bag):
         self.subtype = None
 
         if (self.compare_structure(set(["Metadata", "PreservationMasters", "ServiceCopies", "Images"])) and
-            self.compare_content(set([".mov", ".json", ".mp4", ".jpeg", ".jpg"]))):
+            self.compare_content(set([".mkv", ".mov", ".json", ".mp4", ".jpeg", ".jpg"]))):
             self.subtype = "video"
         elif (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters", "Images"])) and
-            self.compare_content(set([".wav", ".json", ".jpeg", ".jpg"]))):
+            self.compare_content(set([".flac", ".wav", ".json", ".jpeg", ".jpg", ".pdf"]))):
             self.subtype = "audio"
         else:
             LOGGER.warning("Bag does not fit a recognized subtype")
