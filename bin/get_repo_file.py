@@ -1,12 +1,16 @@
 import os
 import argparse
 import subprocess
+import multiprocessing
 
+def rsyncer(rsync_call):
+	subprocess.call(rsync_call)
 
 def main():
 	parser = argparse.ArgumentParser()
 	parser.description = "rsync a file from repo"
 	parser.add_argument("-i", "--uuid",
+		nargs='+',
 		help = "uuid of file in repo",
 		required = True)
 	parser.add_argument("-r", "--repo",
@@ -17,16 +21,24 @@ def main():
 		default = "/Volumes/video_repository/Working_Storage/")
 	args = parser.parse_args()
 
-	uuid_path = '/'.join([args.uuid[0:2], args.uuid[0:4],
-		args.uuid[4:8], args.uuid[9:13],
-		args.uuid[14:18], args.uuid[19:23],
-		args.uuid[24:28], args.uuid[28:32],
-		args.uuid[32:34], args.uuid])
+	rsync_calls = []
+	print(args.uuid)
+	for fileid in args.uuid:
+		file_path = '/'.join([fileid[0:2], fileid[0:4],
+			fileid[4:8], fileid[9:13],
+			fileid[14:18], fileid[19:23],
+			fileid[24:28], fileid[28:32],
+			fileid[32:34], fileid])
 
-	full_path = os.path.join(args.repo, uuid_path)
-	rsync_call = ["rsync", "-rtv", "--progress",
+		full_path = os.path.join(args.repo, file_path)
+		rsync_call = ["rsync", "-rtv", "--progress",
 		full_path, args.destination]
-	subprocess.call(rsync_call)
+		rsync_calls.append(rsync_call)
+
+	count = multiprocessing.cpu_count()
+	pool = multiprocessing.Pool(processes=int(count/2))
+	r = pool.map_async(rsyncer, rsync_calls)
+	r.wait()
 
 
 if __name__ == "__main__":
