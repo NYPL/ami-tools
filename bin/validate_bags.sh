@@ -22,7 +22,7 @@ i=0
 
 for line in $bags; do
   echo $(date "+%H:%M:%S")": checking" $line
-  bagit.py --validate $line 2>> $log_path
+  python3 -m bagit --validate $line 2>> $log_path
   ((i++))
   [ "$(($i % 10))" -eq 0 ] && echo $i "bags checked"
 done
