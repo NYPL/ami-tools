@@ -25,6 +25,7 @@ def _make_parser():
     parser.add_argument("-d", "--directory",
                         help = "Path to a directory full of bags")
     parser.add_argument("-b", "--bagpath",
+                        nargs='+',
                         default = None,
                         help = "Path to the base directory of the bag")
     parser.add_argument("--slow", action='store_false',
@@ -62,13 +63,14 @@ def main():
                 bags.append(path)
 
     if args.bagpath:
-        bags.append(os.path.abspath(args.bagpath))
+        for bag in args.bagpath:
+            bags.append(os.path.abspath(bag))
 
     LOGGER.info("Checking {} folder(s).".format(len(bags)))
 
     invalid_bags = []
     valid_bags = []
-    for bagpath in tqdm(bags):
+    for bagpath in tqdm(sorted(bags)):
         LOGGER.info("Checking: {}".format(bagpath))
         try:
             bag = ami_bag(path = bagpath)
@@ -76,12 +78,15 @@ def main():
             LOGGER.error("Following error encountered while loading {}: {}".format(bagpath, e))
             invalid_bags.append(os.path.basename(bagpath))
         else:
-            if bag.validate_amibag(fast = args.slow, metadata = args.metadata):
-                LOGGER.info("Valid {} {} bag: {}".format(bag.type, bag.subtype, bagpath))
-                valid_bags.append(os.path.basename(bagpath))
-            else:
-                LOGGER.warning("Invalid bag: {}".format(bagpath))
-                invalid_bags.append(os.path.basename(bagpath))
+            try:
+                if bag.validate_amibag(fast = args.slow, metadata = args.metadata):
+                    LOGGER.info("Valid {} {} bag: {}".format(bag.type, bag.subtype, bagpath))
+                    valid_bags.append(os.path.basename(bagpath))
+                else:
+                    LOGGER.warning("Invalid bag: {}".format(bagpath))
+                    invalid_bags.append(os.path.basename(bagpath))
+            except:
+                print('ami-tools issue for {}'.format(bagpath))
 
     if invalid_bags:
         LOGGER.warning("{} of {} bags are not ready for ingest".format(len(invalid_bags), len(bags)))
