@@ -40,6 +40,8 @@ def _make_parser():
                         action='store_true')
     parser.add_argument('--deletefiles', help='Delete files not in manifest from the manifest',
                         action='store_true')
+    parser.add_argument('--deletemanifestfiles', help='Delete entries from the manifest without payload files',
+                        action='store_true')
     parser.add_argument('--log', help='The name of the log file')
     parser.add_argument('--quiet', action='store_true')
     return parser
@@ -69,7 +71,7 @@ def main():
 
     LOGGER.info("Checking {} folder(s).".format(len(bags)))
 
-    for bagpath in tqdm(bags):
+    for bagpath in tqdm(sorted(bags)):
         LOGGER.info("Checking: {}".format(bagpath))
         try:
             bag = Repairable_Bag(path = bagpath, repairer = args.agent)
@@ -93,11 +95,19 @@ def main():
                         LOGGER.info("Untracked files successfully deleted.")
                     except:
                         LOGGER.error("Deletion process incomplete. Run full validation to check status")
+            if args.deletemanifestfiles:
+                try:
+                    LOGGER.warning("Deleting manifest entries without files")
+                    bag.delete_manifest_files_not_in_payload()
+                    LOGGER.info("Manifest entries successfully deleted.")
+                except:
+                    LOGGER.error("Deletion process incomplete. Run full validation to check status")
+
             else:
                 LOGGER.info("No untracked file in payload directory")
-                if not bag.check_baginfo():
+                if not bag.check_oxum():
                     LOGGER.info("Bag info invalid")
-                    bag.update_baginfo()
+                    bag.write_bag_updates()
                 else:
                     LOGGER.info("Bag info valid")
 
