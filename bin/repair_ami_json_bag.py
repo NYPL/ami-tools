@@ -39,6 +39,7 @@ def _make_parser():
     parser.add_argument("--techmd", action='store_true',
                         help = "Fix common errors in technical md field by rerunning mediainfo")
     parser.add_argument("--dryrun", action='store_true',
+                        default = False,
                         help = "Do not perform any of the flagged repairs")
     parser.add_argument("--validate", action='store_true',
                         help = "Run a quick validation on bag after repair")
@@ -69,6 +70,11 @@ def repair_bag_filenamemd(bag, repairer, dryrun):
                 repaired = True
 
         reffn = json.dict["asset"]["referenceFilename"]
+
+        if reffn.split('.')[1] != json.dict["technical"]["extension"]:
+            json.dict["technical"]["extension"] = json.dict["technical"]["extension"].lower()
+            repaired = True
+
         techfn = json.dict["technical"]["filename"] + '.' + json.dict["technical"]["extension"]
 
         if repaired:
@@ -82,7 +88,7 @@ def repair_bag_filenamemd(bag, repairer, dryrun):
                     filename))
 
     if repaired_fn:
-        updateable_bag = Repairable_Bag(bag.path, repairer = repairer, dryrun = dryrun)
+        updateable_bag = Repairable_Bag(path = bag.path, repairer = repairer, dryrun = dryrun)
         updateable_bag.add_premisevent(process = "Repair Metadata",
             msg = "Repaired filename fields: {}".format(
                 ", ".join(repaired_fn)),
@@ -112,7 +118,7 @@ def repair_bag_techmd(bag, repairer, dryrun):
                 json.write_json(os.path.split(json_path)[0])
 
     if updated_json:
-        updateable_bag = Repairable_Bag(bag.path, repairer = repairer, dryrun = dryrun)
+        updateable_bag = Repairable_Bag(path = bag.path, repairer = repairer, dryrun = dryrun)
         updateable_bag.add_premisevent(process = "Repair Metadata",
             msg = "Regenerated tech md fields with MediaInfo: {}".format(
                 ", ".join(updated_json)),
@@ -148,18 +154,19 @@ def main():
 
     LOGGER.info("Checking {} folder(s).".format(len(bags)))
 
-    for bagpath in bags:
+    for bagpath in tqdm(sorted(bags)):
         LOGGER.info("Checking: {}".format(bagpath))
         try:
             bag = ami_bag(path = bagpath)
         except:
             LOGGER.error("{}: Not an AMI bag".format(bagpath))
-        if args.filenames:
-            repair_bag_filenamemd(bag, args.repairer, args.dryrun)
-            bag._open()
-        if args.techmd:
-            repair_bag_techmd(bag, args.repairer, args.dryrun)
-            bag._open()
+        else:
+            if args.filenames:
+                repair_bag_filenamemd(bag, args.repairer, args.dryrun)
+                bag._open()
+            if args.techmd:
+                repair_bag_techmd(bag, args.repairer, args.dryrun)
+                bag._open()
 
 
 if __name__ == "__main__":
