@@ -14,14 +14,19 @@ class AMIFileError(Exception):
 
 
 class ami_file:
-  def __init__(self, filepath):
+  def __init__(self, filepath, mi = True):
     if os.path.isfile(filepath):
       self.filepath = os.path.abspath(filepath)
       self.filename = os.path.basename(self.filepath)
     else:
       self.raise_AMIFileError('{} is not a valid filepath'.format(filepath))
+    
+    if mi:
+      self.set_techmd_values()
+    else:
+      self.date_filesys_created = datetime.fromtimestamp(os.path.getctime(self.filepath)).strftime('%Y-%m-%d')
+      self.extension =  os.path.splitext(self.filepath)[1][1:]
 
-    self.set_techmd_values()
     if self.extension in ['mkv', 'mp4', 'mov']:
       self.type = "video"
     elif self.extension in ['wav', 'WAV', 'mka', 'flac']:
