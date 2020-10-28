@@ -271,25 +271,11 @@ class ami_bag(update_bag.Repairable_Bag):
     def set_subtype_excel(self):
         self.subtype = None
 
-        if (self.compare_structure(set(["Metadata", "PreservationMasters"])) and
-            self.compare_content(set([".mov", ".xlsx", ".old"]))):
-            self.subtype = "video"
-        elif (self.compare_structure(set(["Metadata", "PreservationMasters"])) and
-              self.compare_content(set([".iso", ".xlsx", ".old"]))):
-            self.subtype = "dvd"
-        elif (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters"])) and
-              self.compare_content(set([".wav", ".xlsx", ".old"]))):
-            self.subtype = "audio"
-        elif (self.compare_structure(set(["Metadata", "PreservationMasters"])) and
-              self.compare_content(set([".wav", ".xlsx", ".old"]))):
-            self.subtype = "audio w/o edit masters"
-        elif (self.compare_structure(set(["Metadata", "ArchiveOriginals", "PreservationMasters", "EditMasters", "ProjectFiles", "ProjectFile"])) and
-              self.compare_content(set([".tar", ".mov", ".xlsx", ".fcp", ".prproj"]))):
-            self.subtype = "born-digital video"
-        elif (self.compare_structure(set(["Metadata", "ArchiveOriginals", "EditMasters"])) and
-              self.compare_content(set([".wav", ".xlsx", ".old"]))):
-            self.subtype = "born-digital audio"
-        else:
+        for subtype in ami_bag_constants.EXCEL_SUBTYPES.keys():
+            if (self.compare_structure(ami_bag_constants.EXCEL_SUBTYPES[subtype][0]) and
+                self.compare_content(ami_bag_constants.EXCEL_SUBTYPES[subtype][1])):
+                self.subtype = subtype
+        if self.subtype is None:
             LOGGER.warning("Bag does not fit a recognized subtype")
             self.subtype = "unknown"
 
@@ -310,13 +296,11 @@ class ami_bag(update_bag.Repairable_Bag):
     def set_subtype_json(self):
         self.subtype = None
 
-        if (self.compare_structure(set(["Metadata", "PreservationMasters", "ServiceCopies", "Images"])) and
-            self.compare_content(set([".mkv", ".mov", ".json", ".mp4", ".jpeg", ".jpg"]))):
-            self.subtype = "video"
-        elif (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters", "Images"])) and
-            self.compare_content(set([".flac", ".wav", ".json", ".jpeg", ".jpg", ".pdf"]))):
-            self.subtype = "audio"
-        else:
+        for subtype in ami_bag_constants.JSON_SUBTYPES.keys():
+            if (self.compare_structure(ami_bag_constants.JSON_SUBTYPES[subtype][0]) and
+                self.compare_content(ami_bag_constants.JSON_SUBTYPES[subtype][1])):
+                self.subtype = subtype
+        if self.subtype is None:
             LOGGER.warning("Bag does not fit a recognized subtype")
             self.subtype = "unknown"
 
@@ -338,13 +322,11 @@ class ami_bag(update_bag.Repairable_Bag):
     def set_subtype_exceljson(self):
         self.subtype = None
 
-        if (self.compare_structure(set(["Metadata", "PreservationMasters", "ServiceCopies", "Images"])) and
-            self.compare_content(set([".mov", ".xlsx", ".json", ".mp4", ".jpeg"]))):
-            self.subtype = "video"
-        elif (self.compare_structure(set(["Metadata", "PreservationMasters", "EditMasters", "Images"])) and
-            self.compare_content(set([".wav", ".xlsx", ".json", ".jpeg"]))):
-            self.subtype = "audio"
-        else:
+        for subtype in ami_bag_constants.EXCELJSON_SUBTYPES.keys():
+            if (self.compare_structure(ami_bag_constants.EXCELJSON_SUBTYPES[subtype][0]) and
+                self.compare_content(ami_bag_constants.EXCELJSON_SUBTYPES[subtype][1])):
+                self.subtype = subtype
+        if self.subtype is None:
             LOGGER.warning("Bag does not fit a recognized subtype")
             self.subtype = "unknown"
 
@@ -482,11 +464,12 @@ class ami_bag(update_bag.Repairable_Bag):
                 except:
                     LOGGER.error("EM's and PM's do not have 1-1 correspondence")
                 else:
-                    em_filepaths = [x + ".json" for x in self.media_filepaths if em_path in x]
+                    em_filepaths = [x for x in self.media_filepaths if em_path in x]
                     excel.edit_sheet.convert_amiExcelToJSON(em_path, filepaths = em_filepaths)
 
             pm_path = os.path.join(self.path, "data/PreservationMasters")
-            pm_filepaths = [x + ".json" for x in self.media_filepaths if pm_path in x]
+            pm_filepaths = [x for x in self.media_filepaths if pm_path in x]
+            print(pm_filepaths)
             excel.pres_sheet.convert_amiExcelToJSON(pm_path, filepaths = pm_filepaths)
 
 
