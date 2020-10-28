@@ -114,8 +114,11 @@ class ami_json:
     for key, item in self.dict["bibliographic"].items():
       self.dict["bibliographic"][key] = str(item).split('.')[0]
 
-    for key, item in self.dict["digitizer"]["organization"]["address"].items():
-      self.dict["digitizer"]["organization"]["address"][key] = str(item).split('.')[0]
+    try:
+      for key, item in self.dict["digitizer"]["organization"]["address"].items():
+        self.dict["digitizer"]["organization"]["address"][key] = str(item).split('.')[0]
+    except:
+      return
 
 
   def validate_json(self):
@@ -186,11 +189,11 @@ class ami_json:
     return True
 
 
-  def set_media_file(self):
+  def set_media_file(self, mi = True):
     if not hasattr(self, 'media_filepath'):
       self.set_mediafilepath()
 
-    self.media_file = ami_file.ami_file(self.media_filepath)
+    self.media_file = ami_file.ami_file(self.media_filepath, mi)
 
 
   def check_techmd_values(self):
@@ -261,7 +264,6 @@ class ami_json:
     self.dict["technical"]["fileSize"]["measure"] = self.media_file.size
     self.dict["technical"]["fileSize"]["unit"] = "B"
 
-    #retain original dates
     if not "dateCreated" in self.dict["technical"].keys():
       self.dict["technical"]["dateCreated"] = self.media_file.date_created
 
@@ -274,6 +276,17 @@ class ami_json:
     self.dict["technical"]["audioCodec"] = self.media_file.audio_codec
     if self.media_file.type == "video":
       self.dict["technical"]["videoCodec"] = self.media_file.video_codec
+
+
+  def strip_techmd(self):
+    allowed_keys = ["filename", "extension", "fileFormat", "fileSize", "dateCreated", "durationHuman", "durationMilli", "audioCodec", "videoCodec"]
+    keys_to_strip = []
+    for key in self.dict["technical"].keys():
+      if key not in allowed_keys:
+        keys_to_strip.append(key)
+
+    for key in keys_to_strip:
+      self.dict["technical"].pop(key)
 
 
   def check_techfn(self):
@@ -387,8 +400,11 @@ class ami_json:
       filename)
 
     with open(json_filename, 'w') as f:
-      json.dump(self.dict, f, indent = indent)
-      LOGGER.info("{} written".format(json_filename))
+      try:
+        json.dump(self.dict, f, indent = indent)
+        LOGGER.info("{} written".format(json_filename))
+      except:
+        LOGGER.error("{} could not be written".format(json_filename))
 
 
   def raise_jsonerror(self, msg):
