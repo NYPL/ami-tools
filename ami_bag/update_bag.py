@@ -301,3 +301,23 @@ class Repairable_Bag(bagit.Bag):
         self.write_bag_updates()
 
     os.chdir(self.old_dir)
+
+  def delete_manifest_files_not_in_payload(self):
+    os.chdir(self.path)
+    manifest_payload_files = set([x for x in self.entries.keys() if x[0:4] == 'data'])
+    extra_manifest_entries = manifest_payload_files - set(self.payload_files())
+
+    for entry in extra_manifest_entries:
+      self.entries.pop(entry)
+      self.manifests_updated = True
+
+    if self.manifests_updated:
+      self.add_premisevent(process = "Bag Manifest Update",
+        msg = "Removed following entries from the payload manifest: {}".format(
+          ", ".join([os.path.basename(x) for x in extra_manifest_entries])),
+        outcome = "Pass", sw_agent = sys._getframe().f_code.co_name)
+
+    if extra_manifest_entries:
+      self.write_bag_updates()
+
+    os.chdir(self.old_dir)
