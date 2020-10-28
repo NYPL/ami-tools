@@ -117,6 +117,12 @@ def repair_bag_techmd(bag, repairer, dryrun):
             if not dryrun:
                 json.write_json(os.path.split(json_path)[0])
 
+        if json.dict["technical"]["dateCreated"] == "2020-03-20":
+            json.dict["technical"]["dateCreated"] = "2019-09-30"
+            updated_json.append(json.filename)
+            if not dryrun:
+                json.write_json(os.path.split(json_path)[0])
+
     if updated_json:
         updateable_bag = Repairable_Bag(path = bag.path, repairer = repairer, dryrun = dryrun)
         updateable_bag.add_premisevent(process = "Repair Metadata",

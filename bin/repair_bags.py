@@ -102,7 +102,6 @@ def main():
                     LOGGER.info("Manifest entries successfully deleted.")
                 except:
                     LOGGER.error("Deletion process incomplete. Run full validation to check status")
-
             else:
                 LOGGER.info("No untracked file in payload directory")
                 if not bag.check_oxum():

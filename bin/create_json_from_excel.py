@@ -47,9 +47,11 @@ def main():
 
   if args.directory:
     directory_path = os.path.abspath(args.directory)
-    for path in glob.glob("{}*.xls*".format(directory_path)):
+    for path in glob.glob("{}/*.xls*".format(directory_path)):
       path = os.path.join(directory_path, path)
       excel_paths.append(path)
+
+  print(excel_paths)
 
   if args.output:
     output_path = os.path.abspath(args.output)

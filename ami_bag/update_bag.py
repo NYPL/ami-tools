@@ -319,5 +319,5 @@ class Repairable_Bag(bagit.Bag):
 
     if extra_manifest_entries:
       self.write_bag_updates()
-
+      
     os.chdir(self.old_dir)

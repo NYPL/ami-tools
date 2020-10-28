@@ -1,8 +1,11 @@
+#!/usr/bin/python 
+
 import os
 import argparse
 from tqdm import tqdm
 import logging
 from ami_bag.ami_bag import ami_bag
+import re
 
 
 LOGGER = logging.getLogger(__name__)
@@ -57,10 +60,10 @@ def main():
 
     if args.directory:
         directory_path = os.path.abspath(args.directory)
-        for path in os.listdir(directory_path):
-            path = os.path.join(directory_path, path)
-            if os.path.isdir(path):
-                bags.append(path)
+        for root, dirnames, filenames in os.walk(directory_path):
+            for dirname in dirnames:
+                if re.match(r'\d\d\d\d\d\d$', dirname):
+                    bags.append(os.path.join(root, dirname))
 
     if args.bagpath:
         for bag in args.bagpath:

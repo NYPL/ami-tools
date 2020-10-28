@@ -114,6 +114,12 @@ class ami_bag(update_bag.Repairable_Bag):
             LOGGER.warning("Error in AMI bag type: {0}".format(e.message))
             valid = False
 
+        try:
+            self.check_subtype()
+        except ami_bagError as e:
+            LOGGER.warning("Error in AMI bag subtype: {0}".format(e.message))
+            valid = False
+
         if self.type == "excel":
             try:
                 self.check_bagstructure_excel()
@@ -303,6 +309,13 @@ class ami_bag(update_bag.Repairable_Bag):
         if self.subtype is None:
             LOGGER.warning("Bag does not fit a recognized subtype")
             self.subtype = "unknown"
+
+        return True
+
+
+    def check_subtype(self):
+        if self.type == "unknown":
+            raise ami_bagError("Bag does not meet MIable configuation")
 
         return True
 
