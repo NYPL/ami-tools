@@ -264,10 +264,7 @@ class ami_json:
     self.dict["technical"]["fileSize"]["measure"] = self.media_file.size
     self.dict["technical"]["fileSize"]["unit"] = "B"
 
-<<<<<<< Updated upstream
-=======
-    
->>>>>>> Stashed changes
+
     if not "dateCreated" in self.dict["technical"].keys():
       self.dict["technical"]["dateCreated"] = self.media_file.date_created
     
@@ -290,11 +287,7 @@ class ami_json:
     for key in self.dict["technical"].keys():
       if key not in allowed_keys:
         keys_to_strip.append(key)
-<<<<<<< Updated upstream
 
-=======
-    
->>>>>>> Stashed changes
     for key in keys_to_strip:
       self.dict["technical"].pop(key)
 
