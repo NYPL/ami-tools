@@ -6,12 +6,9 @@ import pandas as pd
 
 # ami modules
 import ami_files.ami_file as ami_file
+import ami_files.ami_file_constants as ami_file_constants
 import ami_md.ami_md_constants as ami_md_constants
 
-
-FULL_TECHFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)$"
-STUB_TECHFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)"
-FULL_REFFN_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(pm|em|sc)\.(mov|wav|mkv|dv|mp4|mka|flac)$"
 
 AUDIOFIELDS = ["filename", "extension", "fileFormat",
   "fileSize", "dateCreated", "durationHuman", "durationMilli",
@@ -132,19 +129,19 @@ class ami_json:
     try:
       self.check_techfn()
     except AMIJSONError as e:
-      LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+      LOGGER.warning("Error in JSON metadata: {0}".format(e.message))
       valid = False
 
     try:
       self.check_reffn()
     except AMIJSONError as e:
-      LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+      LOGGER.warning("Error in JSON metadata: {0}".format(e.message))
       valid = False
 
     try:
       self.compare_techfn_reffn()
     except AMIJSONError as e:
-      LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+      LOGGER.warning("Error in JSON metadata: {0}".format(e.message))
       valid = False
 
     try:
@@ -163,7 +160,7 @@ class ami_json:
       try:
         self.check_techmd_values()
       except AMIJSONError as e:
-        LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+        LOGGER.warning("Error in JSON metadata: {0}".format(e.message))
         valid = False
     else:
       LOGGER.warning('Cannot check technical metadata values against media file without location of the described media file.')
@@ -264,10 +261,6 @@ class ami_json:
     self.dict["technical"]["fileSize"]["measure"] = self.media_file.size
     self.dict["technical"]["fileSize"]["unit"] = "B"
 
-<<<<<<< Updated upstream
-=======
-    
->>>>>>> Stashed changes
     if not "dateCreated" in self.dict["technical"].keys():
       self.dict["technical"]["dateCreated"] = self.media_file.date_created
     
@@ -290,11 +283,7 @@ class ami_json:
     for key in self.dict["technical"].keys():
       if key not in allowed_keys:
         keys_to_strip.append(key)
-<<<<<<< Updated upstream
 
-=======
-    
->>>>>>> Stashed changes
     for key in keys_to_strip:
       self.dict["technical"].pop(key)
 
@@ -303,7 +292,7 @@ class ami_json:
     if not "filename" in self.dict["technical"].keys():
       self.raise_jsonerror("Key missing for technical.filename")
 
-    if not re.match(FULL_TECHFN_RE, self.dict["technical"]["filename"]):
+    if not re.match(FN_NOEXT_RE, self.dict["technical"]["filename"]):
       self.raise_jsonerror("Value for technical.filename does not meet expectations: {}"
         .format(self.dict["technical"]["filename"]))
 
@@ -311,7 +300,7 @@ class ami_json:
 
 
   def repair_techfn(self):
-    correct_techfn = re.match(STUB_TECHFN_RE, self.dict["technical"]["filename"])
+    correct_techfn = re.match(ami_file_constants.STUB_FN_NOEXT_RE, self.dict["technical"]["filename"])
 
     if correct_techfn:
       if hasattr(self, 'media_filepath'):
@@ -342,7 +331,7 @@ class ami_json:
     if not "referenceFilename" in self.dict["asset"].keys():
       self.raise_jsonerror("Key missing for asset.referenceFilename")
 
-    if not re.match(FULL_REFFN_RE, self.dict["asset"]["referenceFilename"]):
+    if not re.match(FN_RE, self.dict["asset"]["referenceFilename"]):
       self.raise_jsonerror("Value for asset.referenceFilename does not meet expectations: {}"
         .format(self.dict["asset"]["referenceFilename"]))
 
