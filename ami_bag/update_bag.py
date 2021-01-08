@@ -8,19 +8,19 @@ import bagit
 SYSTEM_FILE_PATTERNS = {
     "Thumbs.db": {
         "regex": r"[Tt]humbs\.db$",
-        "match": False
+        "match": True
     },
     "DS_Store": {
         "regex": r"\.DS_Store$",
-        "match": False
+        "match": True
     },
     "Appledouble": {
         "regex": r"\._.+$",
-        "match": False
+        "match": True
     },
     "Icon": {
         "regex": r"(I|i)con(|\r)$",
-        "match": False
+        "match": True
     }
 }
 
@@ -272,7 +272,7 @@ class Repairable_Bag(bagit.Bag):
       files_not_to_delete = list()
       for payload_file in new_payload_files:
         for rulename, rule in rules.items():
-          if bool(re.search(rule["regex"], payload_file)) != rule["match"]:
+          if bool(re.search(rule["regex"], payload_file)) == rule["match"]:
             files_to_delete.append(payload_file)
         if payload_file not in files_to_delete:
           files_not_to_delete.append(payload_file)
