@@ -44,6 +44,7 @@ class ami_bag(update_bag.Repairable_Bag):
         self.pm_filepaths = set([path for path in self.media_filepaths if '_pm.' in path])
         if not self.pm_filepaths:
             raise ami_bagError("Payload does not contain preservation master files")
+        self.mz_filepaths = set([path for path in self.media_filepaths if '_mz.' in path])
         self.em_filepaths = set([path for path in self.media_filepaths if '_em.' in path])
         self.sc_filepaths = set([path for path in self.media_filepaths if '_sc.' in path])
 
@@ -96,6 +97,13 @@ class ami_bag(update_bag.Repairable_Bag):
         except ami_bagError as e:
             LOGGER.warning("Error in path names: {0}".format(e.message))
             warning = False
+        
+        if self.mz_filepaths:
+            try:
+                self.check_pmmz_match()
+            except ami_bagError as e:
+                LOGGER.error("Error in asset balance: {0}".format(e.message))
+                error = False
 
         if self.em_filepaths:
             try:
@@ -234,6 +242,16 @@ class ami_bag(update_bag.Repairable_Bag):
 
         if bad_dirs:
             raise ami_bagError("Too many levels of directories in data: {}".format(bad_dirs))
+
+        return True
+
+
+    def check_pmem_match(self):
+        base_pms = set([os.path.basename(path).rsplit('_', 1)[0] for path in self.pm_filepaths])
+        base_mzs = set([os.path.basename(path).rsplit('_', 1)[0] for path in self.mz_filepaths])
+
+        if not base_mzs == base_pms:
+            raise ami_bagError("Mismatch of PM's and MZ's: {}".format(base_pms.symmetric_difference(base_mzs)))
 
         return True
 
