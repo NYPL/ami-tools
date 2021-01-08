@@ -1,0 +1,14 @@
+MOV_EXT = ".mov"
+DV_EXT = ".dv"
+MKV_EXT = ".mkv"
+MKA_EXT = ".mka"
+MP4_EXT = ".mp4"
+ISO_EXT = ".iso"
+TAR_EXT = ".tar"
+WAV_EXT = ".wav"
+FLAC_EXT = ".flac"
+
+MEDIA_EXTS = [MOV_EXT, DV_EXT, MKV_EXT, MKA_EXT, MP4_EXT, ISO_EXT, TAR_EXT, WAV_EXT, FLAC_EXT]
+
+VIDEO_EXTS = [MOV_EXT, DV_EXT, MKV_EXT, MP4_EXT, ISO_EXT]
+AUDIO_EXTS = [MKA_EXT, WAV_EXT, FLAC_EXT]
