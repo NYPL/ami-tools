@@ -8,24 +8,21 @@ from ami_bag.ami_bag import ami_bag
 import re
 
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger()
 
 def _configure_logging(args):
-    log_format = "%(asctime)s - %(levelname)s - %(message)s"
-    if args.quiet:
-        level = logging.WARNING
-    else:
-        level = logging.INFO
+    log_format = "%(name)s: %(asctime)s - %(levelname)s - %(message)s"
     if args.log:
-        logging.basicConfig(filename=args.log, level=level, format=log_format)
+        logging.basicConfig(filename=args.log, level=logging.INFO, format=log_format)
     else:
-        logging.basicConfig(level=level, format=log_format)
+        logging.basicConfig(level=logging.INFO, format=log_format)
 
 
 def _make_parser():
     parser = argparse.ArgumentParser()
-    parser.description = "check the completeness, fixity, and content of a bag"
+    parser.description = "check if an AMI bag meets specifications"
     parser.add_argument("-d", "--directory",
+                        nargs='+',
                         help = "Path to a directory full of bags")
     parser.add_argument("-b", "--bagpath",
                         nargs='+',
@@ -49,21 +46,34 @@ def main():
 
     _configure_logging(args)
 
-    checks = "Performing the following validations: Checking 0xums, Checking bag completeness"
+    checks = """Performing the following validations:
+    Checking 0xums,
+    Checking bag completeness,
+    """
     if not args.slow:
-        checks += ", Recalculating hashes"
-    checks += ", Determing bag type, Checking directory structure, Checking filenames"
+        checks += "Recalculating hashes,\n"
+    checks += """Determing bag type,
+    Checking directory structure,
+    Checking filenames
+    """
     if args.metadata:
-        checks += ", Validating Excel metadata files."
+        checks += """Validating Excel/JSON metadata files against files
+    """
     LOGGER.info(checks)
+    LOGGER.info("""To interpret log messages:
+    A WARNING means the bag is out of spec but can be ingested
+    An ERROR means the bag is out of spec and cannot be ingested
+    A CRITICAL means the script has failed. The bag may be in or out of spec.
+    """)
 
 
     if args.directory:
-        directory_path = os.path.abspath(args.directory)
-        for root, dirnames, filenames in os.walk(directory_path):
-            for dirname in dirnames:
-                if re.match(r'\d\d\d\d\d\d$', dirname):
-                    bags.append(os.path.join(root, dirname))
+        for directory in args.directory:
+            directory_path = os.path.abspath(directory)
+            for root, dirnames, filenames in os.walk(directory_path):
+                for dirname in dirnames:
+                    if re.match(r'\d\d\d\d\d\d$', dirname):
+                        bags.append(os.path.join(root, dirname))
 
     if args.bagpath:
         for bag in args.bagpath:
@@ -71,7 +81,11 @@ def main():
 
     LOGGER.info("Checking {} folder(s).".format(len(bags)))
 
-    invalid_bags = []
+    if args.quiet:
+        LOGGER.setLevel(level=logging.ERROR)
+
+    warning_bags = []
+    error_bags = []
     valid_bags = []
     for bagpath in tqdm(sorted(bags)):
         LOGGER.info("Checking: {}".format(bagpath))
@@ -79,23 +93,31 @@ def main():
             bag = ami_bag(path = bagpath)
         except Exception as e:
             LOGGER.error("Following error encountered while loading {}: {}".format(bagpath, e))
-            invalid_bags.append(os.path.basename(bagpath))
+            error_bags.append(os.path.basename(bagpath))
         else:
             try:
-                if bag.validate_amibag(fast = args.slow, metadata = args.metadata):
+                warning, error = bag.check_amibag(fast = args.slow, metadata = args.metadata)
+                if warning:
                     LOGGER.info("Valid {} {} bag: {}".format(bag.type, bag.subtype, bagpath))
                     valid_bags.append(os.path.basename(bagpath))
-                else:
+                if warning:
                     LOGGER.warning("Invalid bag: {}".format(bagpath))
-                    invalid_bags.append(os.path.basename(bagpath))
+                    warning_bags.append(os.path.basename(bagpath))
+                if error:
+                    LOGGER.error("Invalid bag: {}".format(bagpath))
+                    error_bags.append(os.path.basename(bagpath))
             except:
                 print('ami-tools issue for {}'.format(bagpath))
 
-    if invalid_bags:
-        LOGGER.warning("{} of {} bags are not ready for ingest".format(len(invalid_bags), len(bags)))
-        LOGGER.warning("The following bags are not ready for media ingest: {}".format(", ".join(invalid_bags)))
+    LOGGER.setLevel(level=logging.INFO)
+    if error_bags:
+        LOGGER.info("{} of {} bags are not ready for ingest".format(len(invalid_bags), len(bags)))
+        LOGGER.info("The following bags are not ready for media ingest: {}".format(", ".join(invalid_bags)))
+    if warning_bags:
+        LOGGER.info("{} of {} bags are ready for ingest, but out of spec".format(len(invalid_bags), len(bags)))
+        LOGGER.info("The following bags are ready for media ingest, but out of spec: {}".format(", ".join(invalid_bags)))
     if valid_bags:
-        LOGGER.warning("{} of {} bags are ready for ingest".format(len(valid_bags), len(bags)))
+        LOGGER.info("{} of {} bags are ready for ingest".format(len(valid_bags), len(bags)))
         LOGGER.info("The following bags are ready for media ingest: {}".format(", ".join(valid_bags)))
 
 
