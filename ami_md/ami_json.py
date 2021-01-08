@@ -10,13 +10,6 @@ import ami_files.ami_file_constants as ami_file_constants
 import ami_md.ami_md_constants as ami_md_constants
 
 
-AUDIOFIELDS = ["filename", "extension", "fileFormat",
-  "fileSize", "dateCreated", "durationHuman", "durationMilli",
-  "audioCodec"]
-VIDEOFIELDS = ["filename", "extension", "fileFormat",
-  "fileSize", "dateCreated", "durationHuman", "durationMilli",
-  "audioCodec", "videoCodec"]
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -173,9 +166,9 @@ class ami_json:
     found_fields = set(list(self.dict["technical"].keys()))
 
     if self.media_format_type == "audio":
-      expected_fields = set(AUDIOFIELDS)
+      expected_fields = set(ami_md_constants.JSON_AUDIOFIELDS)
     elif self.media_format_type == "video":
-      expected_fields = set(VIDEOFIELDS)
+      expected_fields = set(ami_md_constants.JSON_VIDEOFIELDS)
 
     if not found_fields >= expected_fields:
       self.raise_jsonerror("Metadata is missing the following fields: {}".format(

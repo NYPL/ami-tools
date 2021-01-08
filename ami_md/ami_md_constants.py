@@ -25,6 +25,13 @@ MEDIAINGEST_EXPECTED_HEADERS = [
 ]
 
 
+JSON_AUDIOFIELDS = ["filename", "extension", "fileFormat",
+  "fileSize", "dateCreated", "durationHuman", "durationMilli",
+  "audioCodec"]
+JSON_VIDEOFIELDS = ["filename", "extension", "fileFormat",
+  "fileSize", "dateCreated", "durationHuman", "durationMilli",
+  "audioCodec", "videoCodec"]
+
 JSON_TO_AUDIO_FILE_MAPPING = {
   'filename': 'base_filename',
   'extension': 'extension',
