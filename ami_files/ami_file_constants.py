@@ -23,4 +23,6 @@ FILE_ROLES = [AO_ENDING, PM_ENDING, EM_ENDING, SC_ENDING, MZ_ENDING]
 
 FN_NOEXT_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(ao|pm|em|sc)$"
 STUB_FN_NOEXT_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(ao|pm|em|sc)"
-FN_RE = "^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_({roles}})\.({exts})$".format(roles = "|".join(FILE_ROLES), exts = "|".join(MEDIA_EXTS))
+regex_roles = "|".join(FILE_ROLES)
+regex_exts = "|".join(MEDIA_EXTS)
+FN_RE = "^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_({regex_roles}})\.({regex_exts})$"
