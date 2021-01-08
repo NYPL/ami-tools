@@ -4,6 +4,8 @@ from pymediainfo import MediaInfo
 from datetime import datetime
 from dateutil import parser
 
+import ami_files.ami_file_constants as ami_file_constants
+
 LOGGER = logging.getLogger(__name__)
 
 class AMIFileError(Exception):
@@ -27,9 +29,9 @@ class ami_file:
       self.date_filesys_created = datetime.fromtimestamp(os.path.getctime(self.filepath)).strftime('%Y-%m-%d')
       self.extension =  os.path.splitext(self.filepath)[1][1:]
 
-    if self.extension in ['mkv', 'mp4', 'mov']:
+    if self.extension.lower() in ami_file_constants.VIDEO_EXTS:
       self.type = "video"
-    elif self.extension in ['wav', 'WAV', 'mka', 'flac']:
+    elif self.extension.lower() in ami_file_constants.AUDIO_EXTS:
       self.type = "audio"
     else:
       self.raise_AMIFileError('{} does not appear to be an accepted audio or video format.'.format(self.filename))

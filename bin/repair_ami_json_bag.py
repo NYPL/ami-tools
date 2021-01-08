@@ -27,9 +27,11 @@ def _make_parser():
     parser = argparse.ArgumentParser()
     parser.description = "Repair common problems with json metadata in AMI bags"
     parser.add_argument("-d", "--directory",
+                        nargs = "+",
                         help = "Path to a directory full of AMI bags")
     parser.add_argument("-b", "--bagpath",
                         default = None,
+                        nargs = "+",
                         help = "Path to the base directory of the AMI bag")
     parser.add_argument("-p", "--repairer",
                         default = None,
@@ -149,11 +151,13 @@ def main():
 
 
     if args.directory:
-        directory_path = os.path.abspath(args.directory)
-        for path in os.listdir(directory_path):
-            path = os.path.join(directory_path, path)
-            if os.path.isdir(path):
-                bags.append(path)
+        for directory in args.directory:
+            directory_path = os.path.abspath(directory)
+            for path in os.listdir(directory_path):
+                if len(path) == 6:
+                    path = os.path.join(directory_path, path)
+                    if os.path.isdir(path):
+                        bags.append(path)
 
     if args.bagpath:
         bags.append(os.path.abspath(args.bagpath))
