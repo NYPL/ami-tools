@@ -24,8 +24,8 @@ class ami_bag(update_bag.Repairable_Bag):
 
         try:
             self.validate(completeness_only = True)
-        except:
-            LOGGER.error("Bag incomplete or invalid oxum: {0}")
+        except bagit.BagValidationError as e:
+            LOGGER.error("Bag incomplete or invalid oxum: {0}".format(e.message))
 
         self.data_files = set(self.payload_entries().keys())
         self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
@@ -64,115 +64,135 @@ class ami_bag(update_bag.Repairable_Bag):
         ))
 
 
-    def validate_amibag(self, fast = True, metadata = False):
+    def check_amibag(self, fast = True, metadata = False):
         '''
         run each of the validation checks against an AMI Bag
+        return if out of spec but okay, or if not media ingestable
         '''
 
-        valid = True
+        error = False
+        warning = False
+
         try:
             self.validate(fast = fast, completeness_only = fast)
         except bagit.BagValidationError as e:
             LOGGER.error("Error in bag: {0}".format(e.message))
-            valid = False
+            error = True
 
         try:
             self.check_filenames()
         except ami_bagError as e:
             LOGGER.warning("Error in filenames: {0}".format(e.message))
-            valid = False
+            warning = True
 
         try:
             self.check_simple_filenames()
         except ami_bagError as e:
-            LOGGER.warning("Error in filenames: {0}".format(e.message))
-            valid = False
+            LOGGER.error("Error in filenames: {0}".format(e.message))
+            error = False
 
         try:
             self.check_directory_depth()
         except ami_bagError as e:
             LOGGER.warning("Error in path names: {0}".format(e.message))
-            valid = False
+            warning = False
 
         if self.em_filepaths:
             try:
                 self.check_pmem_match()
             except ami_bagError as e:
-                LOGGER.warning("Error in asset balance: {0}".format(e.message))
-                valid = False
+                LOGGER.error("Error in asset balance: {0}".format(e.message))
+                error = False
 
         if self.sc_filepaths:
             try:
                 self.check_pmsc_match()
             except ami_bagError as e:
-                LOGGER.warning("Error in asset balance: {0}".format(e.message))
-                valid = False
+                LOGGER.error("Error in asset balance: {0}".format(e.message))
+                error = False
 
         try:
             self.check_type()
         except ami_bagError as e:
             LOGGER.warning("Error in AMI bag type: {0}".format(e.message))
-            valid = False
+            warning = False
 
         try:
             self.check_subtype()
         except ami_bagError as e:
             LOGGER.warning("Error in AMI bag subtype: {0}".format(e.message))
-            valid = False
+            warning = False
 
         if self.type == "excel":
             try:
                 self.check_bagstructure_excel()
             except ami_bagError as e:
                 LOGGER.warning("Error in bag structure: {0}".format(e.message))
-                valid = False
+                warning = False
 
             if metadata:
                 try:
                     self.check_metadata_excel()
                 except ami_bagError as e:
                     LOGGER.warning("Error in bag metadata: {0}".format(e.message))
-                    valid = False
+                    warning = False
 
                 try:
                     self.check_filenames_manifest_and_metadata_excel()
                 except ami_bagError as e:
-                    LOGGER.warning("Error in bag metadata: {0}".format(e.message))
-                    valid = False
+                    LOGGER.error("Error in bag metadata: {0}".format(e.message))
+                    error = False
 
         else:
             if self.type == "json":
                 try:
                     self.check_bagstructure_json()
                 except ami_bagError as e:
-                    LOGGER.warning("Error in bag structure: {0}".format(e.message))
-                    valid = False
+                    LOGGER.error("Error in bag structure: {0}".format(e.message))
+                    error = False
 
             elif self.type == "excel-json":
                 try:
                     self.check_bagstructure_exceljson()
                 except ami_bagError as e:
                     LOGGER.warning("Error in bag structure: {0}".format(e.message))
-                    valid = False
+                    warning = False
 
             try:
                 self.check_filenames_md_concordance_json()
             except ami_bagError as e:
-                LOGGER.warning("Error in bag structure: {0}".format(e.message))
-                valid = False
+                LOGGER.error("Error in bag structure: {0}".format(e.message))
+                error = False
 
             if metadata:
                 try:
                     self.check_metadata_json()
                 except ami_bagError as e:
                     LOGGER.warning("Error in bag metadata: {0}".format(e.message))
-                    valid = False
+                    warning = False
 
                 try:
                     self.check_filenames_md_manifest_concordance_json()
                 except ami_bagError as e:
-                    LOGGER.warning("Error in bag metadata: {0}".format(e.message))
-                    valid = False
+                    LOGGER.error("Error in bag metadata: {0}".format(e.message))
+                    error = False
+        print('hi')
+
+        return warning, error
+
+
+
+    def validate_amibag(self, fast = True, metadata = False):
+        '''
+        run each of the validation checks against an AMI Bag
+        return a boolean
+        '''
+
+        warning, error = check_amibag(fast = fast, metadata = metadata)
+        if warning or error:
+            valid = False
+        else:
+            valid = True
 
         return valid
 
