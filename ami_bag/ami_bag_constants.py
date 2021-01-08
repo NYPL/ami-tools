@@ -1,12 +1,13 @@
 import re
 
 FILENAME_REGEX = re.compile(
-    "([a-z]{3}_[a-z0-9]+_v\d{2}(([frspt]\d{2})+)?_(pm|em|sc|pf|assetfront|assetback|assetside|boxfront|boxback|boxside|reelfront|ephemera)([~\d\-]+)?\.[a-z0-9]+)|(\d{4}_\d{3}_[\da-zA-Z_]+\.(xlsx|old))",
+    "([a-z]{3}_[a-z0-9]+_v\d{2}(([frspt]\d{2})+)?_(ao|pm|mz|em|sc|pf|assetfront|assetback|assetside|boxfront|boxback|boxside|reelfront|ephemera)([~\d\-]+)?\.[a-z0-9]+)|(\d{4}_\d{3}_[\da-zA-Z_]+\.(xlsx|old))",
     re.IGNORECASE)
 SUBOBJECT_REGEX = re.compile("_v\d{2}(f\d{2})?([rspt]\d{2})+")
 
 MD_DIR = "Metadata"
 PM_DIR = "PreservationMasters"
+MZ_DIR = "Mezzanines"
 EM_DIR = "EditMasters"
 SC_DIR = "ServiceCopies"
 AO_DIR = "ArchiveOriginals"
@@ -51,6 +52,8 @@ JSON_SUBTYPES = {
         set([JSON_EXT, MOV_EXT, MKV_EXT, DV_EXT, MP4_EXT, JPEG_EXT, JPG_EXT])),
     "audio": (set([PM_DIR, EM_DIR, IM_DIR]),
         set([JSON_EXT, WAV_EXT, FLAC_EXT, JPEG_EXT, JPG_EXT]))
+    "film": (set([PM_DIR, MZ_DIR, SC_DIR, IM_DIR]),
+        set([JSON_EXT, MKV_EXT, MOV_EXT, MP4_EXT, JPEG_EXT, JPG_EXT]))
 }
 
 EXCELJSON_SUBTYPES = {
