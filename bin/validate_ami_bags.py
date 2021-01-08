@@ -97,15 +97,16 @@ def main():
         else:
             try:
                 warning, error = bag.check_amibag(fast = args.slow, metadata = args.metadata)
-                if warning:
-                    LOGGER.info("Valid {} {} bag: {}".format(bag.type, bag.subtype, bagpath))
-                    valid_bags.append(os.path.basename(bagpath))
+
                 if warning:
                     LOGGER.warning("Invalid bag: {}".format(bagpath))
                     warning_bags.append(os.path.basename(bagpath))
+
                 if error:
                     LOGGER.error("Invalid bag: {}".format(bagpath))
                     error_bags.append(os.path.basename(bagpath))
+                else:
+                    valid_bags.append(os.path.basename(bagpath))
             except:
                 print('ami-tools issue for {}'.format(bagpath))
 
