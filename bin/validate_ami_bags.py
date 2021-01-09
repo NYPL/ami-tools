@@ -97,25 +97,26 @@ def main():
         else:
             try:
                 warning, error = bag.check_amibag(fast = args.slow, metadata = args.metadata)
-                if warning:
-                    LOGGER.info("Valid {} {} bag: {}".format(bag.type, bag.subtype, bagpath))
-                    valid_bags.append(os.path.basename(bagpath))
+
                 if warning:
                     LOGGER.warning("Invalid bag: {}".format(bagpath))
                     warning_bags.append(os.path.basename(bagpath))
+
                 if error:
                     LOGGER.error("Invalid bag: {}".format(bagpath))
                     error_bags.append(os.path.basename(bagpath))
+                else:
+                    valid_bags.append(os.path.basename(bagpath))
             except:
                 print('ami-tools issue for {}'.format(bagpath))
 
     LOGGER.setLevel(level=logging.INFO)
     if error_bags:
-        LOGGER.info("{} of {} bags are not ready for ingest".format(len(invalid_bags), len(bags)))
-        LOGGER.info("The following bags are not ready for media ingest: {}".format(", ".join(invalid_bags)))
+        LOGGER.info("{} of {} bags are not ready for ingest".format(len(warning_bags), len(bags)))
+        LOGGER.info("The following bags are not ready for media ingest: {}".format(", ".join(error_bags)))
     if warning_bags:
-        LOGGER.info("{} of {} bags are ready for ingest, but out of spec".format(len(invalid_bags), len(bags)))
-        LOGGER.info("The following bags are ready for media ingest, but out of spec: {}".format(", ".join(invalid_bags)))
+        LOGGER.info("{} of {} bags are ready for ingest, but out of spec".format(len(error_bags), len(bags)))
+        LOGGER.info("The following bags are ready for media ingest, but out of spec: {}".format(", ".join(warning_bags)))
     if valid_bags:
         LOGGER.info("{} of {} bags are ready for ingest".format(len(valid_bags), len(bags)))
         LOGGER.info("The following bags are ready for media ingest: {}".format(", ".join(valid_bags)))
