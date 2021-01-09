@@ -51,7 +51,7 @@ JSON_SUBTYPES = {
     "video": (set([PM_DIR, SC_DIR, IM_DIR]),
         set([JSON_EXT, MOV_EXT, MKV_EXT, DV_EXT, MP4_EXT, JPEG_EXT, JPG_EXT])),
     "audio": (set([PM_DIR, EM_DIR, IM_DIR]),
-        set([JSON_EXT, WAV_EXT, FLAC_EXT, JPEG_EXT, JPG_EXT]))
+        set([JSON_EXT, WAV_EXT, FLAC_EXT, JPEG_EXT, JPG_EXT])),
     "film": (set([PM_DIR, MZ_DIR, SC_DIR, IM_DIR]),
         set([JSON_EXT, MKV_EXT, MOV_EXT, MP4_EXT, JPEG_EXT, JPG_EXT]))
 }

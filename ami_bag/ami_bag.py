@@ -361,7 +361,10 @@ class ami_bag(update_bag.Repairable_Bag):
 
 
     def check_bagstructure_excel(self):
-        expected_dirs = set(["Metadata", "PreservationMasters", "EditMasters", "ArchiveOriginals", "ProjectFiles"])
+        expected_dirs = set()
+        for type_props in ami_bag_constants.EXCEL_SUBTYPES.values():
+            expected_dirs = expected_dirs | type_props[0]
+
         if not self.compare_structure(expected_dirs):
             raise ami_bagError("AMI Excel bags may only have the following directories\nFound: {0}\nExpected: {1}".format(self.data_dirs, expected_dirs))
 
@@ -393,7 +396,9 @@ class ami_bag(update_bag.Repairable_Bag):
 
 
     def check_bagstructure_json(self):
-        expected_dirs = set(["PreservationMasters", "ServiceCopies", "EditMasters", "Images"])
+        expected_dirs = set()
+        for type_props in ami_bag_constants.JSON_SUBTYPES.values():
+            expected_dirs = expected_dirs | type_props[0]
 
         if not self.compare_structure(expected_dirs):
             raise ami_bagError("JSON bags may only have the following directories - {}".format(expected_dirs))
@@ -419,7 +424,9 @@ class ami_bag(update_bag.Repairable_Bag):
 
 
     def check_bagstructure_exceljson(self):
-        expected_dirs = set(["Metadata", "PreservationMasters", "ServiceCopies", "EditMasters", "ArchiveOriginals"])
+        expected_dirs = set()
+        for type_props in ami_bag_constants.EXCELJSON_SUBTYPES.values():
+            expected_dirs = expected_dirs | type_props[0]
 
         if not self.compare_structure(expected_dirs):
             raise ami_bagError("Excel JSON bags may only have the following directories - {}".format(expected_dirs))
