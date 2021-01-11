@@ -281,7 +281,7 @@ class ami_bag(update_bag.Repairable_Bag):
         return True
 
 
-    def check_pmem_match(self):
+    def check_pmmz_match(self):
         base_pms = set([os.path.basename(path).rsplit('_', 1)[0] for path in self.pm_filepaths])
         base_mzs = set([os.path.basename(path).rsplit('_', 1)[0] for path in self.mz_filepaths])
 
