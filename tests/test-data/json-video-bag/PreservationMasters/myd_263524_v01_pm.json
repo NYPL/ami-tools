@@ -23,7 +23,7 @@
 		"dateCreated": "2016-09-14",
 		"fileFormat": "MPEG-4",
 		"audioCodec": "PCM",
-		"videoCodec": "v210",
+		"videoCodec": "YUV",
 		"fileSize": {
 			"measure": 5658415,
 			"unit": "B"

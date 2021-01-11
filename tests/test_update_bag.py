@@ -131,7 +131,7 @@ class TestSingleProcessValidation(unittest.TestCase):
 		with open(f, 'w') as r:
 			r.write('♡')
 		self.assertEqual(list(bag.payload_files_not_in_manifest()), ['data/Thumbs.db'])
-		bag.delete_payload_files_not_in_manifest(rules = {"Thumbs.db": {"regex": r"[Tt]humbs\.db$", "match": False}})
+		bag.delete_payload_files_not_in_manifest(rules = {"Thumbs.db": {"regex": r"[Tt]humbs\.db$", "match": True}})
 		updated_bag = update_bag.Repairable_Bag(path = self.tmpdir)
 		self.assertTrue(updated_bag.is_valid(fast = True))
 
@@ -142,7 +142,7 @@ class TestSingleProcessValidation(unittest.TestCase):
 		with open(f, 'w') as r:
 			r.write('♡')
 		self.assertEqual(list(bag.payload_files_not_in_manifest()), ['data/._.SYSTEMFILE.db\r'])
-		bag.delete_payload_files_not_in_manifest(rules = {"Thumbs.db": {"regex": r"[Tt]humbs\\.db$", "match": False}})
+		bag.delete_payload_files_not_in_manifest(rules = {"Thumbs.db": {"regex": r"[Tt]humbs\\.db$", "match": True}})
 		updated_bag = update_bag.Repairable_Bag(path = self.tmpdir)
 		self.assertEqual(list(updated_bag.payload_files_not_in_manifest()), ['data/._.SYSTEMFILE.db\r'])
 		self.assertRaises(bagit.BagValidationError, bag.validate, updated_bag, fast=False)

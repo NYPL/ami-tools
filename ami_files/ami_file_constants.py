@@ -1,12 +1,14 @@
-MOV_EXT = ".mov"
-DV_EXT = ".dv"
-MKV_EXT = ".mkv"
-MKA_EXT = ".mka"
-MP4_EXT = ".mp4"
-ISO_EXT = ".iso"
-TAR_EXT = ".tar"
-WAV_EXT = ".wav"
-FLAC_EXT = ".flac"
+import re
+
+MOV_EXT = "mov"
+DV_EXT = "dv"
+MKV_EXT = "mkv"
+MKA_EXT = "mka"
+MP4_EXT = "mp4"
+ISO_EXT = "iso"
+TAR_EXT = "tar"
+WAV_EXT = "wav"
+FLAC_EXT = "flac"
 
 MEDIA_EXTS = [MOV_EXT, DV_EXT, MKV_EXT, MKA_EXT, MP4_EXT, ISO_EXT, TAR_EXT, WAV_EXT, FLAC_EXT]
 
@@ -25,4 +27,4 @@ FN_NOEXT_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(ao|pm|em|sc)$"
 STUB_FN_NOEXT_RE = r"^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_(ao|pm|em|sc)"
 regex_roles = "|".join(FILE_ROLES)
 regex_exts = "|".join(MEDIA_EXTS)
-FN_RE = "^[a-z]{3}_[a-z\d\-\*_]+_([vfrspt]\d{2})+_({regex_roles}})\.({regex_exts})$"
+FN_RE = rf"^[a-z]{{3}}_[a-z\d\-\*_]+_([vfrspt]\d{{2}})+_({regex_roles})\.({regex_exts})$"

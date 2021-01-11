@@ -26,6 +26,7 @@ class ami_bag(update_bag.Repairable_Bag):
             self.validate(completeness_only = True)
         except bagit.BagValidationError as e:
             LOGGER.error("Bag incomplete or invalid oxum: {0}".format(e.message))
+            raise ami_bagError("Cannot load incomplete bag")
 
         self.data_files = set(self.payload_entries().keys())
         self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
@@ -201,7 +202,7 @@ class ami_bag(update_bag.Repairable_Bag):
         return a boolean
         '''
 
-        warning, error = check_amibag(fast = fast, metadata = metadata)
+        warning, error = self.check_amibag(fast = fast, metadata = metadata)
         if warning or error:
             valid = False
         else:
@@ -255,7 +256,7 @@ class ami_bag(update_bag.Repairable_Bag):
         misplaced_files = []
 
         for path in self.data_files:
-            role = os.path.splitext(path)[0].rsplit('_', 1)[1]
+            role = os.path.splitext(path)[0].rsplit('_', 1)
 
             if role == "pm":
                 if ami_bag_constants.PM_DIR not in path:
