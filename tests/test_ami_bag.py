@@ -48,7 +48,7 @@ class TestNotAnAMIBag(SelfCleaningTestCase):
 		bagit.make_bag(self.tmpdir)
 		pres_dir = os.path.join(self.tmpdir, 'data/PreservationMasters')
 		shutil.rmtree(pres_dir)
-		self.assertRaises(bagit.BagValidationError, ami_bag.ami_bag,
+		self.assertRaises(ami_bag.ami_bagError, ami_bag.ami_bag,
 			path = self.tmpdir)
 
 	def test_no_presmasters(self):
@@ -95,6 +95,8 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
 		# Every test fixture should be a valid AMI bag
 		bagit.make_bag(self.tmpdir)
 		bag = ami_bag.ami_bag(path = self.tmpdir)
+		bag.check_amibag(metadata = True)
+		bag.validate_amibag(metadata = True)
 		self.assertTrue(bag.validate_amibag(metadata = True))
 
 	def test_notype_bag(self):
@@ -183,7 +185,7 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
 		bag = ami_bag.ami_bag(path = self.tmpdir)
 
 		if bag.sc_filepaths or bag.em_filepaths:
-			with self.assertLogs('ami_bag.ami_bag', 'WARN') as cm:
+			with self.assertLogs('ami_bag.ami_bag', 'ERROR') as cm:
 				valid_bag = bag.validate_amibag()
 			for path in set(changed_files):
 				stub = os.path.basename(path).rsplit('_', 1)[0]
@@ -205,7 +207,7 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
 		bag = ami_bag.ami_bag(path = self.tmpdir)
 
 		if bag.em_filepaths:
-			with self.assertLogs('ami_bag.ami_bag', 'WARN') as cm:
+			with self.assertLogs('ami_bag.ami_bag', 'ERROR') as cm:
 				valid_bag = bag.validate_amibag()
 
 			for path in set(changed_files):
@@ -229,7 +231,7 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
 		bag = ami_bag.ami_bag(path = self.tmpdir)
 
 		if bag.sc_filepaths:
-			with self.assertLogs('ami_bag.ami_bag', 'WARN') as cm:
+			with self.assertLogs('ami_bag.ami_bag', 'ERROR') as cm:
 				valid_bag = bag.validate_amibag()
 
 			for path in set(changed_files):
@@ -273,7 +275,7 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
 		# Bag should look valid excepting metadata
 		self.assertTrue(bag.validate_amibag(metadata = False))
 
-		with self.assertLogs('ami_bag.ami_bag', 'WARN') as cm:
+		with self.assertLogs('ami_bag.ami_bag', 'ERROR') as cm:
 			valid_bag = bag.validate_amibag(metadata = True)
 
 		for path in set(changed_files):

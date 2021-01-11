@@ -285,7 +285,7 @@ class ami_json:
     if not "filename" in self.dict["technical"].keys():
       self.raise_jsonerror("Key missing for technical.filename")
 
-    if not re.match(FN_NOEXT_RE, self.dict["technical"]["filename"]):
+    if not re.match(ami_file_constants.FN_NOEXT_RE, self.dict["technical"]["filename"]):
       self.raise_jsonerror("Value for technical.filename does not meet expectations: {}"
         .format(self.dict["technical"]["filename"]))
 
@@ -324,7 +324,7 @@ class ami_json:
     if not "referenceFilename" in self.dict["asset"].keys():
       self.raise_jsonerror("Key missing for asset.referenceFilename")
 
-    if not re.match(FN_RE, self.dict["asset"]["referenceFilename"]):
+    if not re.match(ami_file_constants.FN_RE, self.dict["asset"]["referenceFilename"]):
       self.raise_jsonerror("Value for asset.referenceFilename does not meet expectations: {}"
         .format(self.dict["asset"]["referenceFilename"]))
 

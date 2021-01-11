@@ -39,6 +39,7 @@ class TestAMIJSON(unittest.TestCase):
 
 	def test_validate_valid_json(self):
 		pm_json = aj.ami_json(filepath = pm_json_path)
+		pm_json.validate_json()
 		with self.assertLogs('ami_md.ami_json', 'WARN') as cm:
 			valid = pm_json.validate_json()
 		self.assertTrue(valid)
@@ -203,23 +204,23 @@ class TestAMIJSON(unittest.TestCase):
 		pm_json.set_media_file()
 		pm_json.media_file.duration_milli = 200
 		pm_json.media_file.video_codec = 200
-		with self.assertLogs('ami_md.ami_json', 'ERROR') as cm:
+		with self.assertLogs('ami_md.ami_json', 'WARN') as cm:
 			valid_md = pm_json.validate_json()
 		self.assertFalse(valid_md)
-		expected_msg = 'ERROR:ami_md.ami_json:Error in JSON metadata: '
+		expected_msg = 'WARNING:ami_md.ami_json:Error in JSON metadata: '
 		expected_msg += 'Incorrect value for durationMilli.measure. Expected: 201, Found: 200. '
-		expected_msg += 'Incorrect value for videoCodec. Expected: v210, Found: 200.'
-		self.assertTrue(expected_msg in cm.output)
+		expected_msg += 'Incorrect value for videoCodec. Expected: YUV, Found: 200.'
+		self.assertTrue(expected_msg in cm.output[1])
 
 	def test_validate_warn_date_disagreement(self):
 		# Dates are relatively unreliable, but at least useful to look out for
 		pm_json = aj.ami_json(filepath = pm_json_path,
 			media_filepath = pm_mov_path)
+		pm_json.validate_json()
 		with self.assertLogs('ami_md.ami_json', 'WARN') as cm:
 			valid_md = pm_json.validate_json()
 		self.assertTrue(valid_md)
-		expected_msg = 'WARNING:ami_md.ami_json:dateCreated in JSON and from file disagree. '
-		expected_msg += 'JSON: 2016-09-14, From file:'
+		expected_msg = 'WARNING:ami_md.ami_json:dateCreated in JSON and from file disagree.'
 		self.assertTrue(expected_msg in cm.output[0])
 
 

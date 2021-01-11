@@ -26,6 +26,7 @@ class ami_bag(update_bag.Repairable_Bag):
             self.validate(completeness_only = True)
         except bagit.BagValidationError as e:
             LOGGER.error("Bag incomplete or invalid oxum: {0}".format(e.message))
+            raise ami_bagError("Cannot load incomplete bag")
 
         self.data_files = set(self.payload_entries().keys())
         self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
@@ -44,6 +45,7 @@ class ami_bag(update_bag.Repairable_Bag):
         self.pm_filepaths = set([path for path in self.media_filepaths if '_pm.' in path])
         if not self.pm_filepaths:
             raise ami_bagError("Payload does not contain preservation master files")
+        self.mz_filepaths = set([path for path in self.media_filepaths if '_mz.' in path])
         self.em_filepaths = set([path for path in self.media_filepaths if '_em.' in path])
         self.sc_filepaths = set([path for path in self.media_filepaths if '_sc.' in path])
 
@@ -102,6 +104,13 @@ class ami_bag(update_bag.Repairable_Bag):
         except ami_bagError as e:
             LOGGER.error("Error in file location: {0}".format(e.message))
             error = True
+
+        if self.mz_filepaths:
+            try:
+                self.check_pmmz_match()
+            except ami_bagError as e:
+                LOGGER.error("Error in asset balance: {0}".format(e.message))
+                error = True
 
         if self.em_filepaths:
             try:
@@ -193,7 +202,7 @@ class ami_bag(update_bag.Repairable_Bag):
         return a boolean
         '''
 
-        warning, error = check_amibag(fast = fast, metadata = metadata)
+        warning, error = self.check_amibag(fast = fast, metadata = metadata)
         if warning or error:
             valid = False
         else:
@@ -247,7 +256,7 @@ class ami_bag(update_bag.Repairable_Bag):
         misplaced_files = []
 
         for path in self.data_files:
-            role = os.path.splitext(path)[0].rsplit('_', 1)[1]
+            role = os.path.splitext(path)[0].rsplit('_', 1)
 
             if role == "pm":
                 if ami_bag_constants.PM_DIR not in path:
@@ -268,6 +277,16 @@ class ami_bag(update_bag.Repairable_Bag):
 
             if misplaced_files:
                 raise ami_bagError("Files in the wrong directory: {}".format(misplaced_files))
+
+        return True
+
+
+    def check_pmmz_match(self):
+        base_pms = set([os.path.basename(path).rsplit('_', 1)[0] for path in self.pm_filepaths])
+        base_mzs = set([os.path.basename(path).rsplit('_', 1)[0] for path in self.mz_filepaths])
+
+        if not base_mzs == base_pms:
+            raise ami_bagError("Mismatch of PM's and MZ's: {}".format(base_pms.symmetric_difference(base_mzs)))
 
         return True
 
@@ -343,7 +362,10 @@ class ami_bag(update_bag.Repairable_Bag):
 
 
     def check_bagstructure_excel(self):
-        expected_dirs = set(["Metadata", "PreservationMasters", "EditMasters", "ArchiveOriginals", "ProjectFiles"])
+        expected_dirs = set()
+        for type_props in ami_bag_constants.EXCEL_SUBTYPES.values():
+            expected_dirs = expected_dirs | type_props[0]
+
         if not self.compare_structure(expected_dirs):
             raise ami_bagError("AMI Excel bags may only have the following directories\nFound: {0}\nExpected: {1}".format(self.data_dirs, expected_dirs))
 
@@ -375,7 +397,9 @@ class ami_bag(update_bag.Repairable_Bag):
 
 
     def check_bagstructure_json(self):
-        expected_dirs = set(["PreservationMasters", "ServiceCopies", "EditMasters", "Images"])
+        expected_dirs = set()
+        for type_props in ami_bag_constants.JSON_SUBTYPES.values():
+            expected_dirs = expected_dirs | type_props[0]
 
         if not self.compare_structure(expected_dirs):
             raise ami_bagError("JSON bags may only have the following directories - {}".format(expected_dirs))
@@ -401,7 +425,9 @@ class ami_bag(update_bag.Repairable_Bag):
 
 
     def check_bagstructure_exceljson(self):
-        expected_dirs = set(["Metadata", "PreservationMasters", "ServiceCopies", "EditMasters", "ArchiveOriginals"])
+        expected_dirs = set()
+        for type_props in ami_bag_constants.EXCELJSON_SUBTYPES.values():
+            expected_dirs = expected_dirs | type_props[0]
 
         if not self.compare_structure(expected_dirs):
             raise ami_bagError("Excel JSON bags may only have the following directories - {}".format(expected_dirs))
