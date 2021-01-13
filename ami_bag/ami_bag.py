@@ -256,7 +256,7 @@ class ami_bag(update_bag.Repairable_Bag):
         misplaced_files = []
 
         for path in self.data_files:
-            role = os.path.splitext(path)[0].rsplit('_', 1)
+            role = os.path.splitext(path)[0].rsplit('_', 1)[1]
 
             if role == "pm":
                 if ami_bag_constants.PM_DIR not in path:
