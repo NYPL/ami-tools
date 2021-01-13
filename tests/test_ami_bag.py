@@ -165,12 +165,29 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
 		# Method: Add an unsuspected deep folder
 		new_dir = os.path.join(self.tmpdir, 'data', 'EditMasters', 'deepdir')
 		os.makedirs(new_dir)
-		f = os.path.join(new_dir, "iasatc-04partfiles.tar")
+		f = os.path.join(new_dir, "iasatc-04partfiles_em.tar")
 		with open(f, 'w') as r:
 			r.write('♡')
 		bagit.make_bag(self.tmpdir)
 		bag = ami_bag.ami_bag(path = self.tmpdir)
 		self.assertFalse(bag.validate_amibag())
+
+	def test_fileinwrongdir(self):
+		# Invalid if file in role different from its filename code
+		# Method: move metadata to wrong folder
+		pms = glob.glob(self.tmpdir + "/**/*pm")
+		for filename in glob.glob(self.tmpdir + "/**/*json"):
+			new_path = os.path.join(self.tmpdir, 'PreservationMasters', os.path.basename(filename))
+			shutil.move(filename, new_path)
+		bagit.make_bag(self.tmpdir)
+		bag = ami_bag.ami_bag(path = self.tmpdir)
+
+		with self.assertLogs('ami_bag.ami_bag', 'ERROR') as cm:
+			valid_bag = bag.validate_amibag()
+		for path in set(pms):
+			stub = os.path.basename(path).rsplit('_', 1)[0]
+			self.assertTrue(stub in cm.output[0])
+		self.assertFalse(valid_bag)
 
 	def test_unmatchedpm(self):
 		# Invalid if bag has non-lonely but unmatched PMs
