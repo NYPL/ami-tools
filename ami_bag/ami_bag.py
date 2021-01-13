@@ -379,6 +379,11 @@ class ami_bag(update_bag.Repairable_Bag):
         self.subtype = None
 
         for subtype in ami_bag_constants.JSON_SUBTYPES.keys():
+            #explicit film check
+            if subtype == "film":
+                if not ami_bag_constants.MZ_DIR in self.data_dirs:
+                    continue
+
             if (self.compare_structure(ami_bag_constants.JSON_SUBTYPES[subtype][0]) and
                 self.compare_content(ami_bag_constants.JSON_SUBTYPES[subtype][1])):
                 self.subtype = subtype
