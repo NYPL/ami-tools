@@ -5,10 +5,10 @@
 Python3 scripts and classes to help with managing bags of NYPL AMI files
 
 ## Installation
-Clone the git repo and run the following shell command from inside the directory
+Download or clone this repo and then install with pip3
 
 ```sh
-pip3 install .
+pip3 install --user path/to/ami-tools
 ```
 
 ## Tools
