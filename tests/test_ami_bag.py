@@ -91,14 +91,6 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
 		for attr in attrs:
 			self.assertTrue(hasattr(bag, attr))
 
-	def test_valid_bag(self):
-		# Every test fixture should be a valid AMI bag
-		bagit.make_bag(self.tmpdir)
-		bag = ami_bag.ami_bag(path = self.tmpdir)
-		bag.check_amibag(metadata = True)
-		bag.validate_amibag(metadata = True)
-		self.assertTrue(bag.validate_amibag(metadata = True))
-
 	def test_notype_bag(self):
 		# Invalid if the bag doesn't map to Excel, JSON, or Excel-JSON
 		# Method: Remove all metadata from bag to obscure type classification
@@ -135,9 +127,21 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
 		os.remove(bagit_txt)
 		with self.assertLogs('ami_bag.ami_bag', 'WARN') as cm:
 			valid_bag = bag.validate_amibag()
-		expected_msg = 'Error in bag:'
+		expected_msg = 'Bag out of spec:'
 		self.assertTrue(expected_msg in cm.output[0])
 		self.assertFalse(valid_bag)
+
+	def test_corrupted_bitstream(self):
+		bagit.make_bag(self.tmpdir)
+		bag = ami_bag.ami_bag(path = self.tmpdir)
+		mov_file = os.path.join(self.tmpdir, 'data', 'PreservationMasters', 'myd_263524_v01_pm.mov')
+		with open(mov_file, 'rb') as f:
+			mov_bytes = f.read()
+		mov_bytes = mov_bytes[:-2] + b'ff'
+		with open(mov_file, 'wb') as f:
+			f.write(mov_bytes)
+		self.assertTrue(bag.validate_amibag(fast = True, metadata = True))
+		self.assertFalse(bag.validate_amibag(fast = False, metadata = True))
 
 	def test_invalid_filename(self):
 		# Invalid if filenames don't meet expectations
