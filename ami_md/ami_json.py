@@ -35,7 +35,7 @@ class ami_json:
           with open(self.path, 'r', encoding = 'utf-8-sig') as f:
             self.dict = json.load(f)
         except:
-          self.raise_jsonerror('Not a JSON file')
+          self.raise_jsonerror('Could not load {}. Check that it is valid JSON.'.format(self.filename))
         else:
           self.set_mediaformattype()
 
@@ -68,7 +68,7 @@ class ami_json:
     try:
       hasattr(self, 'dict')
     except AttributeError:
-      raise_jsonerror('Cannot set format type, metadata dictionary not loaded.')
+      self.raise_jsonerror('Cannot set format type, metadata dictionary not loaded.')
 
     self.media_format_type = self.dict["source"]["object"]["type"][0:5]
 
@@ -84,7 +84,7 @@ class ami_json:
           try:
             self.check_techfn()
           except:
-            raise_jsonerror("Cannot determine described media file based on filename metdata")
+            self.raise_jsonerror("Cannot determine described media file based on filename metdata")
           else:
             media_filename = self.dict["technical"]["filename"] + '.' + self.dict["technical"]["extension"]
         else:
@@ -92,7 +92,7 @@ class ami_json:
 
         media_filepath = os.path.join(os.path.split(self.path)[0], media_filename)
       else:
-        raise_jsonerror("Cannot determine described media file location with json file location")
+        self.raise_jsonerror("Cannot determine described media file location with json file location")
 
     if os.path.isfile(media_filepath):
       self.media_filepath = media_filepath
@@ -404,9 +404,8 @@ class ami_json:
     lazy error reporting
     """
 
-    raise AMIJSONError(msg)
     logging.error(msg + '\n')
-    return False
+    raise AMIJSONError(msg)
 
 
 def convert_dotKeyToNestedDict(tree, key, value):
