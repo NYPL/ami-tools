@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os, argparse, re, csv, glob, logging
 from ami_md.ami_excel import ami_excel
 
