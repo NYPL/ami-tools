@@ -351,7 +351,7 @@ class ami_excelsheet:
         try:
           row = df[df["technical.filename"] == os.path.splitext(media_filename)[0]]
         except:
-          raise_excelerror("Excel sheet does not have a record for {}".format(media_filename))
+          self.raise_excelerror("Excel sheet does not have a record for {}".format(media_filename))
 
         row_dict = row.squeeze().to_dict()
         row_dict["asset.referenceFilename"] = media_filename
@@ -397,7 +397,7 @@ class ami_pressheet(ami_excelsheet):
         found = set([item[i] for item in self.header_entries if item[i]])
         self.check_headerRow(expected, found)
       except AMIExcelError as e:
-        print("Error in header row of sheet {}: {}"
+        LOGGER.error("Header row of sheet {} out of spec: {}"
           .format(self.name, e.value))
         valid = False
 
@@ -408,21 +408,21 @@ class ami_pressheet(ami_excelsheet):
         set(ami_md_constants.MEDIAINGEST_EXPECTED_HEADERS),
         header_entries)
     except AMIExcelError as e:
-      print("Error in header entries: ", e.value)
+      LOGGER.error("Header entries out of spec: ", e.value)
       valid = False
 
     #Check that Reference Filename field actually exists
     try:
       self.check_reffilenameheader()
     except AMIExcelError as e:
-      print("Missing R1C1 header: Reference filename (automatic)")
+      LOGGER.error("Missing R1C1 header: Reference filename (automatic)")
       valid = False
 
     #Check that the preservation sheet does not contain equations
     try:
       self.check_noequations()
     except AMIExcelError as e:
-      print("Error in cell values: ", e.value)
+      LOGGER.warning("Cells contain equations: ", e.value)
       valid = False
 
     return valid

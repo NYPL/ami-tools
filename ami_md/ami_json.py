@@ -122,38 +122,38 @@ class ami_json:
     try:
       self.check_techfn()
     except AMIJSONError as e:
-      LOGGER.warning("Error in JSON metadata: {0}".format(e.message))
+      LOGGER.warning("JSON metadata out of spec: {0}".format(e.message))
       valid = False
 
     try:
       self.check_reffn()
     except AMIJSONError as e:
-      LOGGER.warning("Error in JSON metadata: {0}".format(e.message))
+      LOGGER.warning("JSON metadata out of spec: {0}".format(e.message))
       valid = False
 
     try:
       self.compare_techfn_reffn()
     except AMIJSONError as e:
-      LOGGER.warning("Error in JSON metadata: {0}".format(e.message))
+      LOGGER.warning("JSON metadata out of spec: {0}".format(e.message))
       valid = False
 
     try:
       self.check_techmd_fields()
     except AMIJSONError as e:
-      LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+      LOGGER.error("JSON metadata out of spec: {0}".format(e.message))
       valid = False
 
     if hasattr(self, 'media_filepath'):
       try:
         self.compare_techfn_media_filename()
       except AMIJSONError as e:
-        LOGGER.error("Error in JSON metadata: {0}".format(e.message))
+        LOGGER.error("JSON metadata out of spec: {0}".format(e.message))
         valid = False
 
       try:
         self.check_techmd_values()
       except AMIJSONError as e:
-        LOGGER.warning("Error in JSON metadata: {0}".format(e.message))
+        LOGGER.warning("JSON metadata out of spec: {0}".format(e.message))
         valid = False
     else:
       LOGGER.warning('Cannot check technical metadata values against media file without location of the described media file.')
