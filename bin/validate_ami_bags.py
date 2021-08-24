@@ -108,7 +108,8 @@ def main():
                 else:
                     valid_bags.append(os.path.basename(bagpath))
             except:
-                print('ami-tools issue for {}'.format(bagpath))
+                LOGGER.error('ami-tools issue for {}'.format(bagpath))
+                error_bags.append(os.path.basename(bagpath))
 
     LOGGER.setLevel(level=logging.INFO)
     if error_bags:
