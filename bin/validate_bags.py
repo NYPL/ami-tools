@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import argparse
 from tqdm import tqdm
@@ -61,6 +63,11 @@ def main():
 
     LOGGER.info("Checking {} folder(s).".format(len(bags)))
 
+    if args.quiet:
+        LOGGER.setLevel(level=logging.ERROR)
+
+    error_bags = []
+    valid_bags = []
     for bagpath in tqdm(bags):
         LOGGER.info("Checking: {}".format(bagpath))
         try:
@@ -68,10 +75,22 @@ def main():
         except:
             LOGGER.error("{}: Not a bag".format(bagpath))
         else:
-            if bag.validate(fast = args.slow):
-                LOGGER.info("{}: valid".format(bagpath))
-            else:
+            try:
+                bag.validate(fast = args.slow)
+            except:
                 LOGGER.error("{}: invalid".format(bagpath))
+                error_bags.append(os.path.basename(bagpath))
+            else:
+                LOGGER.info("{}: valid".format(bagpath))
+                valid_bags.append(os.path.basename(bagpath))
+
+    LOGGER.setLevel(level=logging.INFO)
+    if error_bags:
+        LOGGER.info("{} of {} bags are invalid".format(len(error_bags), len(bags)))
+        LOGGER.info("The following bags are valid: {}".format(", ".join(error_bags)))
+    if valid_bags:
+        LOGGER.info("{} of {} bags are valid".format(len(valid_bags), len(bags)))
+        LOGGER.info("The following bags are invalid: {}".format(", ".join(valid_bags)))
 
 
 if __name__ == "__main__":

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import logging
 import os
@@ -54,7 +56,7 @@ def main():
   if os.path.exists(args.directory):
     directory = os.path.abspath(args.directory)
   else:
-    LOGGER.error('Can't find directory: {}'.format(args.directory))
+    LOGGER.error('Cannot find directory: {}'.format(args.directory))
 
   # Find all of the AMI files
   # list to hold all the file paths

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import csv
 import os
 import sys
@@ -15,7 +17,7 @@ with open('20200316_mkv_md5') as f:
     for row in hashes:
         hash_dict[row[2].split('/')[-1]] = row[0]
 
-def add_mp4(bag_path)
+def add_mp4(bag_path):
     mp4s = glob.glob(os.path.join(bag_path, 'data', 'ServiceCopies', '*mp4'))
     updateable_bag = Repairable_Bag(path = bag.path, dryrun = False)
     

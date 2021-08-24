@@ -78,84 +78,84 @@ class ami_bag(update_bag.Repairable_Bag):
         try:
             self.validate(fast = fast, completeness_only = fast)
         except bagit.BagValidationError as e:
-            LOGGER.error("Error in bag: {0}".format(e.message))
+            LOGGER.error("Bag out of spec: {0}".format(e.message))
             error = True
 
         try:
             self.check_filenames()
         except ami_bagError as e:
-            LOGGER.warning("Error in filenames: {0}".format(e.message))
+            LOGGER.warning("Filenames out of spec: {0}".format(e.message))
             warning = True
 
         try:
             self.check_simple_filenames()
         except ami_bagError as e:
-            LOGGER.error("Error in filenames: {0}".format(e.message))
+            LOGGER.error("Filenames out of spec: {0}".format(e.message))
             error = True
 
         try:
             self.check_directory_depth()
         except ami_bagError as e:
-            LOGGER.warning("Error in path names: {0}".format(e.message))
+            LOGGER.warning("File paths out of spec: {0}".format(e.message))
             warning = True
 
         try:
             self.check_file_in_roledir()
         except ami_bagError as e:
-            LOGGER.error("Error in file location: {0}".format(e.message))
+            LOGGER.error("File location out of spec: {0}".format(e.message))
             error = True
 
         if self.mz_filepaths:
             try:
                 self.check_pmmz_match()
             except ami_bagError as e:
-                LOGGER.error("Error in asset balance: {0}".format(e.message))
+                LOGGER.error("Asset balance out of spec: {0}".format(e.message))
                 error = True
 
         if self.em_filepaths:
             try:
                 self.check_pmem_match()
             except ami_bagError as e:
-                LOGGER.error("Error in asset balance: {0}".format(e.message))
+                LOGGER.error("Asset balance out of spec: {0}".format(e.message))
                 error = True
 
         if self.sc_filepaths:
             try:
                 self.check_pmsc_match()
             except ami_bagError as e:
-                LOGGER.error("Error in asset balance: {0}".format(e.message))
+                LOGGER.error("Asset balance out of spec: {0}".format(e.message))
                 error = True
 
         try:
             self.check_type()
         except ami_bagError as e:
-            LOGGER.warning("Error in AMI bag type: {0}".format(e.message))
+            LOGGER.warning("Asset balance out of spec: {0}".format(e.message))
             warning = True
 
         try:
             self.check_subtype()
         except ami_bagError as e:
-            LOGGER.warning("Error in AMI bag subtype: {0}".format(e.message))
+            LOGGER.warning("Asset balance out of spec: {0}".format(e.message))
             warning = True
 
         if self.type == "excel":
             try:
                 self.check_bagstructure_excel()
             except ami_bagError as e:
-                LOGGER.warning("Error in bag structure: {0}".format(e.message))
+                LOGGER.warning("Bag structure out of spec: {0}".format(e.message))
                 warning = True
 
             if metadata:
                 try:
                     self.check_metadata_excel()
                 except ami_bagError as e:
-                    LOGGER.warning("Error in bag metadata: {0}".format(e.message))
+                    LOGGER.warning("Excel metadata out of spec: {0}".format(e.message))
                     warning = True
 
                 try:
                     self.check_filenames_manifest_and_metadata_excel()
                 except ami_bagError as e:
-                    LOGGER.error("Error in bag metadata: {0}".format(e.message))
+                    LOGGER.error("Metadata balance out of spec: {0}".format(e.message))
                     error = True
 
         else:
@@ -163,33 +163,33 @@ class ami_bag(update_bag.Repairable_Bag):
                 try:
                     self.check_bagstructure_json()
                 except ami_bagError as e:
-                    LOGGER.error("Error in bag structure: {0}".format(e.message))
+                    LOGGER.error("Bag structure out of spec: {0}".format(e.message))
                     error = True
 
             elif self.type == "excel-json":
                 try:
                     self.check_bagstructure_exceljson()
                 except ami_bagError as e:
-                    LOGGER.warning("Error in bag structure: {0}".format(e.message))
+                    LOGGER.warning("Bag structure out of spec: {0}".format(e.message))
                     warning = True
 
             try:
                 self.check_filenames_md_concordance_json()
             except ami_bagError as e:
-                LOGGER.error("Error in bag structure: {0}".format(e.message))
+                LOGGER.error("Metadata balance out of spec: {0}".format(e.message))
                 error = True
 
             if metadata:
                 try:
                     self.check_metadata_json()
                 except ami_bagError as e:
-                    LOGGER.warning("Error in bag metadata: {0}".format(e.message))
+                    LOGGER.warning("JSON metadata out of spec: {0}".format(e.message))
                     warning = True
 
                 try:
                     self.check_filenames_md_manifest_concordance_json()
                 except ami_bagError as e:
-                    LOGGER.error("Error in bag metadata: {0}".format(e.message))
+                    LOGGER.error("JSON metadata out of spec: {0}".format(e.message))
                     error = True
 
         return warning, error
