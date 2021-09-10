@@ -4,6 +4,7 @@ FILENAME_REGEX = re.compile(
     "([a-z]{3}_[a-z0-9]+_v\d{2}(([frspt]\d{2})+)?_(ao|pm|mz|em|sc|pf|assetfront|assetback|assetside|boxfront|boxback|boxside|reelfront|ephemera)([~\d\-]+)?\.[a-z0-9]+)|(\d{4}_\d{3}_[\da-zA-Z_]+\.(xlsx|old))",
     re.IGNORECASE)
 SUBOBJECT_REGEX = re.compile("_v\d{2}(f\d{2})?([rspt]\d{2})+")
+SUBOBJECT_PART_REGEX = re.compile("_v\d{2}([frst\d]+)?(p|pt)\d{2}")
 
 MD_DIR = "Metadata"
 PM_DIR = "PreservationMasters"
