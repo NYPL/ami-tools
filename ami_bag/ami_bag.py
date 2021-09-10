@@ -90,7 +90,13 @@ class ami_bag(update_bag.Repairable_Bag):
         try:
             self.check_simple_filenames()
         except ami_bagError as e:
-            LOGGER.error("Filenames out of spec: {0}".format(e.message))
+            LOGGER.warning("Filenames represent complex subobject: {0}".format(e.message))
+            warning = True
+        
+        try:
+            self.check_part_filenames()
+        except ami_bagError as e:
+            LOGGER.error("Filenames represent part file: {0}".format(e.message))
             error = True
 
         try:
@@ -235,6 +241,20 @@ class ami_bag(update_bag.Repairable_Bag):
 
         if complex_filenames:
             raise ami_bagError("Complex digitized objects represented by: {}".format(complex_filenames))
+
+        return True
+
+
+    def check_part_filenames(self):
+        part_filenames = []
+
+        for filepath in self.data_files:
+            filename = os.path.split(filepath)[1]
+            if ami_bag_constants.SUBOBJECT_PART_REGEX.search(filename):
+                part_filenames.append(filename)
+
+        if part_filenames:
+            raise ami_bagError("Part files represented by: {}".format(part_filenames))
 
         return True
 
@@ -567,7 +587,7 @@ class ami_bag(update_bag.Repairable_Bag):
 
             pm_path = os.path.join(self.path, "data/PreservationMasters")
             pm_filepaths = [x for x in self.media_filepaths if pm_path in x]
-            print(pm_filepaths)
+            
             excel.pres_sheet.convert_amiExcelToJSON(pm_path, filepaths = pm_filepaths)
 
 

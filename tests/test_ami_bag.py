@@ -159,6 +159,15 @@ class TestJSONVideoAMIBag(SelfCleaningTestCase):
 		# Invalid if bag has more complex subobjects than faces
 		# Method: Add complex subobject tags
 		for filename in glob.glob(self.tmpdir + "/**/*"):
+			os.rename(filename, filename.replace('_v01_', '_v01r01_'))
+		bagit.make_bag(self.tmpdir)
+		bag = ami_bag.ami_bag(path = self.tmpdir)
+		self.assertFalse(bag.validate_amibag())
+
+	def test_complex_subobject_with_parts(self):
+		# Invalid if bag has part files
+		# Method: Add part file tags
+		for filename in glob.glob(self.tmpdir + "/**/*"):
 			os.rename(filename, filename.replace('_v01_', '_v01r01p01_'))
 		bagit.make_bag(self.tmpdir)
 		bag = ami_bag.ami_bag(path = self.tmpdir)
