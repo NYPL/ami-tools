@@ -61,7 +61,7 @@ def main():
     """
     LOGGER.info(checks)
     LOGGER.info("""To interpret log messages:
-    A WARNING means the bag is out of spec but can be ingested
+    A WARNING means the bag is valid but has features that may need double-checking. It's most useful for legacy AMI bag conversion.
     An ERROR means the bag is out of spec and cannot be ingested
     A CRITICAL means the script has failed. The bag may be in or out of spec.
     """)
