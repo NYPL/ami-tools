@@ -4,7 +4,7 @@
 
 Python3 scripts and classes to help with managing bags of NYPL AMI files
 
-## Installation
+## Installation and Updates
 Download or clone this repo and then install with pip3
 
 ```sh
