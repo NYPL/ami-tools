@@ -232,6 +232,9 @@ class ami_json:
         LOGGER.warning('{0} in JSON and from file disagree. JSON: {1}, From file: {2}.'.format(
           field, md_value, file_value
         ))
+      elif field == 'audioCodec':
+        if md_value == 'AAC' and file_value == 'AAC LC':
+            pass
       else:
         self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}.".format(
           field, md_value, file_value
