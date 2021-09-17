@@ -99,7 +99,7 @@ def main():
                 warning, error = bag.check_amibag(fast = args.slow, metadata = args.metadata)
 
                 if warning:
-                    LOGGER.warning("Invalid bag: {}".format(bagpath))
+                    LOGGER.warning("Bag may have issues (see warnings above): {}".format(bagpath))
                     warning_bags.append(os.path.basename(bagpath))
 
                 if error:
@@ -116,8 +116,8 @@ def main():
         LOGGER.info("{} of {} bags are not ready for ingest".format(len(error_bags), len(bags)))
         LOGGER.info("The following bags are not ready for media ingest: {}".format(", ".join(error_bags)))
     if warning_bags:
-        LOGGER.info("{} of {} bags are ready for ingest, but out of spec".format(len(warning_bags), len(bags)))
-        LOGGER.info("The following bags are ready for media ingest, but out of spec: {}".format(", ".join(warning_bags)))
+        LOGGER.info("{} of {} bags are ready for ingest, but may have issues (see warnings above)".format(len(warning_bags), len(bags)))
+        LOGGER.info("The following bags are ready for media ingest, but may have issues (see warnings above): {}".format(", ".join(warning_bags)))
     if valid_bags:
         LOGGER.info("{} of {} bags are ready for ingest".format(len(valid_bags), len(bags)))
         LOGGER.info("The following bags are ready for media ingest: {}".format(", ".join(valid_bags)))
