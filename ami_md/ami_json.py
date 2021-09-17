@@ -234,7 +234,7 @@ class ami_json:
         ))
       elif field == 'audioCodec':
         if md_value == 'AAC' and file_value == 'AAC LC':
-            pass
+          pass
       else:
         self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}.".format(
           field, md_value, file_value
