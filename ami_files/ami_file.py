@@ -64,7 +64,10 @@ class ami_file:
     self.duration_milli = md_track.duration
     self.duration_human = parse_duration(self.duration_milli)
 
-    self.audio_codec = md_track.audio_codecs
+    if md_track.audio_codecs.contains('/'):
+      self.audio_codec = '|'.join(set(x.strip() for x in md_track.audio_codecs.split('/')))
+    else:
+      self.audio_codec = md_track.audio_codecs.split("/")
     if md_track.codecs_video:
       self.video_codec = md_track.codecs_video
 
