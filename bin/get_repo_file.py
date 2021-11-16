@@ -12,9 +12,8 @@ def main():
 	parser = argparse.ArgumentParser()
 	parser.description = "rsync a file from repo"
 	parser.add_argument("-i", "--uuid",
-		nargs='+',
-		help = "uuid of file in repo",
-		required = True)
+		action='append',
+		help = "uuid of file in repo")
 	parser.add_argument("-r", "--repo",
 		help = "local path to repo",
 		default = "/Volumes/repo/")
