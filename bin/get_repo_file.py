@@ -105,12 +105,15 @@ def get_object_entries(object_id, assets_dict):
     return entries
 
 
-def get_uuid_path(repo_path, uuid):
-    file_path = os.path.join(repo_path, '/'.join([uuid[0:2], uuid[0:4],
-            uuid[4:8], uuid[9:13],
-            uuid[14:18], uuid[19:23],
-            uuid[24:28], uuid[28:32],
-            uuid[32:34], uuid]))
+def get_uuid_path(uuid):
+    if len(uuid.split('-')) != 5:
+        raise ValueError(f'UUID is not formatted correctly: {uuid}')
+
+    file_path = pathlib.Path(uuid[0:2]).joinpath(uuid[0:4]) \
+            .joinpath(uuid[4:8]).joinpath(uuid[9:13]) \
+            .joinpath(uuid[14:18]).joinpath(uuid[19:23]) \
+             .joinpath(uuid[24:28]).joinpath(uuid[28:32]) \
+            .joinpath(uuid[32:34]).joinpath(uuid)
     return file_path
 
 
