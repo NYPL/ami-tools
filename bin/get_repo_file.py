@@ -70,6 +70,9 @@ def extract_id(filename):
 def parse_assets(path):
     with open(path, mode='r') as file:
         reader = csv.DictReader(file)
+        print(reader.fieldnames)
+        if not all (x in reader.fieldnames for x in ['name', 'uuid']):
+            raise ValueError(f'Assets file is missing one or more required header values: name and uuid')
 
         assets_dict = {}
         for row in reader:
