@@ -64,7 +64,11 @@ def _make_parser():
 
 
 def extract_id(filename):
-    return filename.split('_')[1]
+    components = filename.split('_')
+    if len(components) == 1:
+        return None
+    else:
+        return components[1]
 
 
 def parse_assets(path):
@@ -84,6 +88,21 @@ def parse_assets(path):
             assets_dict[object_id].append(row)
 
     return assets_dict
+
+
+def get_object_entries(object_id, assets_dict):
+    entries = []
+    if object_id in assets_dict.keys():
+        for file in assets_dict[object_id]:
+            entries.append(
+                {
+                    'object_id': object_id,
+                    'filename': file['name'],
+                    'uuid': file['uuid']
+                }
+            )
+    
+    return entries
 
 
 def get_uuid_path(repo_path, uuid):
@@ -110,19 +129,11 @@ def main():
     in_repo = []
     not_in_repo = []
     for object_id in args.object:
-        if object_id in assets_dict.keys():
-            for file in assets_dict[object_id]:
-                in_repo.append({
-                    'object_id': object_id,
-                    'filename': file['name'],
-                    'repo_path': get_uuid_path(args.repo, file['uuid']),
-                })	
+        entries = get_object_entries(object_id, assets_dict)
+        if entries:
+            in_repo.append(entries)	
         else:
-            not_in_repo.append(object_id)
-
-
-    if not_in_repo:
-        print(f'no files for:{not_in_repo}')
+            print(f'no files for:{not_in_repo}')        
     
     for file in in_repo:
         dest = os.path.join(args.destination, file['filename'])
