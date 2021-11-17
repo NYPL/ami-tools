@@ -17,7 +17,7 @@ class ProcessTests(unittest.TestCase):
 
         self.filename = f'myt_{self.objectid}_pm'
 
-        self.uuid_dir_path = self.tmpdir.joinpath('12/1234/5678/3124/2314/1234/1234/5698/81')
+        self.uuid_dir_path = self.tmpdir.joinpath('12/1234/5678/3124/2314/1234/1234/5697/81')
         self.uuid_dir_path.mkdir(parents=True)
         self.uuid_path = self.uuid_dir_path.joinpath(self.uuid)
         self.uuid_path.touch()
@@ -86,7 +86,7 @@ class ProcessTests(unittest.TestCase):
 
     def test_transform_uuid(self):
         repo_path = get_repo_file.get_uuid_path(self.uuid)
-        self.assertEqual(repo_path, self.uuid_path)
+        self.assertEqual(repo_path, self.uuid_path.relative_to(self.tmpdir))
 
     def test_uuid_stringcorrupt(self):
         self.assertRaises(ValueError,
@@ -105,6 +105,12 @@ class ProcessTests(unittest.TestCase):
             f.write(b'\x52\x49\x46\x46\x11\x11\x11\x11\x57\x41\x56\x45')
         ext = get_repo_file.get_extension(self.uuid_path)
         self.assertEqual(ext, 'wav')
+
+    def test_unknown_format(self):
+        with open(self.uuid_path, 'wb') as f:
+            f.write(b'\x52\x48\x46\x46\x11\x11\x11\x11\x57\x41\x56\x45')
+        ext = get_repo_file.get_extension(self.uuid_path)
+        self.assertEqual(ext, 'unknown')
 
 
 class CLITests(unittest.TestCase):
