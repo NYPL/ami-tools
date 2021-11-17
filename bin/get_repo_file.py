@@ -102,6 +102,9 @@ def get_object_entries(object_id, assets_dict):
                 }
             )
     
+    if not entries:
+        return None
+
     return entries
 
 
