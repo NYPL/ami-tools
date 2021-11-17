@@ -15,13 +15,16 @@ class ProcessTests(unittest.TestCase):
         self.objectid = 'ncow421'
         self.uuid = '12345678-3124-2314-1234-123456978102'
 
-        self.uuid_path = self.tmpdir.joinpath('12/1234/5678/3124/2314/1234/1234/5698/81')
-        self.uuid_path.mkdir(parents=True)
-        self.uuid_path.joinpath(self.uuid).touch()
+        self.filename = f'myt_{self.objectid}_pm'
+
+        self.uuid_dir_path = self.tmpdir.joinpath('12/1234/5678/3124/2314/1234/1234/5698/81')
+        self.uuid_dir_path.mkdir(parents=True)
+        self.uuid_path = self.uuid_dir_path.joinpath(self.uuid)
+        self.uuid_path.touch()
 
         self.assets_path = self.tmpdir.joinpath('assets.csv')
         with open(self.assets_path, 'w') as f:
-            f.write(f'"name","uuid"\n"myt_{self.objectid}_pm","{self.uuid}"')
+            f.write(f'"name","uuid"\n"{self.filename}","{self.uuid}"')
         self.assets_path_str = str(self.assets_path)
 
 
@@ -39,7 +42,7 @@ class ProcessTests(unittest.TestCase):
         assets = get_repo_file.parse_assets(self.assets_path)
 
         self.assertTrue(self.objectid in assets.keys())
-        self.assertTrue('name', 'uuid' in assets[self.objectid])
+        self.assertTrue(all(x in assets[self.objectid][0].keys() for x in ['name', 'uuid']))
   
     def test_bad_assetscsv(self):
         with open(self.assets_path, 'w') as f:
@@ -51,22 +54,57 @@ class ProcessTests(unittest.TestCase):
         )
 
     def test_extract_objectid(self):
-        self.assertTrue(False)
+        extracted = get_repo_file.extract_id(f'myt_{self.objectid}_pm')
+        self.assertEqual(extracted, self.objectid)
+
+    def test_oldfilename_objectid(self):
+        extracted = get_repo_file.extract_id(f'myt{self.objectid}pm')
+        self.assertIsNone(extracted)
+
+    def test_retrieve_entries_for_objectid(self):
+        entries = get_repo_file.get_object_entries(
+            self.objectid,
+            get_repo_file.parse_assets(self.assets_path)
+        )
+
+        self.assertEqual(len(entries), 1)
+
+        expected_values = [
+            ['object_id', self.objectid, 'filename', self.filename, 'uuid', self.uuid]
+        ]
+        for pair in expected_values:
+            self.assertTrue(pair[0] in entries[0].keys())
+            self.assertEqual(entries[0][pair[0]], pair[1])
 
     def test_objectid_notfound(self):
-        self.assertTrue(False)
+        entries = get_repo_file.get_object_entries(
+            self.objectid.replace('ncow', 'ncov'),
+            get_repo_file.parse_assets(self.assets_path)
+        )
+
+        self.assertIsNone(entries)
 
     def test_transform_uuid(self):
-        self.assertTrue(False)
+        repo_path = get_repo_file.get_uuid_path(self.uuid)
+        self.assertEqual(repo_path, self.uuid_path)
 
     def test_uuid_stringcorrupt(self):
-        self.assertTrue(False)
+        self.assertRaises(ValueError,
+            get_repo_file.get_uuid_path,
+            self.uuid.replace('-', '')
+        )
 
     def test_uuid_pathnotfound(self):
-        self.assertTrue(False)
+        self.assertRaises(FileNotFoundError,
+            get_repo_file.get_uuid_path,
+            self.uuid.replace('1', '2')
+        )
 
     def test_add_extension(self):
-        self.assertTrue(False)
+        with open(self.uuid_path, 'wb') as f:
+            f.write(b'\x52\x49\x46\x46\x11\x11\x11\x11\x57\x41\x56\x45')
+        ext = get_repo_file.get_extension(self.uuid_path)
+        self.assertEqual(ext, 'wav')
 
 
 class CLITests(unittest.TestCase):
@@ -111,8 +149,8 @@ class CLITests(unittest.TestCase):
                 flags[2], self.source_path_str, flags[3], self.output_path_str]
             )
 
-            self.assertEquals(parsed.object, [self.objectid])
-            self.assertEquals(parsed.assets, self.assets_path_str)
+            self.assertEqual(parsed.object, [self.objectid])
+            self.assertEqual(parsed.assets, self.assets_path_str)
 
     def test_accept_multiple_objectid(self):
         objectid2 = "234567"
@@ -123,7 +161,7 @@ class CLITests(unittest.TestCase):
         )
 
         print(parsed.object)
-        self.assertEquals(parsed.object, [self.objectid, objectid2])
+        self.assertEqual(parsed.object, [self.objectid, objectid2])
 
     def test_require_objectid(self):
         with self.assertRaises(SystemExit):
