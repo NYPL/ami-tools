@@ -241,7 +241,7 @@ class ScriptTest(unittest.TestCase):
 
         self.assets_path = self.tmpdir.joinpath('assets.csv')
         with open(self.assets_path, 'w') as f:
-            f.write(f'"name","uuid"\n"{self.filename}","{self.uuid}"')
+            f.write(f'"name","uuid"\n"{self.filename}","{self.uuid}"\n')
 
 
     def tearDown(self):
@@ -253,7 +253,7 @@ class ScriptTest(unittest.TestCase):
 
             shutil.rmtree(self.tmpdir)
 
-    def test_script(self):
+    def test_onefile(self):
         args = ['mock',
             '-i', self.objectid,
             '-a', str(self.assets_path),
@@ -263,3 +263,25 @@ class ScriptTest(unittest.TestCase):
         with unittest.mock.patch('sys.argv', args):
             get_repo_file.main()
             self.assertTrue(self.tmpdir.joinpath(self.filename).with_suffix('.wav').is_file())
+
+    def test_multifile(self):
+        objectid2 = self.objectid.replace('ncow', 'ncov')
+        filename2 = self.filename.replace('ncow', 'ncov')
+        uuid2 = self.uuid[:-2] + '01'
+
+        self.uuid_dir_path.joinpath(uuid2).touch()
+
+        with open(self.assets_path, 'a') as f:
+            f.write(f'"{filename2}","{uuid2}"')
+        
+        args = ['mock',
+            '-i', self.objectid,
+            '-i', objectid2,
+            '-a', str(self.assets_path),
+            '-r', self.tmpdir_str,
+            '-d', self.tmpdir_str
+        ]
+        with unittest.mock.patch('sys.argv', args):
+            get_repo_file.main()
+            self.assertTrue(self.tmpdir.joinpath(self.filename).with_suffix('.wav').is_file())
+            self.assertTrue(self.tmpdir.joinpath(filename2).with_suffix('.unknown').is_file())

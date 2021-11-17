@@ -141,7 +141,7 @@ def get_extension(path):
     if format[0] in FORMAT_TO_EXT.keys():
         ext = FORMAT_TO_EXT[format[0]]
     else:
-        ext = 'unknown'
+        ext = '.unknown'
 
     return ext
 
