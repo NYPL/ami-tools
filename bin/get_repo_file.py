@@ -10,12 +10,12 @@ import subprocess
 import multiprocessing
 
 FORMAT_TO_EXT = {
-    'DV': 'dv',
-    'FLAC': 'flac',
-    'Matroska': 'mkv',
-    'Quicktime': 'mov',
-    'MPEG-4': 'mp4',
-    'Wave': 'wav'
+    'DV': '.dv',
+    'FLAC': '.flac',
+    'Matroska': '.mkv',
+    'Quicktime': '.mov',
+    'MPEG-4': '.mp4',
+    'Wave': '.wav'
 }
 
 
@@ -83,7 +83,7 @@ def extract_id(filename):
 def parse_assets(path):
     with open(path, mode='r') as file:
         reader = csv.DictReader(file)
-        print(reader.fieldnames)
+
         if not all (x in reader.fieldnames for x in ['name', 'uuid']):
             raise ValueError(f'Assets file is missing one or more required header values: name and uuid')
 
@@ -159,18 +159,22 @@ def main():
     assets_dict = parse_assets(args.assets)
 
     in_repo = []
-    not_in_repo = []
     for object_id in args.object:
         entries = get_object_entries(object_id, assets_dict)
         if entries:
-            in_repo.append(entries)	
+            in_repo.extend(entries)	
         else:
-            print(f'no files for:{not_in_repo}')        
-    
+            print(f'Could not find files listed in CSV for: {object_id}')        
+
     for file in in_repo:
-        dest = os.path.join(args.destination, file['filename'])
-        print(f'Downloading {file["repo_path"]} to {dest}')
-        run_rsync(file['repo_path'], dest)
+        print(file)
+        repo_path = pathlib.Path(args.repo).joinpath(
+            get_uuid_path(file['uuid'])
+        )
+        dest = pathlib.Path(args.destination).joinpath(file['filename']) \
+            .with_suffix(get_extension(repo_path))
+        print(f'Downloading {repo_path} to {dest}')
+        run_rsync(repo_path, dest)
 
 
 if __name__ == '__main__':
