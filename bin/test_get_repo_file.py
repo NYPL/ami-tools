@@ -1,4 +1,5 @@
 import unittest
+import unittest.mock
 import argparse
 import shutil
 import os
@@ -220,3 +221,45 @@ class CLITests(unittest.TestCase):
                 ['--object', self.objectid, '--asset', self.assets_path_str,
                 '--repo', self.source_path_str, '--destination', self.output_path_str]
             )
+
+
+class ScriptTest(unittest.TestCase):
+    def setUp(self):
+        self.tmpdir = pathlib.Path(tempfile.mkdtemp())
+        self.tmpdir_str = str(self.tmpdir)
+
+        self.objectid = 'ncow421'
+        self.uuid = '12345678-3124-2314-1234-123456978102'
+        
+        self.filename = f'myt_{self.objectid}_pm'
+
+        self.uuid_dir_path = self.tmpdir.joinpath('12/1234/5678/3124/2314/1234/1234/5697/81')
+        self.uuid_dir_path.mkdir(parents=True)
+        self.uuid_path = self.uuid_dir_path.joinpath(self.uuid)
+        with open(self.uuid_path, 'wb') as f:
+            f.write(b'\x52\x49\x46\x46\x11\x11\x11\x11\x57\x41\x56\x45')
+
+        self.assets_path = self.tmpdir.joinpath('assets.csv')
+        with open(self.assets_path, 'w') as f:
+            f.write(f'"name","uuid"\n"{self.filename}","{self.uuid}"')
+
+
+    def tearDown(self):
+        if os.path.isdir(self.tmpdir):
+            os.chmod(self.tmpdir, 0o700)
+            for dirpath, subdirs, filenames in os.walk(self.tmpdir, topdown=True):
+                for i in subdirs:
+                    os.chmod(os.path.join(dirpath, i), 0o700)
+
+            shutil.rmtree(self.tmpdir)
+
+    def test_script(self):
+        args = ['mock',
+            '-i', self.objectid,
+            '-a', str(self.assets_path),
+            '-r', self.tmpdir_str,
+            '-d', self.tmpdir_str
+        ]
+        with unittest.mock.patch('sys.argv', args):
+            get_repo_file.main()
+            self.assertTrue(self.tmpdir.joinpath(self.filename).with_suffix('.wav').is_file())
