@@ -9,6 +9,15 @@ import subprocess
 
 import multiprocessing
 
+FORMAT_TO_EXT = {
+    'DV': 'dv',
+    'FLAC': 'flac',
+    'Matroska': 'mkv',
+    'Quicktime': 'mov',
+    'MPEG-4': 'mp4',
+    'Wave': 'wav'
+}
+
 
 def _make_parser():
 
@@ -118,6 +127,23 @@ def get_uuid_path(uuid):
              .joinpath(uuid[24:28]).joinpath(uuid[28:32]) \
             .joinpath(uuid[32:34]).joinpath(uuid)
     return file_path
+
+
+def get_extension(path):
+    format = subprocess.run(
+        ['mediainfo', '--Inform=General;%Format%,%FormatProfile%', path],
+        capture_output=True
+    ).stdout.decode('utf-8').strip().split(',')
+    
+    if format[1] == 'Quicktime':
+        format[0] = 'Quicktime'
+        
+    if format[0] in FORMAT_TO_EXT.keys():
+        ext = FORMAT_TO_EXT[format[0]]
+    else:
+        ext = 'unknown'
+
+    return ext
 
 
 def run_rsync(source, dest):
