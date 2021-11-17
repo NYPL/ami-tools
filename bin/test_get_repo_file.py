@@ -9,11 +9,46 @@ import get_repo_file
 
 
 class ProcessTests(unittest.TestCase):
+    def setUp(self):
+        self.tmpdir = pathlib.Path(tempfile.mkdtemp())
+
+        self.objectid = 'ncow421'
+        self.uuid = '12345678-3124-2314-1234-123456978102'
+
+        self.uuid_path = self.tmpdir.joinpath('12/1234/5678/3124/2314/1234/1234/5698/81')
+        self.uuid_path.mkdir(parents=True)
+        self.uuid_path.joinpath(self.uuid).touch()
+
+        self.assets_path = self.tmpdir.joinpath('assets.csv')
+        with open(self.assets_path, 'w') as f:
+            f.write(f'"name","uuid"\n"myt_{self.objectid}_pm","{self.uuid}"')
+        self.assets_path_str = str(self.assets_path)
+
+
+    def tearDown(self):
+        if os.path.isdir(self.tmpdir):
+            os.chmod(self.tmpdir, 0o700)
+            for dirpath, subdirs, filenames in os.walk(self.tmpdir, topdown=True):
+                for i in subdirs:
+                    os.chmod(os.path.join(dirpath, i), 0o700)
+
+            shutil.rmtree(self.tmpdir)
+
+
     def test_load_assetscsv(self):
-        self.assertTrue(False)
-    
+        assets = get_repo_file.parse_assets(self.assets_path)
+
+        self.assertTrue(self.objectid in assets.keys())
+        self.assertTrue('name', 'uuid' in assets[self.objectid])
+  
     def test_bad_assetscsv(self):
-        self.assertTrue(False)
+        with open(self.assets_path, 'w') as f:
+            f.write(f'"nme", "uuid"\n"myt_{self.objectid}_pm", "{self.uuid}"')
+
+        self.assertRaises(ValueError,
+            get_repo_file.parse_assets,
+            self.assets_path
+        )
 
     def test_extract_objectid(self):
         self.assertTrue(False)
