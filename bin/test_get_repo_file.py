@@ -102,24 +102,17 @@ class ProcessTests(unittest.TestCase):
             self.uuid.replace('-', '')
         )
 
-    def test_uuid_pathnotfound(self):
-        self.assertRaises(
-            FileNotFoundError,
-            get_repo_file.get_uuid_path,
-            self.uuid.replace('1', '2')
-        )
-
     def test_add_extension(self):
         with open(self.uuid_path, 'wb') as f:
             f.write(b'\x52\x49\x46\x46\x11\x11\x11\x11\x57\x41\x56\x45')
         ext = get_repo_file.get_extension(self.uuid_path)
-        self.assertEqual(ext, 'wav')
+        self.assertEqual(ext, '.wav')
 
     def test_unknown_format(self):
         with open(self.uuid_path, 'wb') as f:
             f.write(b'\x52\x48\x46\x46\x11\x11\x11\x11\x57\x41\x56\x45')
         ext = get_repo_file.get_extension(self.uuid_path)
-        self.assertEqual(ext, 'unknown')
+        self.assertEqual(ext, '.unknown')
 
 
 class CLITests(unittest.TestCase):
