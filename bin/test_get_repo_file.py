@@ -18,7 +18,9 @@ class ProcessTests(unittest.TestCase):
 
         self.filename = f'myt_{self.objectid}_pm'
 
-        self.uuid_dir_path = self.tmpdir.joinpath('12/1234/5678/3124/2314/1234/1234/5697/81')
+        self.uuid_dir_path = self.tmpdir.joinpath(
+            '12/1234/5678/3124/2314/1234/1234/5697/81'
+        )
         self.uuid_dir_path.mkdir(parents=True)
         self.uuid_path = self.uuid_dir_path.joinpath(self.uuid)
         self.uuid_path.touch()
@@ -28,28 +30,31 @@ class ProcessTests(unittest.TestCase):
             f.write(f'"name","uuid"\n"{self.filename}","{self.uuid}"')
         self.assets_path_str = str(self.assets_path)
 
-
     def tearDown(self):
         if os.path.isdir(self.tmpdir):
             os.chmod(self.tmpdir, 0o700)
-            for dirpath, subdirs, filenames in os.walk(self.tmpdir, topdown=True):
+            for dirpath, subdirs, filenames in (
+                os.walk(self.tmpdir, topdown=True)
+            ):
                 for i in subdirs:
                     os.chmod(os.path.join(dirpath, i), 0o700)
 
             shutil.rmtree(self.tmpdir)
 
-
     def test_load_assetscsv(self):
         assets = get_repo_file.parse_assets(self.assets_path)
 
         self.assertTrue(self.objectid in assets.keys())
-        self.assertTrue(all(x in assets[self.objectid][0].keys() for x in ['name', 'uuid']))
-  
+        self.assertTrue(
+            all(x in assets[self.objectid][0].keys() for x in ['name', 'uuid'])
+        )
+
     def test_bad_assetscsv(self):
         with open(self.assets_path, 'w') as f:
             f.write(f'"nme", "uuid"\n"myt_{self.objectid}_pm", "{self.uuid}"')
 
-        self.assertRaises(ValueError,
+        self.assertRaises(
+            ValueError,
             get_repo_file.parse_assets,
             self.assets_path
         )
@@ -71,7 +76,8 @@ class ProcessTests(unittest.TestCase):
         self.assertEqual(len(entries), 1)
 
         expected_values = [
-            ['object_id', self.objectid, 'filename', self.filename, 'uuid', self.uuid]
+            ['object_id', self.objectid], ['filename', self.filename],
+            ['uuid', self.uuid]
         ]
         for pair in expected_values:
             self.assertTrue(pair[0] in entries[0].keys())
@@ -90,28 +96,23 @@ class ProcessTests(unittest.TestCase):
         self.assertEqual(repo_path, self.uuid_path.relative_to(self.tmpdir))
 
     def test_uuid_stringcorrupt(self):
-        self.assertRaises(ValueError,
+        self.assertRaises(
+            ValueError,
             get_repo_file.get_uuid_path,
             self.uuid.replace('-', '')
-        )
-
-    def test_uuid_pathnotfound(self):
-        self.assertRaises(FileNotFoundError,
-            get_repo_file.get_uuid_path,
-            self.uuid.replace('1', '2')
         )
 
     def test_add_extension(self):
         with open(self.uuid_path, 'wb') as f:
             f.write(b'\x52\x49\x46\x46\x11\x11\x11\x11\x57\x41\x56\x45')
         ext = get_repo_file.get_extension(self.uuid_path)
-        self.assertEqual(ext, 'wav')
+        self.assertEqual(ext, '.wav')
 
     def test_unknown_format(self):
         with open(self.uuid_path, 'wb') as f:
             f.write(b'\x52\x48\x46\x46\x11\x11\x11\x11\x57\x41\x56\x45')
         ext = get_repo_file.get_extension(self.uuid_path)
-        self.assertEqual(ext, 'unknown')
+        self.assertEqual(ext, '.unknown')
 
 
 class CLITests(unittest.TestCase):
@@ -131,14 +132,15 @@ class CLITests(unittest.TestCase):
         self.output_path = self.tmpdir.joinpath('output')
         self.output_path.mkdir()
         self.output_path_str = str(self.output_path)
-        
+
         self.parser = get_repo_file._make_parser()
-        
 
     def tearDown(self):
         if os.path.isdir(self.tmpdir):
             os.chmod(self.tmpdir, 0o700)
-            for dirpath, subdirs, filenames in os.walk(self.tmpdir, topdown=True):
+            for dirpath, subdirs, filenames in (
+                os.walk(self.tmpdir, topdown=True)
+            ):
                 for i in subdirs:
                     os.chmod(os.path.join(dirpath, i), 0o700)
 
@@ -152,8 +154,12 @@ class CLITests(unittest.TestCase):
 
         for flags in flagsets:
             parsed = self.parser.parse_args(
-                [flags[0], self.objectid, flags[1], self.assets_path_str,
-                flags[2], self.source_path_str, flags[3], self.output_path_str]
+                [
+                    flags[0], self.objectid,
+                    flags[1], self.assets_path_str,
+                    flags[2], self.source_path_str,
+                    flags[3], self.output_path_str
+                ]
             )
 
             self.assertEqual(parsed.object, [self.objectid])
@@ -163,8 +169,12 @@ class CLITests(unittest.TestCase):
         objectid2 = "234567"
 
         parsed = self.parser.parse_args(
-            ['--object', self.objectid, '-i', objectid2, '--asset', self.assets_path_str,
-            '--repo', self.source_path_str, '--destination', self.output_path_str]
+            [
+                '--object', self.objectid, '-i', objectid2,
+                '--asset', self.assets_path_str,
+                '--repo', self.source_path_str,
+                '--destination', self.output_path_str
+            ]
         )
 
         print(parsed.object)
@@ -172,7 +182,8 @@ class CLITests(unittest.TestCase):
 
     def test_require_objectid(self):
         with self.assertRaises(SystemExit):
-            self.assertRaises(argparse.ArgumentError,
+            self.assertRaises(
+                argparse.ArgumentError,
                 self.parser.parse_args(),
                 ['--asset', self.assets_path_str]
             )
@@ -181,14 +192,16 @@ class CLITests(unittest.TestCase):
         objectid = "ncow 421"
 
         with self.assertRaises(SystemExit):
-            self.assertRaises(argparse.ArgumentError,
+            self.assertRaises(
+                argparse.ArgumentError,
                 self.parser.parse_args,
                 ['--object', objectid]
             )
 
     def test_require_inventorysheet(self):
         with self.assertRaises(SystemExit):
-            self.assertRaises(argparse.ArgumentError,
+            self.assertRaises(
+                argparse.ArgumentError,
                 self.parser.parse_args(),
                 ['--object', self.objectid]
             )
@@ -197,7 +210,8 @@ class CLITests(unittest.TestCase):
         self.assets_path.unlink()
 
         with self.assertRaises(SystemExit):
-            self.assertRaises(argparse.ArgumentError,
+            self.assertRaises(
+                argparse.ArgumentError,
                 self.parser.parse_args,
                 ['--object', self.objectid, '--asset', self.assets_path_str]
             )
@@ -205,21 +219,35 @@ class CLITests(unittest.TestCase):
     def test_sourcelocation_doesnotexist(self):
         self.source_path.rmdir()
 
+        args = [
+            '--object', self.objectid,
+            '--asset', self.assets_path_str,
+            '--repo', self.source_path_str,
+            '--destination', self.output_path_str
+        ]
+
         with self.assertRaises(SystemExit):
-            self.assertRaises(argparse.ArgumentError,
+            self.assertRaises(
+                argparse.ArgumentError,
                 self.parser.parse_args,
-                ['--object', self.objectid, '--asset', self.assets_path_str,
-                '--repo', self.source_path_str, '--destination', self.output_path_str]
-            )    
+                args
+            )
 
     def test_outputlocation_doesnotexist(self):
         self.output_path.rmdir()
-        
+
+        args = [
+            '--object', self.objectid,
+            '--asset', self.assets_path_str,
+            '--repo', self.source_path_str,
+            '--destination', self.output_path_str
+        ]
+
         with self.assertRaises(SystemExit):
-            self.assertRaises(argparse.ArgumentError,
+            self.assertRaises(
+                argparse.ArgumentError,
                 self.parser.parse_args,
-                ['--object', self.objectid, '--asset', self.assets_path_str,
-                '--repo', self.source_path_str, '--destination', self.output_path_str]
+                args
             )
 
 
@@ -230,10 +258,12 @@ class ScriptTest(unittest.TestCase):
 
         self.objectid = 'ncow421'
         self.uuid = '12345678-3124-2314-1234-123456978102'
-        
+
         self.filename = f'myt_{self.objectid}_pm'
 
-        self.uuid_dir_path = self.tmpdir.joinpath('12/1234/5678/3124/2314/1234/1234/5697/81')
+        self.uuid_dir_path = self.tmpdir.joinpath(
+            '12/1234/5678/3124/2314/1234/1234/5697/81'
+        )
         self.uuid_dir_path.mkdir(parents=True)
         self.uuid_path = self.uuid_dir_path.joinpath(self.uuid)
         with open(self.uuid_path, 'wb') as f:
@@ -243,18 +273,20 @@ class ScriptTest(unittest.TestCase):
         with open(self.assets_path, 'w') as f:
             f.write(f'"name","uuid"\n"{self.filename}","{self.uuid}"\n')
 
-
     def tearDown(self):
         if os.path.isdir(self.tmpdir):
             os.chmod(self.tmpdir, 0o700)
-            for dirpath, subdirs, filenames in os.walk(self.tmpdir, topdown=True):
+            for dirpath, subdirs, filenames in os.walk(
+                self.tmpdir, topdown=True
+            ):
                 for i in subdirs:
                     os.chmod(os.path.join(dirpath, i), 0o700)
 
             shutil.rmtree(self.tmpdir)
 
     def test_onefile(self):
-        args = ['mock',
+        args = [
+            'mock',
             '-i', self.objectid,
             '-a', str(self.assets_path),
             '-r', self.tmpdir_str,
@@ -262,7 +294,10 @@ class ScriptTest(unittest.TestCase):
         ]
         with unittest.mock.patch('sys.argv', args):
             get_repo_file.main()
-            self.assertTrue(self.tmpdir.joinpath(self.filename).with_suffix('.wav').is_file())
+            self.assertTrue(
+                self.tmpdir.joinpath(self.filename)
+                .with_suffix('.wav').is_file()
+            )
 
     def test_multifile(self):
         objectid2 = self.objectid.replace('ncow', 'ncov')
@@ -273,15 +308,23 @@ class ScriptTest(unittest.TestCase):
 
         with open(self.assets_path, 'a') as f:
             f.write(f'"{filename2}","{uuid2}"')
-        
-        args = ['mock',
+
+        args = [
+            'mock',
             '-i', self.objectid,
             '-i', objectid2,
             '-a', str(self.assets_path),
             '-r', self.tmpdir_str,
             '-d', self.tmpdir_str
         ]
+
         with unittest.mock.patch('sys.argv', args):
             get_repo_file.main()
-            self.assertTrue(self.tmpdir.joinpath(self.filename).with_suffix('.wav').is_file())
-            self.assertTrue(self.tmpdir.joinpath(filename2).with_suffix('.unknown').is_file())
+            self.assertTrue(
+                self.tmpdir.joinpath(self.filename)
+                .with_suffix('.wav').is_file()
+            )
+            self.assertTrue(
+                self.tmpdir.joinpath(filename2)
+                .with_suffix('.unknown').is_file()
+            )
