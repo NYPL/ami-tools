@@ -1,5 +1,6 @@
 import unittest
-import unittest.mock
+from unittest import mock
+from unittest.mock import patch
 import argparse
 import shutil
 import os
@@ -29,8 +30,8 @@ class ProcessTests(unittest.TestCase):
         self.assets_path = self.tmpdir.joinpath('assets.csv')
         with open(self.assets_path, 'w') as f:
             f.write(
-                f'"name","uuid","capture_uuid"\n'
-                f'"{self.filename}","{self.uuid}","{self.capture_uuid}"\n'
+                f'"name","uuid","capture_uuid","type"\n'
+                f'"{self.filename}","{self.uuid}","{self.capture_uuid}",""\n'
             )
         self.assets_path_str = str(self.assets_path)
 
@@ -284,9 +285,9 @@ class ScriptTest(unittest.TestCase):
 
         self.assets_path = self.tmpdir.joinpath('assets.csv')
         with open(self.assets_path, 'w') as f:
-            f.write('"name","uuid","capture_uuid"\n'
-                f'"{self.filename}","{self.uuid}","{self.capture_uuid}"\n'
-                f'"{self.filename2}","{self.uuid2}","{self.capture_uuid2}"\n'
+            f.write('"name","uuid","capture_uuid","type"\n'
+                f'"{self.filename}","{self.uuid}","{self.capture_uuid}",""\n'
+                f'"{self.filename2}","{self.uuid2}","{self.capture_uuid2}",""\n'
             )
 
     def tearDown(self):
@@ -298,7 +299,7 @@ class ScriptTest(unittest.TestCase):
                 for i in subdirs:
                     os.chmod(os.path.join(dirpath, i), 0o700)
 
-            shutil.rmtree(self.tmpdir)
+            #shutil.rmtree(self.tmpdir)
 
     def test_onefile(self):
         args = [
@@ -308,7 +309,7 @@ class ScriptTest(unittest.TestCase):
             '-r', self.tmpdir_str,
             '-d', self.tmpdir_str
         ]
-        with unittest.mock.patch('sys.argv', args):
+        with mock.patch('sys.argv', args):
             get_repo_file.main()
             self.assertTrue(
                 self.tmpdir.joinpath(self.filename)
@@ -326,7 +327,7 @@ class ScriptTest(unittest.TestCase):
             '-d', self.tmpdir_str
         ]
 
-        with unittest.mock.patch('sys.argv', args):
+        with mock.patch('sys.argv', args):
             get_repo_file.main()
             self.assertTrue(
                 self.tmpdir.joinpath(self.filename)
@@ -347,9 +348,14 @@ class ScriptTest(unittest.TestCase):
             '-d', self.tmpdir_str
         ]
 
-        with unittest.mock.patch('sys.argv', args):
+
+        with mock.patch('sys.argv', args), mock.patch('get_repo_file.run_s3cp') as mock_s3cp:
+            # Don't know how to test S3 downloads yet, so skip
+            mock_s3cp.return_value = None
+            self.uuid_path.rename(self.tmpdir.joinpath(self.filename))
+
             get_repo_file.main()
             self.assertTrue(
                 self.tmpdir.joinpath(self.filename)
-                .with_suffix('.mp4').is_file()
+                .with_suffix('.wav').is_file()
             )
