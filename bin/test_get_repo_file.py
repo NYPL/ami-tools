@@ -332,3 +332,18 @@ class ScriptTest(unittest.TestCase):
                 self.tmpdir.joinpath(self.filename2)
                 .with_suffix('.unknown').is_file()
             )
+
+    def test_servicefile(self):
+        args = [
+            'mock',
+            '-i', self.objectid,
+            '-a', str(self.assets_path),
+            '-s',
+            '-d', self.tmpdir_str
+        ]
+        with unittest.mock.patch('sys.argv', args):
+            get_repo_file.main()
+            self.assertTrue(
+                self.tmpdir.joinpath(self.filename)
+                .with_suffix('.mp4').is_file()
+            )
