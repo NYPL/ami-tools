@@ -182,7 +182,6 @@ class CLITests(unittest.TestCase):
             ]
         )
 
-        print(parsed.object)
         self.assertEqual(parsed.object, [self.objectid, objectid2])
 
     def test_require_objectid(self):
@@ -339,7 +338,7 @@ class ScriptTest(unittest.TestCase):
             )
             self.assertTrue(
                 self.tmpdir.joinpath(self.filename2)
-                .with_suffix('.unknown').is_file()
+                .with_suffix('.mp4').is_file()
             )
 
     def test_servicefile(self):
@@ -361,5 +360,5 @@ class ScriptTest(unittest.TestCase):
             get_repo_file.main()
             self.assertTrue(
                 self.tmpdir.joinpath(self.filename)
-                .with_suffix('.wav').is_file()
+                .with_suffix('.mp4').is_file()
             )

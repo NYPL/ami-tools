@@ -17,6 +17,16 @@ FORMAT_TO_EXT = {
 }
 
 
+TYPE_TO_AV = {
+    'hd': 'mp4',
+    'sd': 'mp4',
+    '': 'm4a'
+}
+
+
+CAPTURE_BUCKET = 'repo-transcoded-web-media'
+
+
 def _make_parser():
 
     def validate_object(id):
@@ -70,6 +80,11 @@ def _make_parser():
         type=validate_dir,
         default='/Volumes/repo/')
     parser.add_argument(
+        '-s', '--servicecopies',
+        help='path to destination',
+        action='store_true',
+        default=False)
+    parser.add_argument(
         '-d', '--destination',
         help='path to destination',
         type=validate_dir,
@@ -84,6 +99,15 @@ def extract_id(filename):
         return None
     else:
         return components[1]
+
+
+def extract_accessfmt(typecode):
+    if typecode in TYPE_TO_AV.keys():
+        type = TYPE_TO_AV[typecode]
+    else:
+        type = 'unknown'
+
+    return type
 
 
 def parse_assets(path):
@@ -112,11 +136,14 @@ def get_object_entries(object_id, assets_dict):
     entries = []
     if object_id in assets_dict.keys():
         for file in assets_dict[object_id]:
+            print(file)
             entries.append(
                 {
                     'object_id': object_id,
                     'filename': file['name'],
-                    'uuid': file['uuid']
+                    'uuid': file['uuid'],
+                    'capture_uuid': file['capture_uuid'],
+                    'access_fmt': extract_accessfmt(file['type'])
                 }
             )
 
@@ -163,6 +190,13 @@ def run_rsync(source, dest):
     ])
 
 
+def run_s3cp(source, dest):
+    subprocess.call([
+        'aws', 's3', 'cp',
+        f's3://{CAPTURE_BUCKET}/{source}', dest
+    ])
+
+
 def main():
     parser = _make_parser()
     args = parser.parse_args()
@@ -178,13 +212,23 @@ def main():
             print(f'Could not find files listed in CSV for: {object_id}')
 
     for file in in_repo:
-        repo_path = pathlib.Path(args.repo).joinpath(
-            get_uuid_path(file['uuid'])
-        )
-        dest = pathlib.Path(args.destination).joinpath(file['filename']) \
-            .with_suffix(get_extension(repo_path))
-        print(f'Downloading {repo_path} to {dest}')
-        run_rsync(repo_path, dest)
+        dest = pathlib.Path(args.destination).joinpath(file['filename'])
+
+        if args.servicecopies:
+            capture_name = (
+                f'{file["capture_uuid"]}/'
+                f'{file["capture_uuid"]}-high.{file["access_fmt"]}'
+            )
+            print(f'Downloading {capture_name} to {dest}')
+            run_s3cp(capture_name, dest)
+            dest.rename(dest.with_suffix(get_extension(dest)))
+        else:
+            repo_path = pathlib.Path(args.repo).joinpath(
+                get_uuid_path(file['uuid'])
+            )
+            dest = dest.with_suffix(get_extension(repo_path))
+            print(f'Downloading {repo_path} to {dest}')
+            run_rsync(repo_path, dest)
 
 
 if __name__ == '__main__':
