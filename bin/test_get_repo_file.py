@@ -15,6 +15,7 @@ class ProcessTests(unittest.TestCase):
 
         self.objectid = 'ncow421'
         self.uuid = '12345678-3124-2314-1234-123456978102'
+        self.capture_uuid = 'ca345678-3124-2314-1234-123456978102'
 
         self.filename = f'myt_{self.objectid}_pm'
 
@@ -27,7 +28,10 @@ class ProcessTests(unittest.TestCase):
 
         self.assets_path = self.tmpdir.joinpath('assets.csv')
         with open(self.assets_path, 'w') as f:
-            f.write(f'"name","uuid"\n"{self.filename}","{self.uuid}"')
+            f.write(
+                f'"name","uuid","capture_uuid"\n'
+                f'"{self.filename}","{self.uuid}","{self.capture_uuid}"\n'
+            )
         self.assets_path_str = str(self.assets_path)
 
     def tearDown(self):
@@ -338,9 +342,11 @@ class ScriptTest(unittest.TestCase):
             'mock',
             '-i', self.objectid,
             '-a', str(self.assets_path),
+            '-r', self.tmpdir_str,
             '-s',
             '-d', self.tmpdir_str
         ]
+
         with unittest.mock.patch('sys.argv', args):
             get_repo_file.main()
             self.assertTrue(
