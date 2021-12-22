@@ -258,8 +258,13 @@ class ScriptTest(unittest.TestCase):
 
         self.objectid = 'ncow421'
         self.uuid = '12345678-3124-2314-1234-123456978102'
+        self.capture_uuid = 'ca345678-3124-2314-1234-123456978102'
+        self.objectid2 = 'ncov421'
+        self.uuid2 = '12345678-3124-2314-1234-123456978101'
+        self.capture_uuid2 = 'ca345678-3124-2314-1234-123456978101'
 
         self.filename = f'myt_{self.objectid}_pm'
+        self.filename2 = f'myt_{self.objectid2}_pm'
 
         self.uuid_dir_path = self.tmpdir.joinpath(
             '12/1234/5678/3124/2314/1234/1234/5697/81'
@@ -269,9 +274,16 @@ class ScriptTest(unittest.TestCase):
         with open(self.uuid_path, 'wb') as f:
             f.write(b'\x52\x49\x46\x46\x11\x11\x11\x11\x57\x41\x56\x45')
 
+        self.uuid_path2 = self.uuid_dir_path.joinpath(self.uuid2)
+        with open(self.uuid_path2, 'wb') as f:
+            f.write(b'\x51\x49\x46\x46\x11\x11\x11\x11\x57\x41\x56\x45')
+
         self.assets_path = self.tmpdir.joinpath('assets.csv')
         with open(self.assets_path, 'w') as f:
-            f.write(f'"name","uuid"\n"{self.filename}","{self.uuid}"\n')
+            f.write('"name","uuid","capture_uuid"\n'
+                f'"{self.filename}","{self.uuid}","{self.capture_uuid}"\n'
+                f'"{self.filename2}","{self.uuid2}","{self.capture_uuid2}"\n'
+            )
 
     def tearDown(self):
         if os.path.isdir(self.tmpdir):
@@ -300,19 +312,11 @@ class ScriptTest(unittest.TestCase):
             )
 
     def test_multifile(self):
-        objectid2 = self.objectid.replace('ncow', 'ncov')
-        filename2 = self.filename.replace('ncow', 'ncov')
-        uuid2 = self.uuid[:-2] + '01'
-
-        self.uuid_dir_path.joinpath(uuid2).touch()
-
-        with open(self.assets_path, 'a') as f:
-            f.write(f'"{filename2}","{uuid2}"')
 
         args = [
             'mock',
             '-i', self.objectid,
-            '-i', objectid2,
+            '-i', self.objectid2,
             '-a', str(self.assets_path),
             '-r', self.tmpdir_str,
             '-d', self.tmpdir_str
@@ -325,6 +329,6 @@ class ScriptTest(unittest.TestCase):
                 .with_suffix('.wav').is_file()
             )
             self.assertTrue(
-                self.tmpdir.joinpath(filename2)
+                self.tmpdir.joinpath(self.filename2)
                 .with_suffix('.unknown').is_file()
             )
