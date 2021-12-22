@@ -145,7 +145,7 @@ def get_extension(path):
         capture_output=True
     ).stdout.decode('utf-8').strip().split(',')
 
-    if format[1] == 'Quicktime':
+    if len(format) > 1 and format[1] == 'Quicktime':
         format[0] = 'Quicktime'
 
     if format[0] in FORMAT_TO_EXT.keys():
@@ -178,7 +178,6 @@ def main():
             print(f'Could not find files listed in CSV for: {object_id}')
 
     for file in in_repo:
-        print(file)
         repo_path = pathlib.Path(args.repo).joinpath(
             get_uuid_path(file['uuid'])
         )
