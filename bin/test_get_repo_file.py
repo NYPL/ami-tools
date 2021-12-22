@@ -281,7 +281,11 @@ class ScriptTest(unittest.TestCase):
 
         self.uuid_path2 = self.uuid_dir_path.joinpath(self.uuid2)
         with open(self.uuid_path2, 'wb') as f:
-            f.write(b'\x51\x49\x46\x46\x11\x11\x11\x11\x57\x41\x56\x45')
+            f.write(
+                b'\x00\x00\x00\x00\x66\x74\x79\x70\x4D\x34\x41\x20\x61\x6C'
+                b'\x61\x63\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+                b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+                b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x61\x6C\x61\x63')
 
         self.assets_path = self.tmpdir.joinpath('assets.csv')
         with open(self.assets_path, 'w') as f:
@@ -352,7 +356,7 @@ class ScriptTest(unittest.TestCase):
         with mock.patch('sys.argv', args), mock.patch('get_repo_file.run_s3cp') as mock_s3cp:
             # Don't know how to test S3 downloads yet, so skip
             mock_s3cp.return_value = None
-            self.uuid_path.rename(self.tmpdir.joinpath(self.filename))
+            self.uuid_path2.rename(self.tmpdir.joinpath(self.filename))
 
             get_repo_file.main()
             self.assertTrue(
