@@ -1,5 +1,6 @@
 import unittest
-import unittest.mock
+from unittest import mock
+from unittest.mock import patch
 import argparse
 import shutil
 import os
@@ -15,6 +16,7 @@ class ProcessTests(unittest.TestCase):
 
         self.objectid = 'ncow421'
         self.uuid = '12345678-3124-2314-1234-123456978102'
+        self.capture_uuid = 'ca345678-3124-2314-1234-123456978102'
 
         self.filename = f'myt_{self.objectid}_pm'
 
@@ -27,7 +29,10 @@ class ProcessTests(unittest.TestCase):
 
         self.assets_path = self.tmpdir.joinpath('assets.csv')
         with open(self.assets_path, 'w') as f:
-            f.write(f'"name","uuid"\n"{self.filename}","{self.uuid}"')
+            f.write(
+                f'"name","uuid","capture_uuid","type"\n'
+                f'"{self.filename}","{self.uuid}","{self.capture_uuid}",""\n'
+            )
         self.assets_path_str = str(self.assets_path)
 
     def tearDown(self):
@@ -62,6 +67,11 @@ class ProcessTests(unittest.TestCase):
     def test_extract_objectid(self):
         extracted = get_repo_file.extract_id(f'myt_{self.objectid}_pm')
         self.assertEqual(extracted, self.objectid)
+
+    def test_get_accessfmt(self):
+        for pair in [['hd', '.mp4'], ['sd', '.mp4'], ['', '.m4a'], ['x', '.unknown']]:
+            extracted = get_repo_file.get_accessfmt(pair[0])
+            self.assertEqual(get_repo_file.get_accessfmt(pair[0]), pair[1])
 
     def test_oldfilename_objectid(self):
         extracted = get_repo_file.extract_id(f'myt{self.objectid}pm')
@@ -177,7 +187,6 @@ class CLITests(unittest.TestCase):
             ]
         )
 
-        print(parsed.object)
         self.assertEqual(parsed.object, [self.objectid, objectid2])
 
     def test_require_objectid(self):
@@ -258,8 +267,13 @@ class ScriptTest(unittest.TestCase):
 
         self.objectid = 'ncow421'
         self.uuid = '12345678-3124-2314-1234-123456978102'
+        self.capture_uuid = 'ca345678-3124-2314-1234-123456978102'
+        self.objectid2 = 'ncov421'
+        self.uuid2 = '12345678-3124-2314-1234-123456978101'
+        self.capture_uuid2 = 'ca345678-3124-2314-1234-123456978101'
 
         self.filename = f'myt_{self.objectid}_pm'
+        self.filename2 = f'myt_{self.objectid2}_pm'
 
         self.uuid_dir_path = self.tmpdir.joinpath(
             '12/1234/5678/3124/2314/1234/1234/5697/81'
@@ -269,9 +283,20 @@ class ScriptTest(unittest.TestCase):
         with open(self.uuid_path, 'wb') as f:
             f.write(b'\x52\x49\x46\x46\x11\x11\x11\x11\x57\x41\x56\x45')
 
+        self.uuid_path2 = self.uuid_dir_path.joinpath(self.uuid2)
+        with open(self.uuid_path2, 'wb') as f:
+            f.write(
+                b'\x00\x00\x00\x00\x66\x74\x79\x70\x4D\x34\x41\x20\x61\x6C'
+                b'\x61\x63\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+                b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+                b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x61\x6C\x61\x63')
+
         self.assets_path = self.tmpdir.joinpath('assets.csv')
         with open(self.assets_path, 'w') as f:
-            f.write(f'"name","uuid"\n"{self.filename}","{self.uuid}"\n')
+            f.write('"name","uuid","capture_uuid","type"\n'
+                f'"{self.filename}","{self.uuid}","{self.capture_uuid}",""\n'
+                f'"{self.filename2}","{self.uuid2}","{self.capture_uuid2}",""\n'
+            )
 
     def tearDown(self):
         if os.path.isdir(self.tmpdir):
@@ -282,7 +307,7 @@ class ScriptTest(unittest.TestCase):
                 for i in subdirs:
                     os.chmod(os.path.join(dirpath, i), 0o700)
 
-            shutil.rmtree(self.tmpdir)
+            #shutil.rmtree(self.tmpdir)
 
     def test_onefile(self):
         args = [
@@ -292,7 +317,7 @@ class ScriptTest(unittest.TestCase):
             '-r', self.tmpdir_str,
             '-d', self.tmpdir_str
         ]
-        with unittest.mock.patch('sys.argv', args):
+        with mock.patch('sys.argv', args):
             get_repo_file.main()
             self.assertTrue(
                 self.tmpdir.joinpath(self.filename)
@@ -300,31 +325,45 @@ class ScriptTest(unittest.TestCase):
             )
 
     def test_multifile(self):
-        objectid2 = self.objectid.replace('ncow', 'ncov')
-        filename2 = self.filename.replace('ncow', 'ncov')
-        uuid2 = self.uuid[:-2] + '01'
-
-        self.uuid_dir_path.joinpath(uuid2).touch()
-
-        with open(self.assets_path, 'a') as f:
-            f.write(f'"{filename2}","{uuid2}"')
 
         args = [
             'mock',
             '-i', self.objectid,
-            '-i', objectid2,
+            '-i', self.objectid2,
             '-a', str(self.assets_path),
             '-r', self.tmpdir_str,
             '-d', self.tmpdir_str
         ]
 
-        with unittest.mock.patch('sys.argv', args):
+        with mock.patch('sys.argv', args):
             get_repo_file.main()
             self.assertTrue(
                 self.tmpdir.joinpath(self.filename)
                 .with_suffix('.wav').is_file()
             )
             self.assertTrue(
-                self.tmpdir.joinpath(filename2)
-                .with_suffix('.unknown').is_file()
+                self.tmpdir.joinpath(self.filename2)
+                .with_suffix('.mp4').is_file()
+            )
+
+    def test_servicefile(self):
+        args = [
+            'mock',
+            '-i', self.objectid,
+            '-a', str(self.assets_path),
+            '-s',
+            '-d', self.tmpdir_str
+        ]
+
+        with mock.patch('sys.argv', args), mock.patch('get_repo_file.run_s3cp') as mock_s3cp:
+            # Don't know how to test S3 downloads yet, so skip
+            mock_s3cp.return_value = None
+            self.uuid_path2.rename(
+                self.tmpdir.joinpath(self.filename).with_suffix('.m4a')
+            )
+
+            get_repo_file.main()
+            self.assertTrue(
+                self.tmpdir.joinpath(self.filename)
+                .with_suffix('.m4a').is_file()
             )

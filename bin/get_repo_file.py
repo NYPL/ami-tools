@@ -17,6 +17,16 @@ FORMAT_TO_EXT = {
 }
 
 
+TYPE_TO_AV = {
+    'hd': '.mp4',
+    'sd': '.mp4',
+    '': '.m4a'
+}
+
+
+CAPTURE_BUCKET = 'repo-transcoded-web-media'
+
+
 def _make_parser():
 
     def validate_object(id):
@@ -63,12 +73,16 @@ def _make_parser():
     parser.add_argument(
         '--uuid',
         action='append',
-        help='uuid of file in repo')
+        help='uuid of file in repo, currently disabled in script')
     parser.add_argument(
         '-r', '--repo',
-        help='local path to repo',
-        type=validate_dir,
-        default='/Volumes/repo/')
+        help='path to repo folder, probably /Volumes/repo/',
+        type=validate_dir)
+    parser.add_argument(
+        '-s', '--servicecopies',
+        help='switch to download service files from S3',
+        action='store_true',
+        default=False)
     parser.add_argument(
         '-d', '--destination',
         help='path to destination',
@@ -84,6 +98,15 @@ def extract_id(filename):
         return None
     else:
         return components[1]
+
+
+def get_accessfmt(typecode):
+    if typecode in TYPE_TO_AV.keys():
+        type = TYPE_TO_AV[typecode]
+    else:
+        type = '.unknown'
+
+    return type
 
 
 def parse_assets(path):
@@ -116,7 +139,9 @@ def get_object_entries(object_id, assets_dict):
                 {
                     'object_id': object_id,
                     'filename': file['name'],
-                    'uuid': file['uuid']
+                    'uuid': file['uuid'],
+                    'capture_uuid': file['capture_uuid'],
+                    'access_fmt': get_accessfmt(file['type'])
                 }
             )
 
@@ -145,7 +170,7 @@ def get_extension(path):
         capture_output=True
     ).stdout.decode('utf-8').strip().split(',')
 
-    if format[1] == 'Quicktime':
+    if len(format) > 1 and format[1] == 'Quicktime':
         format[0] = 'Quicktime'
 
     if format[0] in FORMAT_TO_EXT.keys():
@@ -160,6 +185,13 @@ def run_rsync(source, dest):
     subprocess.call([
         'rsync', '-tv', '--progress',
         source, dest
+    ])
+
+
+def run_s3cp(source, dest):
+    subprocess.call([
+        'aws', 's3', 'cp',
+        f's3://{CAPTURE_BUCKET}/{source}', dest
     ])
 
 
@@ -178,14 +210,23 @@ def main():
             print(f'Could not find files listed in CSV for: {object_id}')
 
     for file in in_repo:
-        print(file)
-        repo_path = pathlib.Path(args.repo).joinpath(
-            get_uuid_path(file['uuid'])
-        )
-        dest = pathlib.Path(args.destination).joinpath(file['filename']) \
-            .with_suffix(get_extension(repo_path))
-        print(f'Downloading {repo_path} to {dest}')
-        run_rsync(repo_path, dest)
+        dest = pathlib.Path(args.destination).joinpath(file['filename'])
+
+        if args.servicecopies:
+            capture_name = (
+                f'{file["capture_uuid"]}/'
+                f'{file["capture_uuid"]}-high{file["access_fmt"]}'
+            )
+            dest = dest.with_suffix(file["access_fmt"])
+            print(f'Downloading {capture_name} to {dest}')
+            run_s3cp(capture_name, dest)
+        else:
+            repo_path = pathlib.Path(args.repo).joinpath(
+                get_uuid_path(file['uuid'])
+            )
+            dest = dest.with_suffix(get_extension(repo_path))
+            print(f'Downloading {repo_path} to {dest}')
+            run_rsync(repo_path, dest)
 
 
 if __name__ == '__main__':
