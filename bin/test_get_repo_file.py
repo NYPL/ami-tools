@@ -68,6 +68,11 @@ class ProcessTests(unittest.TestCase):
         extracted = get_repo_file.extract_id(f'myt_{self.objectid}_pm')
         self.assertEqual(extracted, self.objectid)
 
+    def test_get_accessfmt(self):
+        for pair in [['hd', '.mp4'], ['sd', '.mp4'], ['', '.m4a'], ['x', '.unknown']]:
+            extracted = get_repo_file.get_accessfmt(pair[0])
+            self.assertEqual(get_repo_file.get_accessfmt(pair[0]), pair[1])
+
     def test_oldfilename_objectid(self):
         extracted = get_repo_file.extract_id(f'myt{self.objectid}pm')
         self.assertIsNone(extracted)
@@ -346,19 +351,19 @@ class ScriptTest(unittest.TestCase):
             'mock',
             '-i', self.objectid,
             '-a', str(self.assets_path),
-            '-r', self.tmpdir_str,
             '-s',
             '-d', self.tmpdir_str
         ]
 
-
         with mock.patch('sys.argv', args), mock.patch('get_repo_file.run_s3cp') as mock_s3cp:
             # Don't know how to test S3 downloads yet, so skip
             mock_s3cp.return_value = None
-            self.uuid_path2.rename(self.tmpdir.joinpath(self.filename))
+            self.uuid_path2.rename(
+                self.tmpdir.joinpath(self.filename).with_suffix('.m4a')
+            )
 
             get_repo_file.main()
             self.assertTrue(
                 self.tmpdir.joinpath(self.filename)
-                .with_suffix('.mp4').is_file()
+                .with_suffix('.m4a').is_file()
             )

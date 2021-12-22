@@ -18,9 +18,9 @@ FORMAT_TO_EXT = {
 
 
 TYPE_TO_AV = {
-    'hd': 'mp4',
-    'sd': 'mp4',
-    '': 'm4a'
+    'hd': '.mp4',
+    'sd': '.mp4',
+    '': '.m4a'
 }
 
 
@@ -73,15 +73,14 @@ def _make_parser():
     parser.add_argument(
         '--uuid',
         action='append',
-        help='uuid of file in repo')
+        help='uuid of file in repo, currently disabled in script')
     parser.add_argument(
         '-r', '--repo',
-        help='local path to repo',
-        type=validate_dir,
-        default='/Volumes/repo/')
+        help='path to repo folder, probably /Volumes/repo/',
+        type=validate_dir)
     parser.add_argument(
         '-s', '--servicecopies',
-        help='path to destination',
+        help='switch to download service files from S3',
         action='store_true',
         default=False)
     parser.add_argument(
@@ -101,11 +100,11 @@ def extract_id(filename):
         return components[1]
 
 
-def extract_accessfmt(typecode):
+def get_accessfmt(typecode):
     if typecode in TYPE_TO_AV.keys():
         type = TYPE_TO_AV[typecode]
     else:
-        type = 'unknown'
+        type = '.unknown'
 
     return type
 
@@ -136,14 +135,13 @@ def get_object_entries(object_id, assets_dict):
     entries = []
     if object_id in assets_dict.keys():
         for file in assets_dict[object_id]:
-            print(file)
             entries.append(
                 {
                     'object_id': object_id,
                     'filename': file['name'],
                     'uuid': file['uuid'],
                     'capture_uuid': file['capture_uuid'],
-                    'access_fmt': extract_accessfmt(file['type'])
+                    'access_fmt': get_accessfmt(file['type'])
                 }
             )
 
@@ -217,11 +215,11 @@ def main():
         if args.servicecopies:
             capture_name = (
                 f'{file["capture_uuid"]}/'
-                f'{file["capture_uuid"]}-high.{file["access_fmt"]}'
+                f'{file["capture_uuid"]}-high{file["access_fmt"]}'
             )
+            dest = dest.with_suffix(file["access_fmt"])
             print(f'Downloading {capture_name} to {dest}')
             run_s3cp(capture_name, dest)
-            dest.rename(dest.with_suffix(get_extension(dest)))
         else:
             repo_path = pathlib.Path(args.repo).joinpath(
                 get_uuid_path(file['uuid'])
