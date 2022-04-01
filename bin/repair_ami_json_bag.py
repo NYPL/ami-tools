@@ -165,8 +165,9 @@ def main():
                     if os.path.isdir(path):
                         bags.append(path)
 
-    for bag in args.bagpath:
-        bags.append(os.path.abspath(bag))
+    if args.bagpath:
+        for bag in args.bagpath:
+            bags.append(os.path.abspath(bag))
 
     LOGGER.info("Checking {} folder(s).".format(len(bags)))
 
@@ -184,7 +185,7 @@ def main():
                 repair_bag_techmd(bag, args.repairer, args.dryrun)
                 bag._open()
             if args.badjson:
-                repair_bag_techmd(bag, args.repairer, args.dryrun)
+                repair_bag_badjson(bag, args.repairer, args.dryrun)
                 bag._open()
 
 
