@@ -42,7 +42,7 @@ def _make_parser():
     				    help = "Name of person repairing the bag")
     parser.add_argument('--addfiles', help='Add files not in manifest to the manifest',
                         action='store_true')
-    parser.add_argument('--deletefiles', help='Delete files not in manifest from the manifest',
+    parser.add_argument('--deletefiles', help='Delete system files not listed in manifest from the payload'',
                         action='store_true')
     parser.add_argument('--deletemanifestfiles', help='Delete entries from the manifest without payload files',
                         action='store_true')
