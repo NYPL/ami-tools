@@ -30,6 +30,7 @@ JSON_EXT = ".json"
 JPEG_EXT = ".jpeg"
 JPG_EXT = ".jpg"
 PDF_EXT = ".pdf"
+GZ_EXT = ".gz"
 
 MEDIA_EXTS = [MOV_EXT, DV_EXT, MKV_EXT, MKA_EXT, MP4_EXT, ISO_EXT, TAR_EXT, WAV_EXT, FLAC_EXT]
 
@@ -53,9 +54,9 @@ JSON_SUBTYPES = {
     # subtype is permissive, so every video bag meets film bag spec
     # always check video after film
     "film": (set([PM_DIR, MZ_DIR, SC_DIR, IM_DIR]),
-        set([JSON_EXT, MKV_EXT, MOV_EXT, MP4_EXT, JPEG_EXT, JPG_EXT])),
+        set([JSON_EXT, MKV_EXT, MOV_EXT, MP4_EXT, JPEG_EXT, JPG_EXT, GZ_EXT])),
     "video": (set([PM_DIR, SC_DIR, IM_DIR]),
-        set([JSON_EXT, MOV_EXT, MKV_EXT, DV_EXT, MP4_EXT, JPEG_EXT, JPG_EXT])),
+        set([JSON_EXT, MOV_EXT, MKV_EXT, DV_EXT, MP4_EXT, JPEG_EXT, JPG_EXT, GZ_EXT])),
     "audio": (set([PM_DIR, EM_DIR, IM_DIR]),
         set([JSON_EXT, WAV_EXT, FLAC_EXT, JPEG_EXT, JPG_EXT]))
 }
@@ -64,5 +65,5 @@ EXCELJSON_SUBTYPES = {
     "audio": (set([MD_DIR, PM_DIR, SC_DIR, IM_DIR]),
         set([EXCEL_EXT, EDITEDEXCEL_EXT, JSON_EXT, WAV_EXT, FLAC_EXT, JPEG_EXT])),
     "video": (set([MD_DIR, PM_DIR, SC_DIR, IM_DIR]),
-        set([EXCEL_EXT, EDITEDEXCEL_EXT, JSON_EXT, MKV_EXT, MOV_EXT, DV_EXT, MP4_EXT, JPEG_EXT]))
+        set([EXCEL_EXT, EDITEDEXCEL_EXT, JSON_EXT, MKV_EXT, MOV_EXT, DV_EXT, MP4_EXT, JPEG_EXT, GZ_EXT]))
 }
