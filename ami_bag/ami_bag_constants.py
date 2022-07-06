@@ -61,7 +61,9 @@ JSON_SUBTYPES = {
     "video": (set([PM_DIR, SC_DIR, IM_DIR]),
         set([JSON_EXT, MOV_EXT, MKV_EXT, DV_EXT, MP4_EXT, JPEG_EXT, JPG_EXT, GZ_EXT, SRT_EXT, SCC_EXT])),
     "audio": (set([PM_DIR, EM_DIR, IM_DIR]),
-        set([JSON_EXT, WAV_EXT, FLAC_EXT, JPEG_EXT, JPG_EXT, CUE_EXT]))
+        set([JSON_EXT, WAV_EXT, FLAC_EXT, JPEG_EXT, JPG_EXT, CUE_EXT])),
+    "data": (set([PM_DIR, IM_DIR]),
+        set([JSON_EXT, ISO_EXT, JPEG_EXT, JPG_EXT]))
 }
 
 EXCELJSON_SUBTYPES = {
