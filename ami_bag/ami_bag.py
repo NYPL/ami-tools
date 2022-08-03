@@ -28,7 +28,11 @@ class ami_bag(update_bag.Repairable_Bag):
             LOGGER.error("Bag incomplete or invalid oxum: {0}".format(e.message))
             raise ami_bagError("Cannot load incomplete bag")
 
+        self.name = os.path.basename(self.path)
+
         self.data_files = set(self.payload_entries().keys())
+        self.data_count = len(self.data_files)
+        self.data_size = self.get_total_bytes(self.data_files)
         self.data_exts = set([os.path.splitext(filename)[1].lower() for filename in self.data_files])
 
         self.data_dirs = set([os.path.split(path)[0][5:] for path in self.data_files])
@@ -41,6 +45,9 @@ class ami_bag(update_bag.Repairable_Bag):
             raise ami_bagError("Payload does not contain files with accepted extensions: {}".format(
                 ami_bag_constants.MEDIA_EXTS
             ))
+        self.media_count = len(self.media_filepaths)
+        self.media_size = self.get_total_bytes(self.media_filepaths)
+
 
         self.pm_filepaths = set([path for path in self.media_filepaths if '_pm.' in path])
         if not self.pm_filepaths:
@@ -49,6 +56,7 @@ class ami_bag(update_bag.Repairable_Bag):
         self.em_filepaths = set([path for path in self.media_filepaths if '_em.' in path])
         self.sc_filepaths = set([path for path in self.media_filepaths if '_sc.' in path])
 
+        self.set_compression()
 
         self.set_type()
         if self.type == "excel":
@@ -61,9 +69,45 @@ class ami_bag(update_bag.Repairable_Bag):
             self.set_subtype_exceljson()
             self.set_metadata_json()
 
+        self.set_tagged()
+
         LOGGER.info("{} successfully loaded as {} {} bag".format(
             self.path, self.type, self.subtype
         ))
+
+
+    def get_total_bytes(self, fileset):
+        total_bytes = 0
+
+        for file in fileset:
+            full_path = os.path.join(self.path, file)
+            total_bytes += os.stat(full_path).st_size
+
+        return total_bytes
+
+
+    def set_compression(self):
+        self.compression = None
+
+        pm_exts = set([os.path.splitext(filename)[1].lower() for filename in self.pm_filepaths])
+
+        if pm_exts.issubset(ami_bag_constants.COMPRESSED_EXTS):
+            self.compressed = 'compressed'
+        elif pm_exts.issubset(ami_bag_constants.UNCOMPRESSED_EXTS):
+            self.compression = 'uncompressed'
+        elif pm_exts.issubset(ami_bag_constants.UNCOMPRESSABLE_EXTS):
+            self.compression = 'uncompressable'
+
+
+    def set_tagged(self):
+        self.tagged = None
+
+        if [filename for filename in self.tagfile_entries().keys() if 'tags' in filename]:
+            self.tagged = 'tagged'
+        elif self.subtype == 'unknown':
+            self.tagged = 'tagging might be needed'
+        else:
+            self.tagged = 'tagging not needed'
 
 
     def check_amibag(self, fast = True, metadata = False):
@@ -92,7 +136,7 @@ class ami_bag(update_bag.Repairable_Bag):
         except ami_bagError as e:
             LOGGER.warning("Filenames represent complex subobject: {0}".format(e.message))
             warning = True
-        
+
         try:
             self.check_part_filenames()
         except ami_bagError as e:
@@ -201,7 +245,6 @@ class ami_bag(update_bag.Repairable_Bag):
         return warning, error
 
 
-
     def validate_amibag(self, fast = True, metadata = False):
         '''
         run each of the validation checks against an AMI Bag
@@ -289,11 +332,11 @@ class ami_bag(update_bag.Repairable_Bag):
             if role == "sc":
                 if ami_bag_constants.SC_DIR not in path:
                     misplaced_files.append(path)
-                
+
             if role == "ao":
                 if ami_bag_constants.AO_DIR not in path:
                     misplaced_files.append(path)
-                
+
 
             if misplaced_files:
                 raise ami_bagError("Files in the wrong directory: {}".format(misplaced_files))
@@ -587,7 +630,7 @@ class ami_bag(update_bag.Repairable_Bag):
 
             pm_path = os.path.join(self.path, "data/PreservationMasters")
             pm_filepaths = [x for x in self.media_filepaths if pm_path in x]
-            
+
             excel.pres_sheet.convert_amiExcelToJSON(pm_path, filepaths = pm_filepaths)
 
 
