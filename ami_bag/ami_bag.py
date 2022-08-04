@@ -597,7 +597,7 @@ class ami_bag(update_bag.Repairable_Bag):
                 bad_json.append(filename)
 
         if bad_json:
-            raise ami_bagError("JSON files contain formatting errors")
+            raise ami_bagError(f"JSON files contain formatting errors: {bad_json}")
 
         return True
 
