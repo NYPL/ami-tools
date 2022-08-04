@@ -118,7 +118,7 @@ class ami_json:
     valid = True
 
     LOGGER.info("Checking: {}".format(os.path.basename(self.filename)))
-    #Check for a sheet that should have preservation metadata data
+
     try:
       self.check_techfn()
     except AMIJSONError as e:
@@ -169,10 +169,21 @@ class ami_json:
       expected_fields = set(ami_md_constants.JSON_AUDIOFIELDS)
     elif self.media_format_type == "video":
       expected_fields = set(ami_md_constants.JSON_VIDEOFIELDS)
+    elif (self.media_format_type == "film"
+      and 'contentSpecifications' in self.dict['source'].keys()):
+      expected_fields = set(ami_md_constants.JSON_VIDEOFIELDS)
+    # for audio only film
+    elif (self.media_format_type == "film"
+      and 'contentSpecifications' not in self.dict['source'].keys()):
+      expected_fields = set(ami_md_constants.JSON_AUDIOFIELDS)
 
-    if not found_fields >= expected_fields:
-      self.raise_jsonerror("Metadata is missing the following fields: {}".format(
-        expected_fields - found_fields))
+    missing_fields = expected_fields - found_fields
+    if missing_fields:
+      if not (self.media_format_type == "film"
+        and missing_fields == {'audioCodec'}):
+        self.raise_jsonerror(
+          "Metadata is missing the following fields: {}".format(missing_fields)
+          )
 
     self.valid_techmd_fields = True
 
@@ -197,6 +208,13 @@ class ami_json:
       field_mapping = ami_md_constants.JSON_TO_AUDIO_FILE_MAPPING
     elif self.media_format_type == "video":
       field_mapping = ami_md_constants.JSON_TO_VIDEO_FILE_MAPPING
+    elif (self.media_format_type == "film"
+      and 'contentSpecifications' in self.dict['source'].keys()):
+      field_mapping = ami_md_constants.JSON_TO_VIDEO_FILE_MAPPING
+    # for audio only film
+    elif (self.media_format_type == "film"
+      and 'contentSpecifications' not in self.dict['source'].keys()):
+      field_mapping = ami_md_constants.JSON_TO_AUDIO_FILE_MAPPING
 
     errors = []
     for key, value in field_mapping.items():
@@ -259,8 +277,8 @@ class ami_json:
 
     if not "dateCreated" in self.dict["technical"].keys():
       self.dict["technical"]["dateCreated"] = self.media_file.date_created
-    
-    #self.dict["technical"]["dateCreated"] = self.media_file.date_created  
+
+    #self.dict["technical"]["dateCreated"] = self.media_file.date_created
 
     self.dict["technical"]["durationHuman"] = self.media_file.duration_human
     if "durationMilli" not in self.dict["technical"].keys():
@@ -309,7 +327,7 @@ class ami_json:
         self.compare_techfn_reffn()
       except:
         LOGGER.warning('Extracted technical filename does not match referenceFilename value.')
-      
+
       self.dict["technical"]["filename"] = correct_techfn[0]
       # always prefer lowercase exts
       self.dict["technical"]["extension"] = self.dict["technical"]["extension"].lower()
