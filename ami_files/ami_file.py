@@ -22,7 +22,7 @@ class ami_file:
       self.filename = os.path.basename(self.filepath)
     else:
       self.raise_AMIFileError('{} is not a valid filepath'.format(filepath))
-    
+
     if mi:
       self.set_techmd_values()
     else:
@@ -38,7 +38,10 @@ class ami_file:
 
 
   def set_techmd_values(self):
-    techmd = MediaInfo.parse(self.filepath)
+    try:
+      techmd = MediaInfo.parse(self.filepath)
+    except:
+      self.raise_AMIFileError('pymediainfo failed to run so techmd has not been parsed')
 
     md_track = None
     for track in techmd.tracks:
@@ -64,10 +67,11 @@ class ami_file:
     self.duration_milli = md_track.duration
     self.duration_human = parse_duration(self.duration_milli)
 
-    if md_track.audio_codecs.contains('/'):
+    if '/' in md_track.audio_codecs:
       self.audio_codec = '|'.join(set(x.strip() for x in md_track.audio_codecs.split('/')))
     else:
-      self.audio_codec = md_track.audio_codecs.split("/")
+      self.audio_codec = md_track.audio_codecs
+
     if md_track.codecs_video:
       self.video_codec = md_track.codecs_video
 
