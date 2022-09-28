@@ -101,8 +101,17 @@ class ami_json:
 
 
   def coerce_strings(self):
+    # a field like a cms id can be interpreted as a number, e.g. 312313.0
+    # decimals points should be dropped
     for key, item in self.dict["bibliographic"].items():
-      self.dict["bibliographic"][key] = str(item).split('.')[0]
+      # do not mutilate fields that might have textual periods
+      if key in ['contentNotes', 'accessNotes', 'title']:
+        continue
+
+      split_item = str(item).split('.')[0]
+      if len(split_item) > 1:
+        if split_item[1] == '0':
+          self.dict["bibliographic"][key] = str(item).split('.')[0]
 
     try:
       for key, item in self.dict["digitizer"]["organization"]["address"].items():
