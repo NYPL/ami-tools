@@ -108,10 +108,14 @@ class ami_json:
       if key in ['contentNotes', 'accessNotes', 'title']:
         continue
 
-      split_item = str(item).split('.')[0]
-      if len(split_item) > 1:
-        if split_item[1] == '0':
-          self.dict["bibliographic"][key] = str(item).split('.')[0]
+      # only operate on numbery items, but remove trailing .0's
+      if not isinstance(item, str):
+        item_split = str(item).split()
+        if len(item_split) > 1:
+          if not item_split[1] == '0':
+            continue
+
+        self.dict["bibliographic"][key] = str(item)
 
     try:
       for key, item in self.dict["digitizer"]["organization"]["address"].items():
