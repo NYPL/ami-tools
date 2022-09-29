@@ -36,13 +36,13 @@ def _make_parser():
     parser.add_argument("-b", "--bagpath",
                         default = None,
                         nargs = "+",
-                        help = "Path to the base directory of the AMI bag")
+                        help = "Path to the base directory of the AMI bag. Accepts only 1 bag")
     parser.add_argument("-a", "--agent",
     				    default = None,
     				    help = "Name of person repairing the bag")
-    parser.add_argument('--addfiles', help='Add files not in manifest to the manifest',
+    parser.add_argument('--addfiles', help='Add payload files not in manifest to the manifest',
                         action='store_true')
-    parser.add_argument('--deletefiles', help='Delete files not in manifest from the manifest',
+    parser.add_argument('--deletefiles', help='Delete payload files not in manifest',
                         action='store_true')
     parser.add_argument('--deletemanifestfiles', help='Delete entries from the manifest without payload files',
                         action='store_true')
