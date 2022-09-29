@@ -95,14 +95,14 @@ def main():
                         LOGGER.error("Updating process incomplete. Run full validation to check status")
                 if args.deletefiles:
                     try:
-                        LOGGER.warning("Deleting untracked files from manifest")
+                        LOGGER.warning("Deleting untracked files from payload")
                         bag.delete_payload_files_not_in_manifest()
                         LOGGER.info("Untracked files successfully deleted.")
                     except:
                         LOGGER.error("Deletion process incomplete. Run full validation to check status")
             if args.deletemanifestfiles:
                 try:
-                    LOGGER.warning("Deleting manifest entries without files")
+                    LOGGER.warning("Deleting manifest entries without files in the payload")
                     bag.delete_manifest_files_not_in_payload()
                     LOGGER.info("Manifest entries successfully deleted.")
                 except:
