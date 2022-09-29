@@ -111,7 +111,6 @@ def main():
                 LOGGER.info("No untracked file in payload directory")
                 if not bag.check_oxum():
                     LOGGER.info("Bag info invalid")
-                    bag.write_bag_updates()
                 else:
                     LOGGER.info("Bag info valid")
 
