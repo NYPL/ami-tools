@@ -36,7 +36,7 @@ def _make_parser():
     parser.add_argument("-b", "--bagpath",
                         default = None,
                         nargs = "+",
-                        help = "Path to the base directory of the AMI bag. Accepts only 1 bag")
+                        help = "Path to the base directory of the AMI bag")
     parser.add_argument("-a", "--agent",
     				    default = None,
     				    help = "Name of person repairing the bag")
