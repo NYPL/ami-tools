@@ -58,6 +58,8 @@ def main():
     if args.directory:
         for directory in args.directory:
             directory_path = os.path.abspath(directory)
+            if not os.path.isdir(directory_path):
+                continue
             for path in os.listdir(directory_path):
                 if len(path) == 6:
                     path = os.path.join(directory_path, path)
