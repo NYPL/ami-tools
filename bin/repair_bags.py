@@ -72,7 +72,9 @@ def main():
                         bags.append(path)
 
     if args.bagpath:
-        bags.append(os.path.abspath(args.bagpath))
+        for bag in args.bagpath:
+            bag_path = os.path.abspath(bag)
+            bags.append(bag_path)
 
     LOGGER.info("Checking {} folder(s).".format(len(bags)))
 
