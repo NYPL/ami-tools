@@ -6,13 +6,6 @@ from tqdm import tqdm
 import logging
 from ami_bag.update_bag import Repairable_Bag
 
-file_deletion_rules = rules = {
-    "Thumbs.db": {
-        "regex": r"3695",
-        "match": False
-    }
-}
-
 LOGGER = logging.getLogger(__name__)
 
 def _configure_logging(args):
@@ -44,7 +37,7 @@ def _make_parser():
                         action='store_true')
     parser.add_argument('--deletefiles', help='Delete payload files not in manifest',
                         action='store_true')
-    parser.add_argument('--deletemanifestfiles', help='Delete entries from the manifest without payload files',
+    parser.add_argument('--deletemanifestentries', help='Delete entries from the manifest without payload files',
                         action='store_true')
     parser.add_argument('--log', help='The name of the log file')
     parser.add_argument('--quiet', action='store_true')
