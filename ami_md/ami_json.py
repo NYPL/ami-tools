@@ -10,6 +10,8 @@ import ami_files.ami_file_constants as ami_file_constants
 import ami_md.ami_md_constants as ami_md_constants
 
 
+ZERO_VALUE_FIELDS = ['source.audioRecording.numberOfAudioTracks']
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -52,6 +54,11 @@ class ami_json:
             value = value.strftime('%Y-%m-%d')
           if isinstance(value, np.generic):
             value = np.asscalar(value)
+          nested_dict = convert_dotKeyToNestedDict(
+            nested_dict, key, value)
+        
+        # 0-value fields get skipped, but some should be allowed
+        if key in ZERO_VALUE_FIELDS and value == 0:
           nested_dict = convert_dotKeyToNestedDict(
             nested_dict, key, value)
 
