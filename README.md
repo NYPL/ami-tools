@@ -11,8 +11,10 @@ Python3 scripts and classes to help with managing bags of NYPL AMI files
 Run the following from your terminal
 
 ```sh
-pip3 install 'ami-tools @ git+https://github.com/NYPL/ami-tools'
+pip3 install --user 'ami-tools @ git+https://github.com/NYPL/ami-tools'
 ```
+
+If you are using virtual environments, do not include the `--user`.
 
 ### Development use
 
