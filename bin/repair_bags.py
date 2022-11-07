@@ -98,15 +98,16 @@ def main():
             else:
                 LOGGER.info("No untracked file in payload directory")
                 if not bag.check_oxum():
-                    LOGGER.warning("Bag info invalid")
+                    LOGGER.warning("{} Bag info invalid".format(bagpath))
                 else:
                     LOGGER.info("Bag info valid")
             if args.deletemanifestentries:
-                try:
-                    LOGGER.info("Deleting manifest entries without files in the payload") #I think this one can be info
-                    bag.delete_manifest_files_not_in_payload()
-                except:
-                    LOGGER.error("Deletion process incomplete. Run full validation to check status")
+                if not bag.check_oxum():
+                    try:
+                        LOGGER.warning("{} Deleting manifest entries without files in the payload".format(bagpath))
+                        bag.delete_manifest_files_not_in_payload()
+                    except:
+                        LOGGER.error("Deletion process incomplete. Run full validation to check status")
             
 
 
