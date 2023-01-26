@@ -39,6 +39,9 @@ def _make_parser():
                         action='store_true')
     parser.add_argument('--deletemanifestentries', help='Delete entries from the manifest without payload files',
                         action='store_true')
+    parser.add_argument('--write_updates_only',
+                        help='AFTER repairing, use this arg to update baginfo, manifest, premisjson and tag_manifests',
+                        action='store_true')
     parser.add_argument('--log', help='The name of the log file')
     parser.add_argument('--quiet', action='store_true')
     return parser
@@ -99,6 +102,9 @@ def main():
                 LOGGER.info("No untracked file in payload directory")
                 if not bag.check_oxum():
                     LOGGER.warning("{} Bag info invalid".format(bagpath))
+                elif args.write_updates_only:
+                    LOGGER.info("writing updates")
+                    bag.write_bag_updates()
                 else:
                     LOGGER.info("Bag info valid")
             if args.deletemanifestentries:
