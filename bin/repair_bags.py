@@ -40,7 +40,7 @@ def _make_parser():
     parser.add_argument('--deletemanifestentries', help='Delete entries from the manifest without payload files',
                         action='store_true')
     parser.add_argument('--write_updates_json_only',
-                        help='AFTER repairing JSON, use this arg to update manifest, premisjson and tag_manifests',
+                        help='AFTER repairing JSON, use this arg with one bagpath to update manifest, premisjson and tag_manifests',
                         action='store_true')
     parser.add_argument('--log', help='The name of the log file')
     parser.add_argument('--quiet', action='store_true')
@@ -102,7 +102,7 @@ def main():
                 LOGGER.info("No untracked file in payload directory")
                 if not bag.check_oxum():
                     LOGGER.warning("{} Bag info invalid".format(bagpath))
-                elif args.write_updates_only:
+                elif args.bagpath and args.write_updates_json_only:
                     LOGGER.info("writing updates")
                     bag.update_hashes(filename_pattern = r".*\.json$")
                     bag.write_bag_updates()
