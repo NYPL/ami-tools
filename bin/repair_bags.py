@@ -39,8 +39,8 @@ def _make_parser():
                         action='store_true')
     parser.add_argument('--deletemanifestentries', help='Delete entries from the manifest without payload files',
                         action='store_true')
-    parser.add_argument('--write_updates_only',
-                        help='AFTER repairing, use this arg to update baginfo, manifest, premisjson and tag_manifests',
+    parser.add_argument('--write_updates_json_only',
+                        help='AFTER repairing JSON, use this arg to update manifest, premisjson and tag_manifests',
                         action='store_true')
     parser.add_argument('--log', help='The name of the log file')
     parser.add_argument('--quiet', action='store_true')
@@ -104,6 +104,7 @@ def main():
                     LOGGER.warning("{} Bag info invalid".format(bagpath))
                 elif args.write_updates_only:
                     LOGGER.info("writing updates")
+                    bag.update_hashes(filename_pattern = r".*\.json$")
                     bag.write_bag_updates()
                 else:
                     LOGGER.info("Bag info valid")
