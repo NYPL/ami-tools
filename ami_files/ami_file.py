@@ -62,6 +62,8 @@ class ami_file:
     elif md_track.recorded_date:
       self.date_created = parse_date(md_track.recorded_date)
     elif md_track.file_last_modification_date:
+      self.date_created = parse_date(md_track.file_last_modification_date)
+    else:
       self.date_created = self.date_filesys_created
 
     self.duration_milli = md_track.duration
@@ -105,3 +107,4 @@ def parse_duration(ms_int):
   seconds = (ms_int % 60000) // 1000
   ms = ms_int % 1000
   return "{:0>2}:{:0>2}:{:0>2}.{:0>3}".format(hours, minutes, seconds, ms)
+
