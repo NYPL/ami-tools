@@ -248,6 +248,7 @@ class ami_json:
 
     return True
 
+ 
 
   def check_md_value(self, field, mapped_field, separator = '.'):
     try:
@@ -273,6 +274,20 @@ class ami_json:
       elif field == 'audioCodec':
         if md_value == 'AAC' and file_value == 'AAC LC':
           pass
+      elif field == 'durationHuman':
+        fuzziness = 1
+        md_ms = md_value.split('.')[-1]
+        file_ms = file_value.split('.')[-1]
+        if not fuzzy_check_md_value(md_ms, file_ms, fuzziness):
+          self.raise_jsonerror("Incorrect value for {0}. Expected ±{3} ms: {1}, Found: {2}.".format(
+            field, md_value, file_value, fuzziness
+          ))
+      elif field == 'durationMilli.measure':
+        fuzziness = 1
+        if not fuzzy_check_md_value(md_value, file_value, fuzziness):
+          self.raise_jsonerror("Incorrect value for {0}. Expected ±{3} ms: {1}, Found: {2}.".format(
+            field, md_value, file_value, fuzziness
+          ))
       else:
         self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}.".format(
           field, md_value, file_value
@@ -448,6 +463,10 @@ class ami_json:
     logging.error(msg + '\n')
     raise AMIJSONError(msg)
 
+
+def fuzzy_check_md_value(first_value, second_value, fuzziness):
+  difference = abs(first_value - second_value)
+  return difference <= fuzziness
 
 def convert_dotKeyToNestedDict(tree, key, value):
   """
