@@ -102,10 +102,10 @@ def main():
                 LOGGER.info("No untracked file in payload directory")
                 if not bag.check_oxum():
                     LOGGER.warning("{} Bag info invalid".format(bagpath))
-                elif args.bagpath and args.write_updates_json_only:
-                    LOGGER.info("writing updates")
-                    bag.update_hashes(filename_pattern = r".*\.json$")
-                    bag.write_bag_updates()
+                    if args.bagpath and args.write_updates_json_only:
+                        LOGGER.info("writing updates")
+                        bag.update_hashes(filename_pattern = r".*\.json$")
+                        bag.write_bag_updates()
                 else:
                     LOGGER.info("Bag info valid")
             if args.deletemanifestentries:
@@ -115,7 +115,7 @@ def main():
                         bag.delete_manifest_files_not_in_payload()
                     except:
                         LOGGER.error("Deletion process incomplete. Run full validation to check status")
-            
+
 
 
 
