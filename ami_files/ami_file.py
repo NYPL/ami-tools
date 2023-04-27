@@ -59,8 +59,6 @@ class ami_file:
     self.date_filesys_created = datetime.fromtimestamp(os.path.getctime(self.filepath)).strftime('%Y-%m-%d')
     if md_track.encoded_date:
       self.date_created = parse_date(md_track.encoded_date)
-    elif md_track.recorded_date:
-      self.date_created = parse_date(md_track.recorded_date)
     elif md_track.file_last_modification_date:
       self.date_created = parse_date(md_track.file_last_modification_date)
     else:
