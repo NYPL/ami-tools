@@ -106,12 +106,13 @@ def main():
                 LOGGER.info("No untracked file in payload directory")
                 if not bag.check_oxum():
                     LOGGER.warning("{} Bag info invalid".format(bagpath))
-                    if args.bagpath and args.write_updates_json_only:
-                        LOGGER.info("writing updates")
-                        bag.update_hashes(filename_pattern = r".*\.json$")
-                        bag.write_bag_updates()
                 else:
                     LOGGER.info("Bag info valid")
+                if args.bagpath and args.write_updates_json_only:
+                    LOGGER.info("writing JSON hashes and bag info updates")
+                    bag.update_hashes(filename_pattern = r".*\.json$")
+                    bag.write_bag_updates()
+
             if args.deletemanifestentries:
                 if not bag.check_oxum():
                     try:
