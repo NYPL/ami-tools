@@ -25,11 +25,13 @@ def _make_parser():
     parser.description = "check the completeness, fixity, and content of a bag"
     parser.add_argument("-d", "--directory",
                         nargs = "+",
-                        help = "Path to a directory full of AMI bags")
+                        help = '''Path to a directory full of AMI bags. If this is the only arg used,
+                        the script checks if there is any files not in manifest, aka untracked files''')
     parser.add_argument("-b", "--bagpath",
                         default = None,
                         nargs = "+",
-                        help = "Path to the base directory of the AMI bag")
+                        help = '''Path to the base directory of the AMI bag. If this is the only arg used,
+                        the script checks if there is any files not in manifest, aka untracked files''')
     parser.add_argument("-a", "--agent",
     				    default = None,
     				    help = "Name of person repairing the bag")
