@@ -44,7 +44,7 @@ def _make_parser():
     parser.add_argument('--deletemanifestentries', help='Delete entries from the manifest without payload files',
                         action='store_true')
     parser.add_argument('--write_updates_json_only',
-                        help='AFTER repairing JSON, use this arg with bagpath(s) to update manifest, premisjson and tag_manifests',
+                        help='AFTER repairing JSON, use this arg with bagpath(s) to update bag info, JSON files manifest, premisjson and tag_manifests',
                         action='store_true')
     parser.add_argument('--log', help='The name of the log file')
     parser.add_argument('--quiet', action='store_true')
