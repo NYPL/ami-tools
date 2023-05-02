@@ -42,6 +42,8 @@ def _make_parser():
                         help = "Fix common errors in asset.referenceFilename and technical.filename")
     parser.add_argument("--techmd", action='store_true',
                         help = "Fix common errors in technical md field by rerunning mediainfo")
+    parser.add_argument("--badjson", action='store_true',
+                        help = "Update hashes for json if repaired manually")
     parser.add_argument("--dryrun", action='store_true',
                         default = False,
                         help = "Do not perform any of the flagged repairs")
@@ -130,6 +132,14 @@ def repair_bag_techmd(bag, repairer, dryrun):
         updateable_bag.update_hashes(filename_pattern = r"json")
 
 
+def repair_bag_badjson(bag, repairer, dryrun):
+    updateable_bag = Repairable_Bag(path = bag.path, repairer = repairer, dryrun = dryrun)
+    updateable_bag.add_premisevent(process = "Repair Metadata",
+        msg = "Fixed issues with metadata",
+        outcome = "Pass", sw_agent = sys._getframe().f_code.co_name)
+    updateable_bag.update_hashes(filename_pattern = r"json")
+
+
 def main():
     parser = _make_parser()
     args = parser.parse_args()
@@ -156,7 +166,8 @@ def main():
                         bags.append(path)
 
     if args.bagpath:
-        bags.append(os.path.abspath(args.bagpath))
+        for bag in args.bagpath:
+            bags.append(os.path.abspath(bag))
 
     LOGGER.info("Checking {} folder(s).".format(len(bags)))
 
@@ -172,6 +183,9 @@ def main():
                 bag._open()
             if args.techmd:
                 repair_bag_techmd(bag, args.repairer, args.dryrun)
+                bag._open()
+            if args.badjson:
+                repair_bag_badjson(bag, args.repairer, args.dryrun)
                 bag._open()
 
 
