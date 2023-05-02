@@ -53,15 +53,12 @@ def main():
       path = os.path.join(directory_path, path)
       excel_paths.append(path)
 
-  print(excel_paths)
-
   if args.output:
     output_path = os.path.abspath(args.output)
 
   for excel_path in excel_paths:
     excel = ami_excel(excel_path)
 
-    print(excel_path)
     if excel.edit_sheet:
       excel.edit_sheet.add_PMDataToEM(excel.pres_sheet.sheet_values)
       excel.edit_sheet.convert_amiExcelToJSON(output_path, schema_version = "x.0.1")

@@ -5,11 +5,29 @@
 Python3 scripts and classes to help with managing bags of NYPL AMI files
 
 ## Installation and Updates
-Download or clone this repo and then install with pip3
+
+### Production use
+
+Run the following from your terminal
 
 ```sh
-pip3 install --user path/to/ami-tools
+pip3 install --user 'ami-tools @ git+https://github.com/NYPL/ami-tools'
 ```
+
+If you are using virtual environments, do not include the `--user`.
+
+### Development use
+
+If you want a version that you can edit and run separately from the production install, clone this repo and then install it to a virtual environment.
+
+```sh
+cd /path/to/repo
+pyenv virtualenv amitools-dev
+pyenv local amitool-dev
+pip install -e .
+```
+
+Whenever you run any portion of the ami-tools package while in `/path/to/repo` it will use this working version of the package.
 
 ## Tools
 Installing the package makes the following tools available from the command line. All scripts include a help dialog.

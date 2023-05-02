@@ -6,13 +6,6 @@ from tqdm import tqdm
 import logging
 from ami_bag.update_bag import Repairable_Bag
 
-file_deletion_rules = rules = {
-    "Thumbs.db": {
-        "regex": r"3695",
-        "match": False
-    }
-}
-
 LOGGER = logging.getLogger(__name__)
 
 def _configure_logging(args):
@@ -40,11 +33,11 @@ def _make_parser():
     parser.add_argument("-a", "--agent",
     				    default = None,
     				    help = "Name of person repairing the bag")
-    parser.add_argument('--addfiles', help='Add files not in manifest to the manifest',
+    parser.add_argument('--addfiles', help='Add payload files not in manifest to the manifest',
                         action='store_true')
-    parser.add_argument('--deletefiles', help='Delete system files not listed in manifest from the payload'',
+    parser.add_argument('--deletefiles', help='Delete payload files not in manifest',
                         action='store_true')
-    parser.add_argument('--deletemanifestfiles', help='Delete entries from the manifest without payload files',
+    parser.add_argument('--deletemanifestentries', help='Delete entries from the manifest without payload files',
                         action='store_true')
     parser.add_argument('--log', help='The name of the log file')
     parser.add_argument('--quiet', action='store_true')
@@ -65,6 +58,8 @@ def main():
     if args.directory:
         for directory in args.directory:
             directory_path = os.path.abspath(directory)
+            if not os.path.isdir(directory_path):
+                continue
             for path in os.listdir(directory_path):
                 if len(path) == 6:
                     path = os.path.join(directory_path, path)
@@ -72,7 +67,9 @@ def main():
                         bags.append(path)
 
     if args.bagpath:
-        bags.append(os.path.abspath(args.bagpath))
+        for bag in args.bagpath:
+            bag_path = os.path.abspath(bag)
+            bags.append(bag_path)
 
     LOGGER.info("Checking {} folder(s).".format(len(bags)))
 
@@ -85,35 +82,32 @@ def main():
         else:
             unhashed_files = list(bag.payload_files_not_in_manifest())
             if unhashed_files:
-                LOGGER.info("Bag payload includes following files not in manifest: {}".format(unhashed_files))
+                LOGGER.warning("Bag payload includes following files not in manifest: {}".format(unhashed_files))
                 if args.addfiles:
                     try:
-                        LOGGER.info("Adding untracked files to manifest")
+                        LOGGER.warning("Adding untracked files to manifest")
                         bag.add_payload_files_not_in_manifest()
-                        LOGGER.info("Untracked files successfully added to manifest.")
                     except:
                         LOGGER.error("Updating process incomplete. Run full validation to check status")
                 if args.deletefiles:
                     try:
-                        LOGGER.warning("Deleting untracked files from manifest")
+                        LOGGER.warning("Deleting untracked files from payload")
                         bag.delete_payload_files_not_in_manifest()
-                        LOGGER.info("Untracked files successfully deleted.")
                     except:
                         LOGGER.error("Deletion process incomplete. Run full validation to check status")
-            if args.deletemanifestfiles:
-                try:
-                    LOGGER.warning("Deleting manifest entries without files")
-                    bag.delete_manifest_files_not_in_payload()
-                    LOGGER.info("Manifest entries successfully deleted.")
-                except:
-                    LOGGER.error("Deletion process incomplete. Run full validation to check status")
             else:
                 LOGGER.info("No untracked file in payload directory")
                 if not bag.check_oxum():
                     LOGGER.info("Bag info invalid")
-                    bag.write_bag_updates()
                 else:
                     LOGGER.info("Bag info valid")
+            if args.deletemanifestentries:
+                try:
+                    LOGGER.warning("Deleting manifest entries without files in the payload")
+                    bag.delete_manifest_files_not_in_payload()
+                except:
+                    LOGGER.error("Deletion process incomplete. Run full validation to check status")
+            
 
 
 

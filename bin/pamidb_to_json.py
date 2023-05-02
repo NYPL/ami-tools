@@ -8,7 +8,9 @@ dtypes = {
 	'digitizationProcess.playbackDevice.serialNumber': object,
 	'digitizationProcess.timeBaseCorrector.serialNumber': object,
 	'digitizationProcess.phonoPreamp.serialNumber': object,
-	'physicalDescription.properties.stockProductID': object
+	'digitizationProcess.playbackDevice.phonoCartridge.stylusSize.measure': object,
+	'source.physicalDescription.properties.stockProductID': object,
+	'source.physicalDescription.edgeCode': object
 }
 
 

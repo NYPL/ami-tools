@@ -1,6 +1,9 @@
 # OS X
 .DS_Store
 
+#VSCode
+.vscode/*
+
 # Logs
 *.log
 
@@ -14,3 +17,8 @@ __pycache__/*
 .test/*
 test/*
 venv/*
+
+Pipfile
+Pipfile.lock
+pyproject.toml
+

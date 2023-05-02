@@ -10,6 +10,8 @@ import ami_files.ami_file_constants as ami_file_constants
 import ami_md.ami_md_constants as ami_md_constants
 
 
+ZERO_VALUE_FIELDS = ['source.audioRecording.numberOfAudioTracks']
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -52,6 +54,11 @@ class ami_json:
             value = value.strftime('%Y-%m-%d')
           if isinstance(value, np.generic):
             value = np.asscalar(value)
+          nested_dict = convert_dotKeyToNestedDict(
+            nested_dict, key, value)
+        
+        # 0-value fields get skipped, but some should be allowed
+        if key in ZERO_VALUE_FIELDS and value == 0:
           nested_dict = convert_dotKeyToNestedDict(
             nested_dict, key, value)
 
@@ -101,8 +108,21 @@ class ami_json:
 
 
   def coerce_strings(self):
+    # a field like a cms id can be interpreted as a number, e.g. 312313.0
+    # decimals points should be dropped
     for key, item in self.dict["bibliographic"].items():
-      self.dict["bibliographic"][key] = str(item).split('.')[0]
+      # do not mutilate fields that might have textual periods
+      if key in ['contentNotes', 'accessNotes', 'title']:
+        continue
+
+      # only operate on numbery items, but remove trailing .0's
+      if not isinstance(item, str):
+        item_split = str(item).split()
+        if len(item_split) > 1:
+          if not item_split[1] == '0':
+            continue
+
+        self.dict["bibliographic"][key] = str(item)
 
     try:
       for key, item in self.dict["digitizer"]["organization"]["address"].items():
@@ -118,7 +138,7 @@ class ami_json:
     valid = True
 
     LOGGER.info("Checking: {}".format(os.path.basename(self.filename)))
-    #Check for a sheet that should have preservation metadata data
+
     try:
       self.check_techfn()
     except AMIJSONError as e:
@@ -169,10 +189,21 @@ class ami_json:
       expected_fields = set(ami_md_constants.JSON_AUDIOFIELDS)
     elif self.media_format_type == "video":
       expected_fields = set(ami_md_constants.JSON_VIDEOFIELDS)
+    elif (self.media_format_type == "film"
+      and 'contentSpecifications' in self.dict['source'].keys()):
+      expected_fields = set(ami_md_constants.JSON_VIDEOFIELDS)
+    # for audio only film
+    elif (self.media_format_type == "film"
+      and 'contentSpecifications' not in self.dict['source'].keys()):
+      expected_fields = set(ami_md_constants.JSON_AUDIOFIELDS)
 
-    if not found_fields >= expected_fields:
-      self.raise_jsonerror("Metadata is missing the following fields: {}".format(
-        expected_fields - found_fields))
+    missing_fields = expected_fields - found_fields
+    if missing_fields:
+      if not (self.media_format_type == "film"
+        and missing_fields == {'audioCodec'}):
+        self.raise_jsonerror(
+          "Metadata is missing the following fields: {}".format(missing_fields)
+          )
 
     self.valid_techmd_fields = True
 
@@ -197,6 +228,13 @@ class ami_json:
       field_mapping = ami_md_constants.JSON_TO_AUDIO_FILE_MAPPING
     elif self.media_format_type == "video":
       field_mapping = ami_md_constants.JSON_TO_VIDEO_FILE_MAPPING
+    elif (self.media_format_type == "film"
+      and 'contentSpecifications' in self.dict['source'].keys()):
+      field_mapping = ami_md_constants.JSON_TO_VIDEO_FILE_MAPPING
+    # for audio only film
+    elif (self.media_format_type == "film"
+      and 'contentSpecifications' not in self.dict['source'].keys()):
+      field_mapping = ami_md_constants.JSON_TO_AUDIO_FILE_MAPPING
 
     errors = []
     for key, value in field_mapping.items():
@@ -210,6 +248,7 @@ class ami_json:
 
     return True
 
+ 
 
   def check_md_value(self, field, mapped_field, separator = '.'):
     try:
@@ -235,6 +274,20 @@ class ami_json:
       elif field == 'audioCodec':
         if md_value == 'AAC' and file_value == 'AAC LC':
           pass
+      elif field == 'durationHuman':
+        fuzziness = 1
+        md_ms = md_value.split('.')[-1]
+        file_ms = file_value.split('.')[-1]
+        if not fuzzy_check_md_value(md_ms, file_ms, fuzziness):
+          self.raise_jsonerror("Incorrect value for {0}. Expected ±{3} ms: {1}, Found: {2}.".format(
+            field, md_value, file_value, fuzziness
+          ))
+      elif field == 'durationMilli.measure':
+        fuzziness = 1
+        if not fuzzy_check_md_value(md_value, file_value, fuzziness):
+          self.raise_jsonerror("Incorrect value for {0}. Expected ±{3} ms: {1}, Found: {2}.".format(
+            field, md_value, file_value, fuzziness
+          ))
       else:
         self.raise_jsonerror("Incorrect value for {0}. Expected: {1}, Found: {2}.".format(
           field, md_value, file_value
@@ -259,8 +312,8 @@ class ami_json:
 
     if not "dateCreated" in self.dict["technical"].keys():
       self.dict["technical"]["dateCreated"] = self.media_file.date_created
-    
-    #self.dict["technical"]["dateCreated"] = self.media_file.date_created  
+
+    #self.dict["technical"]["dateCreated"] = self.media_file.date_created
 
     self.dict["technical"]["durationHuman"] = self.media_file.duration_human
     if "durationMilli" not in self.dict["technical"].keys():
@@ -309,7 +362,7 @@ class ami_json:
         self.compare_techfn_reffn()
       except:
         LOGGER.warning('Extracted technical filename does not match referenceFilename value.')
-      
+
       self.dict["technical"]["filename"] = correct_techfn[0]
       # always prefer lowercase exts
       self.dict["technical"]["extension"] = self.dict["technical"]["extension"].lower()
@@ -410,6 +463,10 @@ class ami_json:
     logging.error(msg + '\n')
     raise AMIJSONError(msg)
 
+
+def fuzzy_check_md_value(first_value, second_value, fuzziness):
+  difference = abs(first_value - second_value)
+  return difference <= fuzziness
 
 def convert_dotKeyToNestedDict(tree, key, value):
   """
