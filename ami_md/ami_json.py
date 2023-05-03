@@ -276,8 +276,8 @@ class ami_json:
           pass
       elif field == 'durationHuman':
         fuzziness = 1
-        md_ms = md_value.split('.')[-1]
-        file_ms = file_value.split('.')[-1]
+        md_ms = int(md_value.split('.')[-1])
+        file_ms = int(file_value.split('.')[-1])
         if not fuzzy_check_md_value(md_ms, file_ms, fuzziness):
           self.raise_jsonerror("Incorrect value for {0}. Expected ±{3} ms: {1}, Found: {2}.".format(
             field, md_value, file_value, fuzziness
