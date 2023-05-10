@@ -152,6 +152,10 @@ def main():
     check_list = []
     if args.filenames:
         check_list.append("filename metadata")
+    if args.techmd:
+        check_list.append("updating techmd section")
+    if args.badjson:
+        check_list.append("replacing json fixity")
     checks = checks + ", ".join(check_list)
     LOGGER.info(checks)
 
@@ -176,17 +180,17 @@ def main():
         try:
             bag = ami_bag(path = bagpath)
         except:
-            LOGGER.error("{}: Not an AMI bag".format(bagpath))
-        else:
-            if args.filenames:
-                repair_bag_filenamemd(bag, args.repairer, args.dryrun)
-                bag._open()
-            if args.techmd:
-                repair_bag_techmd(bag, args.repairer, args.dryrun)
-                bag._open()
-            if args.badjson:
-                repair_bag_badjson(bag, args.repairer, args.dryrun)
-                bag._open()
+            LOGGER.info("{}: Doesn't load as an AMI Bag, fixes might now work".format(bagpath))
+            
+        if args.filenames:
+            repair_bag_filenamemd(bag, args.repairer, args.dryrun)
+            bag._open()
+        if args.techmd:
+            repair_bag_techmd(bag, args.repairer, args.dryrun)
+            bag._open()
+        if args.badjson:
+            repair_bag_badjson(bag, args.repairer, args.dryrun)
+            bag._open()
 
 
 if __name__ == "__main__":
