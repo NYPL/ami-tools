@@ -64,10 +64,13 @@ class ami_file:
     else:
       self.date_created = self.date_filesys_created
 
-    self.duration_milli = md_track.duration
-    self.duration_human = parse_duration(self.duration_milli)
+    if md_track.duration:
+      self.duration_milli = md_track.duration
+      self.duration_human = parse_duration(self.duration_milli)
 
-    if '/' in md_track.audio_codecs:
+    if not md_track.audio_codecs:
+      pass
+    elif '/' in md_track.audio_codecs:
       self.audio_codec = '|'.join(set(x.strip() for x in md_track.audio_codecs.split('/')))
     else:
       self.audio_codec = md_track.audio_codecs
