@@ -187,6 +187,9 @@ class ami_json:
 
     if self.media_format_type == "audio":
       expected_fields = set(ami_md_constants.JSON_AUDIOFIELDS)
+    elif (self.dict["asset"]["fileRole"] == 'pm'
+          and self.dict["source"]["object"]["type"] == 'video optical disc'):
+      expected_fields = set(ami_md_constants.JSON_VIDEOOPTICALPMFIELDS)
     elif self.media_format_type == "video":
       expected_fields = set(ami_md_constants.JSON_VIDEOFIELDS)
     elif (self.media_format_type == "film"
@@ -226,6 +229,9 @@ class ami_json:
 
     if self.media_format_type == "audio":
       field_mapping = ami_md_constants.JSON_TO_AUDIO_FILE_MAPPING
+    elif (self.dict["asset"]["fileRole"] == 'pm'
+          and self.dict["source"]["object"]["type"] == 'video optical disc'):
+      field_mapping = ami_md_constants.JSON_TO_VIDEOOPTICALPM_FILE_MAPPING
     elif self.media_format_type == "video":
       field_mapping = ami_md_constants.JSON_TO_VIDEO_FILE_MAPPING
     elif (self.media_format_type == "film"
