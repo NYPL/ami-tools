@@ -195,6 +195,8 @@ class ami_json:
     elif (self.media_format_type == "film"
       and 'contentSpecifications' in self.dict['source'].keys()):
       expected_fields = set(ami_md_constants.JSON_VIDEOFIELDS)
+      if self.dict['source']['audioRecording']['numberOfAudioTracks'] == 0:
+        field_mapping.pop('audioCodec')
     # for audio only film
     elif (self.media_format_type == "film"
       and 'contentSpecifications' not in self.dict['source'].keys()):
