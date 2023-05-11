@@ -31,6 +31,8 @@ JSON_AUDIOFIELDS = ["filename", "extension", "fileFormat",
 JSON_VIDEOFIELDS = ["filename", "extension", "fileFormat",
   "fileSize", "dateCreated", "durationHuman", "durationMilli",
   "audioCodec", "videoCodec"]
+JSON_VIDEOOPTICALPMFIELDS = ["filename", "extension", "fileFormat",
+  "fileSize", "dateCreated"]
 
 JSON_TO_AUDIO_FILE_MAPPING = {
   'filename': 'base_filename',
@@ -45,6 +47,14 @@ JSON_TO_AUDIO_FILE_MAPPING = {
 
 JSON_TO_VIDEO_FILE_MAPPING = JSON_TO_AUDIO_FILE_MAPPING.copy()
 JSON_TO_VIDEO_FILE_MAPPING['videoCodec'] = 'video_codec'
+
+JSON_TO_VIDEOOPTICALPM_FILE_MAPPING = {
+  'filename': 'base_filename',
+  'extension': 'extension',
+  'fileFormat': 'format',
+  'fileSize.measure': 'size',
+  'dateCreated': 'date_created'
+}
 
 
 HEADER_CONVERSION = {
