@@ -56,7 +56,7 @@ class ami_json:
             value = np.asscalar(value)
           nested_dict = convert_dotKeyToNestedDict(
             nested_dict, key, value)
-        
+
         # 0-value fields get skipped, but some should be allowed
         if key in ZERO_VALUE_FIELDS and value == 0:
           nested_dict = convert_dotKeyToNestedDict(
@@ -195,6 +195,8 @@ class ami_json:
     elif (self.media_format_type == "film"
       and 'contentSpecifications' in self.dict['source'].keys()):
       expected_fields = set(ami_md_constants.JSON_VIDEOFIELDS)
+      if self.dict['source']['audioRecording']['numberOfAudioTracks'] == 0:
+        expected_fields.remove('audioCodec')
     # for audio only film
     elif (self.media_format_type == "film"
       and 'contentSpecifications' not in self.dict['source'].keys()):
@@ -226,7 +228,6 @@ class ami_json:
 
     if not hasattr(self, 'media_file'):
       self.set_media_file()
-
     if self.media_format_type == "audio":
       field_mapping = ami_md_constants.JSON_TO_AUDIO_FILE_MAPPING
     elif (self.dict["asset"]["fileRole"] == 'pm'
@@ -236,9 +237,10 @@ class ami_json:
       field_mapping = ami_md_constants.JSON_TO_VIDEO_FILE_MAPPING
     elif (self.media_format_type == "film"
       and 'contentSpecifications' in self.dict['source'].keys()):
-      field_mapping = ami_md_constants.JSON_TO_VIDEO_FILE_MAPPING
-      if self.dict['source']['audioRecording']['numberOfAudioTracks'] == 0:
-        field_mapping.pop('audioCodec')
+      field_mapping = ami_md_constants.JSON_TO_VIDEO_FILE_MAPPING.copy()
+      if (self.dict['source']['audioRecording']['numberOfAudioTracks'] == 0
+        and 'audioCodec' in field_mapping.keys()):
+          field_mapping.pop('audioCodec')
     # for audio only film
     elif (self.media_format_type == "film"
       and 'contentSpecifications' not in self.dict['source'].keys()):
@@ -256,7 +258,6 @@ class ami_json:
 
     return True
 
- 
 
   def check_md_value(self, field, mapped_field, separator = '.'):
     try:
