@@ -26,7 +26,7 @@ def _make_parser():
 
 def log_checks(args):
     checks = """Performing the following validations:
-    Checking checksums,
+    Checking Oxums,
     Checking bag completeness,
     """
     if not args.slow:
@@ -66,11 +66,12 @@ def process_single_bag(bagpath, args):
     return process_bags([bagpath], args, bagpath)
 
 def process_bags(bags, args, directory_path):
-    if args.quiet:
-        LOGGER.setLevel(level=logging.ERROR)
 
     # Log the number of bags or folders being processed
-    LOGGER.info("Checking {} folder(s) in directory: {}".format(len(bags), directory_path))
+    LOGGER.info("Checking {} folder(s)".format(len(bags)))
+
+    if args.quiet:
+        LOGGER.setLevel(level=logging.ERROR)
 
     warning_bags = []
     error_bags = []
@@ -104,6 +105,9 @@ def process_bags(bags, args, directory_path):
     }
 
 def log_summary(results):
+
+    LOGGER.setLevel(level=logging.INFO)
+    
     for result in results:
         print("")
         LOGGER.info("Summary for directory: {}".format(result['directory']))
@@ -116,8 +120,8 @@ def log_summary(results):
             valid_bags = result['valid_bags']
 
             if error_bags:
-                LOGGER.info("{} of {} bags are not ready for ingest".format(len(error_bags), total_bags))
-                LOGGER.info("The following bags are not ready for media ingest: " + ", ".join(error_bags))
+                LOGGER.info("{} of {} bags are NOT ready for ingest".format(len(error_bags), total_bags))
+                LOGGER.info("The following bags are NOT ready for media ingest: " + ", ".join(error_bags))
             if warning_bags:
                 LOGGER.info("{} of {} bags are ready for ingest, but may have issues".format(len(warning_bags), total_bags))
                 LOGGER.info("The following bags are ready for media ingest, but may have issues: " + ", ".join(warning_bags))
